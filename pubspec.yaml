@@ -4,6 +4,11 @@ version: 1.0.4
 homepage: https://github.com/zamansheikh/bangla_pdf
 issue_tracker: https://github.com/zamansheikh/bangla_pdf/issues
 documentation: https://github.com/zamansheikh/bangla_pdf/wiki
+
+screenshots:
+  - description: 'bangla_pdf Preview'
+    path: preview/preview.png
+
 topics:
   - flutter
   - pdf
