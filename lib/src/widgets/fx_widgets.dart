@@ -172,17 +172,42 @@ class Paragraph extends pw.StatelessWidget {
 
 /// A widget that automatically detects Bangla and non-Bangla text
 /// and renders them with the appropriate fonts.
+///
+/// This widget is the core of the `bangla_pdf` package. It takes a string
+/// and splits it into segments of Bangla and non-Bangla text. It then
+/// applies the [banglaFont] to Bangla segments and the [generalFont] (or default)
+/// to other segments.
 class AutoText extends pw.StatelessWidget {
+  /// The text to display.
   final String text;
+
+  /// The font size to use. Defaults to 16.
   final double fontSize;
+
+  /// The font weight to use. Defaults to [pw.FontWeight.normal].
   final pw.FontWeight fontWeight;
+
+  /// The color of the text. Defaults to [PdfColors.black].
   final PdfColor color;
+
+  /// How the text should be aligned horizontally.
   final pw.TextAlign textAlign;
+
+  /// The font to use for Bangla text.
+  ///
+  /// If not provided, the default embedded Kalpurush font will be used.
   final pw.Font? banglaFont;
+
+  /// The font to use for non-Bangla text.
   final pw.Font? generalFont;
+
+  /// Additional style to apply to the text.
   final pw.TextStyle? style;
+
+  /// Additional style to apply specifically to Bangla text.
   final pw.TextStyle? banglaStyle;
 
+  /// Creates an [AutoText] widget.
   AutoText(
     this.text, {
     this.fontSize = 16,

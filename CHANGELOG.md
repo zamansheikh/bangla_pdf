@@ -1,4 +1,10 @@
 
+## 1.0.4
+
+- **DOCS**: Added comprehensive documentation for public API.
+- **FIX**: Fixed formatting issues to comply with Dart formatter.
+- **EXAMPLE**: Verified example app structure for pub.dev analysis.
+
 ## 1.0.3
 
 - **BREAKING**: Removed bundled fonts (except Kalpurush) to reduce package size.

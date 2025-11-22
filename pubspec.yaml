@@ -1,6 +1,6 @@
 name: bangla_pdf
 description: A package to fix broken font issues in PDFs for Bangla text.
-version: 1.0.3
+version: 1.0.4
 homepage: https://github.com/zamansheikh/bangla_pdf
 issue_tracker: https://github.com/zamansheikh/bangla_pdf/issues
 documentation: https://github.com/zamansheikh/bangla_pdf/wiki

@@ -5,7 +5,7 @@
   "packages": [
     {
       "name": "bangla_pdf",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "dependencies": [
         "flutter",
         "pdf",
