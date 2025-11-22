@@ -1,0 +1,33 @@
+name: bangla_pdf
+description: A package to fix broken font issues in PDFs for Bangla text.
+version: 1.0.3
+homepage: https://github.com/zamansheikh/bangla_pdf
+issue_tracker: https://github.com/zamansheikh/bangla_pdf/issues
+documentation: https://github.com/zamansheikh/bangla_pdf/wiki
+topics:
+  - flutter
+  - pdf
+  - bangla
+  - fonts
+  - pdf-generation
+
+environment:
+  sdk: ^3.5.4
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  pdf: ^3.11.3
+  plugin_platform_interface: ^2.1.8
+  
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lint: ^2.8.0
+
+
+flutter:
+
+    
