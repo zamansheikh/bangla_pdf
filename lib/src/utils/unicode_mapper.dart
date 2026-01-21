@@ -14,8 +14,11 @@ class BanglaUnicodeMapper {
   }
 
   static String _fixFont(String unicodeStr) {
-    final fixedUnicodeStr =
-        unicodeStr.replaceAll("য়", "য়").replaceAll("\u200d", "\u200c");
+    final fixedUnicodeStr = unicodeStr
+        .replaceAll("য়", "য়")
+        .replaceAll("\u09A1\u09BC", "\u09DC")
+        .replaceAll("\u09A2\u09BC", "\u09DD")
+        .replaceAll("\u200d", "\u200c");
 
     final unicodeStrList = fixedUnicodeStr.split('\n');
     final buffer = StringBuffer();
