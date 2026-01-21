@@ -1,3 +1,6 @@
+## 1.0.5
+
+- **FIX**: Fixed some broken character mappings in the Kalpurush font for better rendering.
 
 ## 1.0.4
 
