@@ -5,7 +5,13 @@ class Text extends pw.StatelessWidget {
   final double fontSize;
   final pw.FontWeight fontWeight;
   final PdfColor color;
-  final pw.TextAlign textAlign;
+  final pw.TextAlign? textAlign;
+  final pw.TextDirection? textDirection;
+  final bool? softWrap;
+  final bool tightBounds;
+  final double textScaleFactor;
+  final int? maxLines;
+  final pw.TextOverflow? overflow;
   final pw.Font? banglaFont;
   final pw.TextStyle? style;
   final pw.TextStyle? banglaStyle;
@@ -15,7 +21,13 @@ class Text extends pw.StatelessWidget {
     this.fontSize = 16,
     this.fontWeight = pw.FontWeight.normal,
     this.color = PdfColors.black,
-    this.textAlign = pw.TextAlign.start,
+    this.textAlign,
+    this.textDirection,
+    this.softWrap,
+    this.tightBounds = false,
+    this.textScaleFactor = 1.0,
+    this.maxLines,
+    this.overflow,
     this.banglaFont,
     this.style,
     this.banglaStyle,
@@ -29,6 +41,12 @@ class Text extends pw.StatelessWidget {
       fontWeight: fontWeight,
       color: color,
       textAlign: textAlign,
+      textDirection: textDirection,
+      softWrap: softWrap,
+      tightBounds: tightBounds,
+      textScaleFactor: textScaleFactor,
+      maxLines: maxLines,
+      overflow: overflow,
       banglaFont: banglaFont,
       style: style,
       banglaStyle: banglaStyle,
@@ -191,7 +209,25 @@ class AutoText extends pw.StatelessWidget {
   final PdfColor color;
 
   /// How the text should be aligned horizontally.
-  final pw.TextAlign textAlign;
+  final pw.TextAlign? textAlign;
+
+  /// The directionality of the text.
+  final pw.TextDirection? textDirection;
+
+  /// Whether the text should break at soft line breaks.
+  final bool? softWrap;
+
+  /// Whether the text should be tight to its bounds.
+  final bool tightBounds;
+
+  /// The number of font pixels for each logical pixel.
+  final double textScaleFactor;
+
+  /// An optional maximum number of lines for the text to span, wrapping if necessary.
+  final int? maxLines;
+
+  /// How visual overflow should be handled.
+  final pw.TextOverflow? overflow;
 
   /// The font to use for Bangla text.
   ///
@@ -214,6 +250,12 @@ class AutoText extends pw.StatelessWidget {
     this.fontWeight = pw.FontWeight.normal,
     this.color = PdfColors.black,
     this.textAlign = pw.TextAlign.start,
+    this.textDirection,
+    this.softWrap,
+    this.tightBounds = false,
+    this.textScaleFactor = 1.0,
+    this.maxLines,
+    this.overflow,
     this.banglaFont,
     this.generalFont,
     this.style,
@@ -224,6 +266,12 @@ class AutoText extends pw.StatelessWidget {
   pw.Widget build(pw.Context context) {
     return pw.RichText(
       textAlign: textAlign,
+      textDirection: textDirection,
+      softWrap: softWrap,
+      tightBounds: tightBounds,
+      textScaleFactor: textScaleFactor,
+      maxLines: maxLines,
+      overflow: overflow,
       text: pw.TextSpan(
         children: FixingUtils.getAutoLocalizedSpans(
           text: text,
