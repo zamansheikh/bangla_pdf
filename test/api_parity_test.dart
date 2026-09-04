@@ -120,6 +120,23 @@ void main() {
     expect((await pdf.save()).length, greaterThan(1000));
   });
 
+  test('the deprecated AutoText still renders identically to Text', () async {
+    // Deprecated, not removed: existing code must keep working until 2.0.
+    Future<int> lengthOf(pw.Widget Function() build) async {
+      final pdf = pw.Document();
+      pdf.addPage(pw.Page(build: (context) => build()));
+      return (await pdf.save()).length;
+    }
+
+    const sample = 'আমার সোনার বাংলা, কর্ম ক্ষ্ম';
+    final viaText = await lengthOf(
+      () => Text(sample, textAlign: pw.TextAlign.start),
+    );
+    // ignore: deprecated_member_use_from_same_package
+    final viaAutoText = await lengthOf(() => AutoText(sample));
+    expect(viaAutoText, viaText);
+  });
+
   test('TextSpan style wins over the loose parameters', () {
     final span = TextSpan(
       'বাংলা',

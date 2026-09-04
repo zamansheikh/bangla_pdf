@@ -31,6 +31,19 @@ Every one of these is optional, so no existing call changes.
 `Text` already accepted the whole of `pw.Text`'s parameter list and is
 unchanged.
 
+### Deprecated
+
+Nothing is removed; both still work and are covered by tests.
+
+- **`AutoText`** — `Text` is now identical to it. It existed to split a string
+  into Bangla and non-Bangla runs so each could get its own font; since 1.1.0 a
+  Unicode Bangla font covers Latin and digits too, so there is nothing left to
+  split. `Text` absorbed its one extra parameter, `generalFont`. Scheduled for
+  removal in 2.0.0.
+- **`RichTextItem`** — declared in 1.0 and never constructed by anything, in
+  this package or in any documented usage. Use `TextSpan` with `RichText`.
+  Scheduled for removal in 2.0.0.
+
 ### Notes
 
 - Header and Paragraph take their text **positionally**, as they have since
@@ -38,6 +51,10 @@ unchanged.
   argument. That is the one call-site difference.
 - `Paragraph` keeps `TextAlign.start` as its default rather than `pw`'s
   `justify`, because changing it would alter existing documents.
+- On the shaping path a single font draws the whole string, so `style` and
+  `banglaStyle` no longer style Bangla and Latin differently within one widget;
+  `banglaStyle` wins when both are set. Use separate widgets for two looks. The
+  legacy Bijoy path is unchanged.
 - A new `test/api_parity_test.dart` constructs every widget with its full
   parameter set, so a dropped or renamed parameter fails the build.
 

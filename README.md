@@ -155,12 +155,20 @@ a one-word change:
 `pw.TableHelper.fromTextArray` — `headerCount`, `headerDecoration`,
 `oddRowDecoration`, `cellAlignments`, `columnWidths` and the rest.
 
-Two differences worth knowing:
+Three differences worth knowing:
 
 - `Header` and `Paragraph` take their text **positionally**
   (`Header('শিরোনাম')`), where `pw` takes it as `text:`. That is how this
   package has worked since 1.0 and changing it would break every existing call.
 - `Paragraph` defaults to `TextAlign.start` rather than `pw`'s `justify`.
+- One font draws the whole string, so `style` and `banglaStyle` no longer give
+  Bangla and Latin different looks inside one widget — `banglaStyle` wins when
+  both are set. Use two widgets if you want two looks.
+
+`AutoText` and `RichTextItem` are **deprecated**. `Text` is identical to
+`AutoText` — splitting a string by script stopped being necessary once a
+Unicode Bangla font covered Latin and digits too — and `RichTextItem` was never
+used by anything. Both still work and are removed in 2.0.0.
 
 <details>
 <summary><strong>Full <code>Text</code> parameters</strong></summary>
@@ -260,7 +268,7 @@ bijoyToUnicode('Avgvi ‡mvbvi evsjv');   // আমার সোনার বা
 
 | symbol | purpose |
 |---|---|
-| `Text` `AutoText` `Header` `Paragraph` `RichText` `TextSpan` `BulletList` `Table` | widgets |
+| `Text` `Header` `Paragraph` `RichText` `TextSpan` `BulletList` `Table` | widgets |
 | `BanglaPdf.configure({shapingMode, defaultFont})` | package-wide settings |
 | `BanglaPdf.loadFont(ByteData)` | load a Unicode Bangla font |
 | `BanglaPdf.covers(font, text)` | can this font draw this string? |

@@ -1,21 +1,64 @@
 part of 'package:bangla_pdf/bangla_pdf.dart';
 
+/// Text with Bangla shaped correctly.
+///
+/// A drop-in replacement for [pw.Text]: it accepts the same parameters and
+/// adds Bangla handling. Mixed Bangla, Latin, digits and punctuation are laid
+/// out in one pass by one font, so nothing needs splitting up by hand.
 class Text extends pw.StatelessWidget {
+  /// The text to draw, in logical order.
   final String text;
+
+  /// Font size. Ignored when [style] or [banglaStyle] sets one.
   final double fontSize;
+
+  /// Font weight.
   final pw.FontWeight fontWeight;
+
+  /// Fill colour.
   final PdfColor color;
+
+  /// Horizontal alignment.
   final pw.TextAlign? textAlign;
+
+  /// Reading direction.
   final pw.TextDirection? textDirection;
+
+  /// Whether text breaks at soft line breaks.
   final bool? softWrap;
+
+  /// Whether the box hugs the text.
   final bool tightBounds;
+
+  /// Multiplier applied to the font size.
   final double textScaleFactor;
+
+  /// Maximum number of lines before overflowing.
   final int? maxLines;
+
+  /// How overflow is handled.
   final pw.TextOverflow? overflow;
+
+  /// The font to use for Bangla.
+  ///
+  /// Defaults to the bundled Kalpurush, shaped with its own OpenType tables.
+  /// Pass a font from [BanglaPdf.loadFont] to use a different Unicode font; a
+  /// legacy Bijoy font is detected and takes the 1.0.x path instead.
   final pw.Font? banglaFont;
+
+  /// The font for non-Bangla runs, used only on the legacy Bijoy path.
+  ///
+  /// The shaping pipeline draws the whole string with one font, because a
+  /// Unicode Bangla font covers Latin and digits too.
+  final pw.Font? generalFont;
+
+  /// Style for the text. On the legacy path this applies to non-Bangla runs.
   final pw.TextStyle? style;
+
+  /// Style for Bangla. Takes precedence over [style] when both are given.
   final pw.TextStyle? banglaStyle;
 
+  /// Creates a [Text].
   Text(
     this.text, {
     this.fontSize = 16,
@@ -29,38 +72,96 @@ class Text extends pw.StatelessWidget {
     this.maxLines,
     this.overflow,
     this.banglaFont,
+    this.generalFont,
     this.style,
     this.banglaStyle,
   });
 
   @override
   pw.Widget build(pw.Context context) {
-    return AutoText(
-      text,
-      fontSize: fontSize,
-      fontWeight: fontWeight,
-      color: color,
-      textAlign: textAlign,
+    // Prefer real OpenType shaping. It only declines when the caller supplied
+    // a legacy 8-bit font or asked for BanglaShapingMode.legacy, in which case
+    // the 1.0.x Bijoy pipeline below runs unchanged.
+    final shapingFont = BanglaPdf.resolveShapingFont(
+      banglaFont ?? banglaStyle?.font,
+    );
+    if (shapingFont != null) {
+      final effective = banglaStyle ?? style;
+      return ShapedTextWidget(
+        text: text,
+        font: shapingFont,
+        fontSize: (effective?.fontSize ?? fontSize) * textScaleFactor,
+        color: effective?.color ?? color,
+        textAlign: textAlign ?? pw.TextAlign.start,
+        maxLines: maxLines,
+        lineSpacing: effective?.lineSpacing ?? 1.2,
+      );
+    }
+
+    return pw.RichText(
+      textAlign: textAlign ?? pw.TextAlign.start,
       textDirection: textDirection,
       softWrap: softWrap,
       tightBounds: tightBounds,
       textScaleFactor: textScaleFactor,
       maxLines: maxLines,
-      overflow: overflow,
-      banglaFont: banglaFont,
-      style: style,
-      banglaStyle: banglaStyle,
+      overflow: overflow ?? pw.TextOverflow.visible,
+      text: pw.TextSpan(
+        children: FixingUtils.getAutoLocalizedSpans(
+          text: text,
+          banglaFont: banglaFont,
+          generalFont: generalFont,
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: color,
+          style: style,
+          banglaStyle: banglaStyle,
+        ),
+      ),
     );
   }
 }
 
-/// Represents a single text span in a PDF RichText.
+/// Text that splits Bangla from non-Bangla and fonts each part separately.
+///
+/// Kept for source compatibility. [Text] does everything this does and nothing
+/// less: since 1.1.0 a Unicode Bangla font covers Latin and digits, so there is
+/// no longer anything to split.
+@Deprecated('Use Text instead; it is identical. Will be removed in 2.0.0.')
+class AutoText extends Text {
+  /// Creates an [AutoText].
+  @Deprecated('Use Text instead; it is identical. Will be removed in 2.0.0.')
+  AutoText(
+    super.text, {
+    super.fontSize,
+    super.fontWeight,
+    super.color,
+    super.textAlign = pw.TextAlign.start,
+    super.textDirection,
+    super.softWrap,
+    super.tightBounds,
+    super.textScaleFactor,
+    super.maxLines,
+    super.overflow,
+    super.banglaFont,
+    super.generalFont,
+    super.style,
+    super.banglaStyle,
+  });
+}
+
+/// A text span descriptor that nothing in this package has ever consumed.
+///
+/// Kept only so an existing import keeps compiling. Use [TextSpan] with
+/// [RichText].
+@Deprecated('Unused since 1.0. Use TextSpan instead. Removed in 2.0.0.')
 class RichTextItem {
   final String text;
   final double fontSize;
   final PdfColor color;
   final pw.Font? banglaFont;
 
+  @Deprecated('Unused since 1.0. Use TextSpan instead. Removed in 2.0.0.')
   const RichTextItem({
     required this.text,
     this.fontSize = 14,
@@ -121,7 +222,7 @@ class RichText extends pw.StatelessWidget {
         crossAxisAlignment: pw.WrapCrossAlignment.end,
         children: spans
             .map(
-              (span) => AutoText(
+              (span) => Text(
                 span.text,
                 banglaFont: span.banglaFont,
                 fontSize: span.effectiveFontSize,
@@ -280,7 +381,7 @@ class Header extends pw.StatelessWidget {
       decoration: decoration,
       outlineColor: outlineColor,
       outlineStyle: outlineStyle,
-      child: AutoText(
+      child: Text(
         text,
         fontSize: fontSize,
         fontWeight: fontWeight,
@@ -340,7 +441,7 @@ class Paragraph extends pw.StatelessWidget {
 
   @override
   pw.Widget build(pw.Context context) {
-    pw.Widget child = AutoText(
+    pw.Widget child = Text(
       text,
       fontSize: fontSize,
       fontWeight: fontWeight,
@@ -353,127 +454,5 @@ class Paragraph extends pw.StatelessWidget {
       child = pw.Padding(padding: padding!, child: child);
     }
     return pw.Container(margin: margin, child: child);
-  }
-}
-
-/// A widget that automatically detects Bangla and non-Bangla text
-/// and renders them with the appropriate fonts.
-///
-/// This widget is the core of the `bangla_pdf` package. It takes a string
-/// and splits it into segments of Bangla and non-Bangla text. It then
-/// applies the [banglaFont] to Bangla segments and the [generalFont] (or default)
-/// to other segments.
-class AutoText extends pw.StatelessWidget {
-  /// The text to display.
-  final String text;
-
-  /// The font size to use. Defaults to 16.
-  final double fontSize;
-
-  /// The font weight to use. Defaults to [pw.FontWeight.normal].
-  final pw.FontWeight fontWeight;
-
-  /// The color of the text. Defaults to [PdfColors.black].
-  final PdfColor color;
-
-  /// How the text should be aligned horizontally.
-  final pw.TextAlign? textAlign;
-
-  /// The directionality of the text.
-  final pw.TextDirection? textDirection;
-
-  /// Whether the text should break at soft line breaks.
-  final bool? softWrap;
-
-  /// Whether the text should be tight to its bounds.
-  final bool tightBounds;
-
-  /// The number of font pixels for each logical pixel.
-  final double textScaleFactor;
-
-  /// An optional maximum number of lines for the text to span, wrapping if necessary.
-  final int? maxLines;
-
-  /// How visual overflow should be handled.
-  final pw.TextOverflow? overflow;
-
-  /// The font to use for Bangla text.
-  ///
-  /// If not provided, the bundled Noto Sans Bengali is used and shaped with
-  /// its own OpenType tables. Supply a font from [BanglaPdf.loadFont] to shape
-  /// with a different Unicode font; a `pw.Font.ttf` holding a legacy Bijoy
-  /// font still takes the 1.0.x ANSI path.
-  final pw.Font? banglaFont;
-
-  /// The font to use for non-Bangla text.
-  final pw.Font? generalFont;
-
-  /// Additional style to apply to the text.
-  final pw.TextStyle? style;
-
-  /// Additional style to apply specifically to Bangla text.
-  final pw.TextStyle? banglaStyle;
-
-  /// Creates an [AutoText] widget.
-  AutoText(
-    this.text, {
-    this.fontSize = 16,
-    this.fontWeight = pw.FontWeight.normal,
-    this.color = PdfColors.black,
-    this.textAlign = pw.TextAlign.start,
-    this.textDirection,
-    this.softWrap,
-    this.tightBounds = false,
-    this.textScaleFactor = 1.0,
-    this.maxLines,
-    this.overflow,
-    this.banglaFont,
-    this.generalFont,
-    this.style,
-    this.banglaStyle,
-  });
-
-  @override
-  pw.Widget build(pw.Context context) {
-    // Prefer real OpenType shaping. It only declines when the caller supplied
-    // a legacy 8-bit font or asked for BanglaShapingMode.legacy, in which case
-    // the 1.0.x Bijoy pipeline below runs unchanged.
-    final shapingFont = BanglaPdf.resolveShapingFont(
-      banglaFont ?? banglaStyle?.font,
-    );
-    if (shapingFont != null) {
-      final effective = banglaStyle ?? style;
-      return ShapedTextWidget(
-        text: text,
-        font: shapingFont,
-        fontSize: (effective?.fontSize ?? fontSize) * textScaleFactor,
-        color: effective?.color ?? color,
-        textAlign: textAlign ?? pw.TextAlign.start,
-        maxLines: maxLines,
-        lineSpacing: effective?.lineSpacing ?? 1.2,
-      );
-    }
-
-    return pw.RichText(
-      textAlign: textAlign,
-      textDirection: textDirection,
-      softWrap: softWrap,
-      tightBounds: tightBounds,
-      textScaleFactor: textScaleFactor,
-      maxLines: maxLines,
-      overflow: overflow,
-      text: pw.TextSpan(
-        children: FixingUtils.getAutoLocalizedSpans(
-          text: text,
-          banglaFont: banglaFont,
-          generalFont: generalFont,
-          fontSize: fontSize,
-          fontWeight: fontWeight,
-          color: color,
-          style: style,
-          banglaStyle: banglaStyle,
-        ),
-      ),
-    );
   }
 }

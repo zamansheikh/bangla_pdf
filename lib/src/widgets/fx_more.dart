@@ -89,7 +89,7 @@ class BulletList extends pw.StatelessWidget {
               // Route the marker through AutoText too, so it is drawn with a
               // real font instead of falling back to base-14 Helvetica, which
               // has no glyph for the default bullet.
-              AutoText(
+              Text(
                 "$marker  ",
                 fontSize: fontSize,
                 fontWeight: fontWeight,
@@ -99,7 +99,7 @@ class BulletList extends pw.StatelessWidget {
                 banglaStyle: banglaStyle,
               ),
               pw.Expanded(
-                child: AutoText(
+                child: Text(
                   item,
                   fontSize: fontSize,
                   fontWeight: fontWeight,
@@ -265,7 +265,7 @@ class Table extends pw.StatelessWidget {
       final resolved = header
           ? (headerStyle ?? style?.copyWith(fontWeight: pw.FontWeight.bold))
           : (cellStyle ?? style);
-      final content = AutoText(
+      final content = Text(
         text,
         textAlign: header ? headerAlignment : pw.TextAlign.start,
         fontSize: fontSize,
