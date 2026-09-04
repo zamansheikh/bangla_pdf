@@ -1,3 +1,45 @@
+## 1.2.0
+
+Adds PDF text extraction, in a separate library so generation-only users pay
+nothing for it.
+
+```dart
+import 'package:bangla_pdf/extract.dart';
+final result = BanglaPdfExtractor.extract(bytes);
+```
+
+### Added
+
+- `BanglaPdfExtractor.extract(bytes, {ocrHook})` returning `ExtractionResult`
+  with `text`, `pages`, `encodingDetected` (`unicode` / `bijoy` / `mixed` /
+  `none`), `confidence` and `isEncrypted`.
+- **Bijoy / ANSI → Unicode.** Most Bangladeshi government and newspaper PDFs
+  store Latin-1 mojibake and rely on an 8-bit font to draw Bangla. These are now
+  detected from the embedded font's coverage and converted back, including the
+  reverse reordering: pre-base vowel signs move back after their consonant and a
+  reph moves back in front of its cluster. Also exposed on its own as
+  `bijoyToUnicode`.
+- **Scanned-page handling.** A page with images and no text layer reports
+  `BanglaTextEncoding.none` instead of guessing, and `ocrHook` lets you plug in
+  an OCR engine. None is bundled; the README shows a Tesseract `ben` example.
+- A PDF reader covering cross-reference tables and streams, object streams,
+  `FlateDecode` (with PNG and TIFF predictors), `LZWDecode`, `ASCIIHexDecode`,
+  `ASCII85Decode` and `RunLengthDecode`. A damaged cross-reference table falls
+  back to scanning the file for objects, so partly-corrupt documents still read.
+- Ten fixture documents with ground truth, and 12 extraction tests.
+
+### Verified
+
+- All 8 extractable fixtures recover their ground truth exactly; both scans are
+  correctly reported as having no text layer.
+- 245 of 247 pure-Bangla corpus cases survive a Bijoy round-trip. The shortfall
+  is the joiner in `বাক্‌`, which the Bijoy encoding cannot represent.
+
+### Changed
+
+- New dependency on `archive` for stream inflation, chosen over `dart:io` so
+  extraction also works on web.
+
 ## 1.1.2
 
 - **FIX**: Fonts that declare only the version 1 Indic script tag (`beng`)

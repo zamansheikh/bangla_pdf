@@ -35,6 +35,7 @@ it just works.
 | 🎯 **Zero config** | No initialisation, no asset bundling. A Bangla font ships with the package. |
 | 🪶 **Pure Dart** | No FFI, no C toolchain, no native build step — so it works on **web** too. |
 | 🔒 **Drop-in** | Nothing removed from the 1.0.x API, and the bundled typeface is unchanged. |
+| 📥 **Reads PDFs too** | `extract.dart` pulls Bangla back out — including **Bijoy** documents, converted to Unicode. |
 | 🧪 **Verified** | Diffed glyph-by-glyph against HarfBuzz: **234/234** on five fonts. |
 
 ---
@@ -191,6 +192,48 @@ BanglaPdf.configure(shapingMode: BanglaShapingMode.auto);
 
 ---
 
+## 📥 Reading Bangla back out of a PDF
+
+`package:bangla_pdf/extract.dart` is a separate library, so generating PDFs
+costs nothing if you never import it.
+
+```dart
+import 'package:bangla_pdf/extract.dart';
+
+final result = BanglaPdfExtractor.extract(bytes);
+
+print(result.encodingDetected);  // unicode | bijoy | mixed | none
+print(result.confidence);        // 0..1
+print(result.text);
+```
+
+It handles the three kinds of document you actually meet:
+
+| document | what happens |
+|---|---|
+| **Unicode** — from this package or any modern producer | read directly from `/ToUnicode` and `/ActualText` |
+| **Bijoy / ANSI** — most Bangladeshi government and newspaper PDFs | the text layer is Latin-1 mojibake (`Avgvi ‡mvbvi evsjv`); converted back to Unicode **per run**, because only a run's font can tell Bijoy bytes from real English |
+| **Scanned** | reported as `BanglaTextEncoding.none` rather than guessed at |
+
+### Scanned pages
+
+No OCR engine is bundled. Wire in whichever you already use:
+
+```dart
+final result = BanglaPdfExtractor.extract(
+  bytes,
+  ocrHook: (page) => runTesseract(page.number, language: 'ben'),
+);
+```
+
+### Converting Bijoy text on its own
+
+```dart
+bijoyToUnicode('Avgvi ‡mvbvi evsjv');   // আমার সোনার বাংলা
+```
+
+---
+
 ## 📚 API
 
 | symbol | purpose |
@@ -204,6 +247,9 @@ BanglaPdf.configure(shapingMode: BanglaShapingMode.auto);
 | `String.shapeForPdf(font)` → `ShapedRun` | glyphs, advances, offsets and cluster text, for callers drawing their own content |
 | `BanglaFontManager().defaultFont` · `.legacyFont` | the bundled fonts |
 | `String.fix` · `String.isBanglaText` | 1.0.x helpers, unchanged |
+| `BanglaPdfExtractor.extract(bytes, {ocrHook})` | read Bangla out of a PDF *(extract.dart)* |
+| `ExtractionResult` · `ExtractedPage` · `BanglaTextEncoding` | what extraction returns |
+| `bijoyToUnicode(String)` | convert a Bijoy/ANSI string on its own |
 
 ---
 
@@ -266,6 +312,16 @@ artefact: a lone ZWJ renders as nothing, so the line-by-line comparison shifts.
 `Type0` CID font, that every `/ToUnicode` entry is real Unicode with no U+FFFD or
 NUL, and that each line's `/ActualText` decodes back to its source string.
 
+**Extraction** is measured against ten fixture documents shaped like the real
+thing — three Bijoy government notices, three invoices, two newspaper pages and
+two scans — each generated so its expected text is known exactly:
+
+| | result |
+|---|---|
+| fixtures recovering their ground truth | **8 / 8** extractable, exactly |
+| scans correctly reported as having no text layer | **2 / 2** |
+| corpus surviving a Bijoy → Unicode round-trip | **245 / 247 (99%)** |
+
 ```bash
 flutter test    # 26 tests
 ```
@@ -292,9 +348,16 @@ Three things to know:
 
 Stated plainly rather than glossed over.
 
-- **PDF text extraction is not implemented.** There is no
-  `package:bangla_pdf/extract.dart` yet — no Bijoy→Unicode reverse mapping and no
-  scanned-PDF handling.
+- **Extraction does not un-shape third-party Unicode PDFs.** A document whose
+  `/ToUnicode` CMap is missing or wrong, and which has no `/ActualText`, cannot
+  be recovered: that needs reversing the shaping from glyph ids back to
+  characters, which is not implemented.
+- **Encrypted PDFs are not decrypted.** `ExtractionResult.isEncrypted` says so
+  rather than returning nonsense.
+- **Extraction fixtures are generated, not collected.** They are shaped like
+  real government notices, invoices and newspaper pages, and the Bijoy ones use
+  a genuine legacy font through the 1.0.x pipeline — but no PDF from an actual
+  government website has been tested.
 - **Five fonts are measured**, all matching HarfBuzz exactly: bundled
   Kalpurush, SolaimanLipi, Siyam Rupali, Noto Sans Bengali and Noto Serif
   Bengali. Others are untested. A font relying on GSUB lookup type 8 (reverse

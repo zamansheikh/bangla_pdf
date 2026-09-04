@@ -266,7 +266,7 @@
  {
   "id": "simple-extra-1",
   "category": "simple",
-  "text": "ড়ঢ়য়",
+  "text": "ড়ঢ়য়",
   "notes": "precomposed nukta consonants"
  },
  {
@@ -1118,7 +1118,7 @@
  {
   "id": "nukta-00",
   "category": "nukta",
-  "text": "ড়",
+  "text": "ড়",
   "notes": "precomposed U+09DC"
  },
  {
@@ -1130,7 +1130,7 @@
  {
   "id": "nukta-02",
   "category": "nukta",
-  "text": "ঢ়",
+  "text": "ঢ়",
   "notes": "precomposed U+09DD"
  },
  {
@@ -1142,7 +1142,7 @@
  {
   "id": "nukta-04",
   "category": "nukta",
-  "text": "য়",
+  "text": "য়",
   "notes": "precomposed U+09DF"
  },
  {
@@ -1154,7 +1154,7 @@
  {
   "id": "nukta-06",
   "category": "nukta",
-  "text": "বড়",
+  "text": "বড়",
   "notes": "boro, precomposed"
  },
  {
@@ -1364,7 +1364,7 @@
  {
   "id": "norm-01",
   "category": "normalisation",
-  "text": "কো",
+  "text": "কো",
   "notes": "NFD ka + U+09C7 + U+09BE"
  },
  {
@@ -1376,13 +1376,13 @@
  {
   "id": "norm-03",
   "category": "normalisation",
-  "text": "কৌ",
+  "text": "কৌ",
   "notes": "NFD ka + U+09C7 + U+09D7"
  },
  {
   "id": "norm-04",
   "category": "normalisation",
-  "text": "ড়া",
+  "text": "ড়া",
   "notes": "NFC rra + aa"
  },
  {
