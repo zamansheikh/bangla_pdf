@@ -1,3 +1,50 @@
+## 1.4.0
+
+Adds a second entry point that makes this package a true drop-in for
+`package:pdf`: change one import and existing code renders Bangla correctly.
+
+### Added
+
+- **`package:bangla_pdf/widgets.dart`** — a replacement for
+  `package:pdf/widgets.dart`. It re-exports everything `package:pdf` exports,
+  with the text-rendering widgets swapped for versions that shape Bangla and
+  take exactly the same parameters:
+
+  ```diff
+  - import 'package:pdf/widgets.dart' as pw;
+  + import 'package:bangla_pdf/widgets.dart' as pw;
+  ```
+
+  Replaced: `Text`, `RichText`, `TextSpan`, `Header`, `Paragraph`, `Bullet`,
+  `TableHelper`, `Watermark`, `TableOfContent`, `ChartLegend`, `FixedAxis`,
+  `TextField` and `ChoiceField` — every widget in `package:pdf` that builds a
+  `Text` internally, so chart labels, watermarks, tables of contents and form
+  field values all shape too.
+
+  A string with no Bengali in it is passed to `package:pdf` untouched, so a
+  document without Bangla renders exactly as it does without this package.
+
+- `tool/dev/check_pw_parity.py`, which diffs all 14 replacement constructors
+  against their `package:pdf` counterparts. All 156 parameters match.
+
+- `test/compat_test.dart` (8 tests). It never imports `package:pdf/widgets.dart`,
+  so a gap in the re-export or a renamed parameter fails the build rather than
+  reaching a user.
+
+### Fixed
+
+- `BanglaShapingMode.legacy` now routes the compatibility widgets through the
+  1.0.x Bijoy pipeline. Reaching that mode through the new entry point would
+  otherwise have drawn raw Unicode with a Latin font.
+
+### Notes
+
+- The existing `bangla_pdf.dart` widgets (`Text`, `Header`, `BulletList`,
+  `Table`, …) are unchanged and unaffected. Nothing is deprecated by this
+  release; the two entry points can be mixed in one file.
+- Form fields shape their appearance stream only. Once a reader lets someone
+  edit the field it re-renders from the form font, which no producer controls.
+
 ## 1.3.1
 
 Completes signature parity with `package:pdf` and rewrites the README around

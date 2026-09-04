@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>Bangla PDFs that actually look right.</strong><br>
-  Swap <code>pw.Text</code> for <code>Text</code>. That is the whole migration.
+  Change one import. Everything else stays exactly as it is.
 </p>
 
 <p align="center">
@@ -21,10 +21,11 @@
 Write Bangla, get Bangla.
 
 ```dart
-Text('আমার সোনার বাংলা, আমি তোমায় ভালোবাসি।')
+pw.Text('আমার সোনার বাংলা, আমি তোমায় ভালোবাসি।')
 ```
 
-No font to bundle, nothing to initialise. Conjuncts join, `ি` `ে` `ৈ` land on the
+That is the `package:pdf` widget you already use, from an import that shapes
+Bangla properly. Conjuncts join, `ি` `ে` `ৈ` land on the
 correct side of their consonant, reph sits where it belongs — and the text you
 copy out of the PDF is the text you put in.
 
@@ -59,86 +60,105 @@ Real output from the widgets below — no mockups.
 
 ```yaml
 dependencies:
-  bangla_pdf: ^1.3.1
+  bangla_pdf: ^1.4.0
 ```
 
+Now change one import:
+
+```diff
+- import 'package:pdf/widgets.dart' as pw;
++ import 'package:bangla_pdf/widgets.dart' as pw;
+```
+
+**That is the entire migration.** Your existing code is untouched:
+
 ```dart
-import 'package:bangla_pdf/bangla_pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
+import 'package:bangla_pdf/widgets.dart' as pw;
 
 final pdf = pw.Document();
 
 pdf.addPage(
   pw.Page(
-    build: (context) => Text('আমার সোনার বাংলা'),
+    build: (context) => pw.Text('আমার সোনার বাংলা'),
   ),
 );
 
 final bytes = await pdf.save();
 ```
 
-That is the whole setup. A Bangla font ships with the package and is used
-automatically.
+No font to bundle, nothing to initialise, no new widget names to learn. A Bangla
+font ships with the package and is used automatically.
 
 ---
 
-## 🧩 The same API you already know
+## 🧩 It really is the same API
 
-Every widget takes exactly what its `package:pdf` twin takes, so switching is a
-one-word change:
+`package:bangla_pdf/widgets.dart` re-exports everything `package:pdf` gives you.
+The widgets that draw text are swapped for versions taking **exactly** the same
+parameters — checked constructor by constructor on every build, all 156 of them
+across 14 constructors:
 
-```diff
-- pw.Text('বাংলা', style: pw.TextStyle(fontSize: 18), maxLines: 2)
-+    Text('বাংলা', style: pw.TextStyle(fontSize: 18), maxLines: 2)
-```
-
-| use this | instead of |
+| replaced | so this keeps working |
 |---|---|
-| `Text` | `pw.Text` |
-| `Header` | `pw.Header` |
-| `Paragraph` | `pw.Paragraph` |
-| `RichText` + `TextSpan` | `pw.RichText` + `pw.TextSpan` |
-| `Table` | `pw.TableHelper.fromTextArray` |
-| `BulletList` | `pw.Bullet` |
+| `pw.Text` `pw.RichText` `pw.TextSpan` | `pw.Text('বাংলা', maxLines: 2)` |
+| `pw.Header` `pw.Paragraph` `pw.Bullet` | `pw.Header(level: 1, text: 'শিরোনাম')` |
+| `pw.TableHelper.fromTextArray` | `pw.TableHelper.fromTextArray(data: …)` |
+| `pw.Watermark` `pw.TableOfContent` | `pw.Watermark.text('গোপনীয়')` |
+| `pw.ChartLegend` `pw.FixedAxis` | Bangla chart labels and legends |
+| `pw.TextField` `pw.ChoiceField` | Bangla in form fields |
 
-Everything else — `pw.Page`, `pw.Column`, `pw.Container`, images, barcodes — you
-keep using exactly as before. This package only replaces the text widgets.
+Everything else — `pw.Page`, `pw.Column`, `pw.Container`, images, barcodes,
+`pw.MultiPage` — is the same class you were already using.
 
 ```dart
-Header('বাংলা শিরোনাম', level: 1)
+pw.Header(level: 1, text: 'গণপ্রজাতন্ত্রী বাংলাদেশ সরকার')
 
-Paragraph('একটি অনুচ্ছেদ।', textAlign: pw.TextAlign.justify)
+pw.Paragraph(text: 'একটি অনুচ্ছেদ যেখানে ক্ষ্ম ও কর্ম দুটোই ঠিক আসে।')
 
-BulletList(items: ['প্রথম আইটেম', 'Second item', 'তৃতীয় আইটেম'])
+pw.Bullet(text: 'প্রথম আইটেম')
 
-Table(
+pw.TableHelper.fromTextArray(
+  headers: ['পণ্য', 'পরিমাণ', 'মূল্য'],
   data: [
-    ['পণ্য', 'পরিমাণ', 'মূল্য'],
-    ['কফি',  '২',      '৳২০'],
+    ['কফি', '২', '৳২০'],
   ],
-  headerDecoration: pw.BoxDecoration(color: PdfColors.teal700),
 )
-
-RichText(spans: [
-  TextSpan('বাংলা বোল্ড ', fontWeight: pw.FontWeight.bold),
-  TextSpan('এবং সাধারণ'),
-])
 ```
 
 Bangla, English, digits and `৳` mix freely in one string — nothing to split up
 by hand:
 
 ```dart
-Text('Invoice #1042 — মোট ৳১২,৫০০.০০ — তারিখ ০১/০৯/২০২৬')
+pw.Text('Invoice #1042 — মোট ৳১২,৫০০.০০ — তারিখ ০১/০৯/২০২৬')
 ```
 
-<details>
-<summary>Two small differences from <code>pw</code></summary>
+**A string with no Bangla in it never touches this package.** It is handed
+straight to `package:pdf`, so your English pages render exactly as they do
+today.
 
-- `Header` and `Paragraph` take their text **positionally**
-  (`Header('শিরোনাম')`) where `pw` takes it as `text:`. That is how this package
-  has worked since 1.0, and changing it would break every existing call.
-- `Paragraph` defaults to `TextAlign.start` rather than `pw`'s `justify`.
+<details>
+<summary>Prefer explicit widgets? Those still exist.</summary>
+
+If you would rather see at a glance which widgets are Bangla-aware, import the
+main library instead and use its own widgets. This is the original 1.0 API and
+it is not going anywhere:
+
+```dart
+import 'package:bangla_pdf/bangla_pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+
+Text('বাংলা টেক্সট')
+Header('বাংলা শিরোনাম', level: 1)
+Paragraph('একটি অনুচ্ছেদ।')
+BulletList(items: ['প্রথম আইটেম', 'Second item'])
+Table(data: [['পণ্য', 'মূল্য'], ['কফি', '৳২০']])
+RichText(spans: [TextSpan('বাংলা বোল্ড ', fontWeight: pw.FontWeight.bold)])
+```
+
+These differ slightly from `pw` on purpose: `Header` and `Paragraph` take their
+text positionally, `Table` wraps `TableHelper.fromTextArray`, and `BulletList`
+takes a whole list. Use `package:bangla_pdf/widgets.dart` when you want the
+`pw` shapes instead — the two can be mixed in one file.
 
 </details>
 
@@ -198,7 +218,8 @@ old way.
 Nothing to change. `Text(...)`, `banglaStyle:`, `banglaFont:` and the
 no-setup default all work as before, and the bundled typeface is still
 Kalpurush — your documents look the same, the Bangla in them is just shaped
-correctly now.
+correctly now. The `package:bangla_pdf/widgets.dart` entry point above is
+purely additive; you can adopt it file by file, or never.
 
 <details>
 <summary>What changed, in detail</summary>
@@ -245,7 +266,7 @@ generated PDF identical to what went in, checked with `pdftotext`. Extraction
 recovers **8 of 8** fixture documents exactly and correctly reports both scanned
 ones as having no text layer.
 
-All of it runs on every commit — `flutter test` is 47 tests.
+All of it runs on every commit — `flutter test` is 55 tests.
 
 <details>
 <summary>How the shaping actually works</summary>
@@ -298,6 +319,9 @@ Full write-ups live in the repository: the [verification report][report] and the
 - **Five fonts are measured.** Others should work but are untested. A font
   relying on GSUB lookup type 8 or GPOS type 3 would not shape; no Bengali font
   tested uses either.
+- **Form fields shape only their appearance.** `pw.TextField` and
+  `pw.ChoiceField` draw a shaped value, but once a reader lets someone edit the
+  field it re-renders from the form font. No PDF producer controls that.
 - **Rendering is not pixel-diffed**, and copy/paste is verified with poppler
   only — not Adobe Reader, Preview or Chrome.
 - **Extraction fixtures are generated, not collected** — shaped like real
