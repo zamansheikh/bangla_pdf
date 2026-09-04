@@ -47,9 +47,14 @@ class FixingUtils {
           color: color,
         );
 
+    // This is the legacy Bijoy path, so the fallback must be the legacy 8-bit
+    // font: the text reaching it has already been transcoded to ANSI and a
+    // Unicode font would render it as Latin gibberish.
+    final legacyFallback = BanglaFontManager().legacyFont;
+
     var effectiveBanglaStyle = banglaStyle ??
         pw.TextStyle(
-          font: banglaFont ?? BanglaFontManager().defaultFont,
+          font: banglaFont ?? legacyFallback,
           fontSize: fontSize,
           fontWeight: fontWeight,
           color: color,
@@ -58,7 +63,7 @@ class FixingUtils {
     // Ensure Bangla font is set if missing in banglaStyle
     if (effectiveBanglaStyle.font == null) {
       effectiveBanglaStyle = effectiveBanglaStyle.copyWith(
-        font: banglaFont ?? BanglaFontManager().defaultFont,
+        font: banglaFont ?? legacyFallback,
       );
     }
 

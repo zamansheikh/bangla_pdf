@@ -1,0 +1,23 @@
+# Dart / Flutter build output
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.dill
+*.lock.iml
+
+# Published archive artefacts
+doc/api/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# macOS
+.DS_Store
+
+# Local scratch output
+*.pdf
+!preview/*.pdf

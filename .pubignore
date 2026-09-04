@@ -1,0 +1,18 @@
+# Development harnesses and audit evidence: useful in the repo, not in the
+# published archive.
+tool/
+docs/baseline/
+build/
+preview/
+.dart_tool/
+bangla_pdf.iml
+
+# Font fixtures are large and only needed to re-run the verification suite.
+test/fixtures/
+
+# Audit and verification write-ups live in the repository, not the archive.
+# (Pub prefers a singular "doc/" directory; ours is "docs/" per the project brief.)
+docs/
+
+# Stray PDFs from a manual test run must never reach the archive.
+*.pdf

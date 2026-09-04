@@ -1,0 +1,758 @@
+[
+  {
+    "id": "vowel-00",
+    "category": "vowelsign",
+    "input": "ক",
+    "inputHex": "U+0995",
+    "output": "K",
+    "outputHex": "U+004B",
+    "error": null
+  },
+  {
+    "id": "vowel-01",
+    "category": "vowelsign",
+    "input": "কা",
+    "inputHex": "U+0995 U+09BE",
+    "output": "Kv",
+    "outputHex": "U+004B U+0076",
+    "error": null
+  },
+  {
+    "id": "vowel-02",
+    "category": "vowelsign",
+    "input": "কি",
+    "inputHex": "U+0995 U+09BF",
+    "output": "wK",
+    "outputHex": "U+0077 U+004B",
+    "error": null
+  },
+  {
+    "id": "vowel-03",
+    "category": "vowelsign",
+    "input": "কী",
+    "inputHex": "U+0995 U+09C0",
+    "output": "Kx",
+    "outputHex": "U+004B U+0078",
+    "error": null
+  },
+  {
+    "id": "vowel-04",
+    "category": "vowelsign",
+    "input": "কু",
+    "inputHex": "U+0995 U+09C1",
+    "output": "Ky",
+    "outputHex": "U+004B U+0079",
+    "error": null
+  },
+  {
+    "id": "vowel-05",
+    "category": "vowelsign",
+    "input": "কূ",
+    "inputHex": "U+0995 U+09C2",
+    "output": "K~",
+    "outputHex": "U+004B U+007E",
+    "error": null
+  },
+  {
+    "id": "vowel-06",
+    "category": "vowelsign",
+    "input": "কৃ",
+    "inputHex": "U+0995 U+09C3",
+    "output": "K…",
+    "outputHex": "U+004B U+2026",
+    "error": null
+  },
+  {
+    "id": "vowel-07",
+    "category": "vowelsign",
+    "input": "কে",
+    "inputHex": "U+0995 U+09C7",
+    "output": "‡K",
+    "outputHex": "U+2021 U+004B",
+    "error": null
+  },
+  {
+    "id": "vowel-08",
+    "category": "vowelsign",
+    "input": "কৈ",
+    "inputHex": "U+0995 U+09C8",
+    "output": "‰K",
+    "outputHex": "U+2030 U+004B",
+    "error": null
+  },
+  {
+    "id": "vowel-09",
+    "category": "vowelsign",
+    "input": "কো",
+    "inputHex": "U+0995 U+09CB",
+    "output": "‡Kv",
+    "outputHex": "U+2021 U+004B U+0076",
+    "error": null
+  },
+  {
+    "id": "vowel-10",
+    "category": "vowelsign",
+    "input": "কৌ",
+    "inputHex": "U+0995 U+09CC",
+    "output": "‡KŠ",
+    "outputHex": "U+2021 U+004B U+0160",
+    "error": null
+  },
+  {
+    "id": "indep-00",
+    "category": "simple",
+    "input": "অআইঈউঊঋএঐওঔ",
+    "inputHex": "U+0985 U+0986 U+0987 U+0988 U+0989 U+098A U+098B U+098F U+0990 U+0993 U+0994",
+    "output": "AAvBCDEFGHIJ",
+    "outputHex": "U+0041 U+0041 U+0076 U+0042 U+0043 U+0044 U+0045 U+0046 U+0047 U+0048 U+0049 U+004A",
+    "error": null
+  },
+  {
+    "id": "simple-00",
+    "category": "simple",
+    "input": "কখগঘঙচছজঝঞ",
+    "inputHex": "U+0995 U+0996 U+0997 U+0998 U+0999 U+099A U+099B U+099C U+099D U+099E",
+    "output": "KLMNOPQRST",
+    "outputHex": "U+004B U+004C U+004D U+004E U+004F U+0050 U+0051 U+0052 U+0053 U+0054",
+    "error": null
+  },
+  {
+    "id": "simple-01",
+    "category": "simple",
+    "input": "টঠডঢণতথদধন",
+    "inputHex": "U+099F U+09A0 U+09A1 U+09A2 U+09A3 U+09A4 U+09A5 U+09A6 U+09A7 U+09A8",
+    "output": "UVWXYZ_`ab",
+    "outputHex": "U+0055 U+0056 U+0057 U+0058 U+0059 U+005A U+005F U+0060 U+0061 U+0062",
+    "error": null
+  },
+  {
+    "id": "simple-02",
+    "category": "simple",
+    "input": "পফবভমযরলশষসহ",
+    "inputHex": "U+09AA U+09AB U+09AC U+09AD U+09AE U+09AF U+09B0 U+09B2 U+09B6 U+09B7 U+09B8 U+09B9",
+    "output": "cdefghijklmn",
+    "outputHex": "U+0063 U+0064 U+0065 U+0066 U+0067 U+0068 U+0069 U+006A U+006B U+006C U+006D U+006E",
+    "error": null
+  },
+  {
+    "id": "reph-00",
+    "category": "reph",
+    "input": "র্ক",
+    "inputHex": "U+09B0 U+09CD U+0995",
+    "output": null,
+    "outputHex": null,
+    "error": "RangeError: RangeError (index): Invalid value: Not in inclusive range 0..2: -1"
+  },
+  {
+    "id": "reph-01",
+    "category": "reph",
+    "input": "র্ম",
+    "inputHex": "U+09B0 U+09CD U+09AE",
+    "output": null,
+    "outputHex": null,
+    "error": "RangeError: RangeError (index): Invalid value: Not in inclusive range 0..2: -1"
+  },
+  {
+    "id": "reph-02",
+    "category": "reph",
+    "input": "র্য",
+    "inputHex": "U+09B0 U+09CD U+09AF",
+    "output": null,
+    "outputHex": null,
+    "error": "RangeError: RangeError (index): Invalid value: Not in inclusive range 0..2: -1"
+  },
+  {
+    "id": "reph-03",
+    "category": "reph",
+    "input": "র্যা",
+    "inputHex": "U+09B0 U+09CD U+09AF U+09BE",
+    "output": null,
+    "outputHex": null,
+    "error": "RangeError: RangeError (index): Invalid value: Not in inclusive range 0..3: -1"
+  },
+  {
+    "id": "reph-04",
+    "category": "reph",
+    "input": "কর্ম",
+    "inputHex": "U+0995 U+09B0 U+09CD U+09AE",
+    "output": null,
+    "outputHex": null,
+    "error": "RangeError: RangeError (index): Invalid value: Not in inclusive range 0..3: 4"
+  },
+  {
+    "id": "reph-05",
+    "category": "reph",
+    "input": "বর্ষ",
+    "inputHex": "U+09AC U+09B0 U+09CD U+09B7",
+    "output": null,
+    "outputHex": null,
+    "error": "RangeError: RangeError (index): Invalid value: Not in inclusive range 0..3: 4"
+  },
+  {
+    "id": "reph-06",
+    "category": "reph",
+    "input": "দুর্গা",
+    "inputHex": "U+09A6 U+09C1 U+09B0 U+09CD U+0997 U+09BE",
+    "output": "`yM©v",
+    "outputHex": "U+0060 U+0079 U+004D U+00A9 U+0076",
+    "error": null
+  },
+  {
+    "id": "reph-07",
+    "category": "reph",
+    "input": "র্তি",
+    "inputHex": "U+09B0 U+09CD U+09A4 U+09BF",
+    "output": null,
+    "outputHex": null,
+    "error": "RangeError: RangeError (index): Invalid value: Not in inclusive range 0..3: -1"
+  },
+  {
+    "id": "reph-08",
+    "category": "reph",
+    "input": "র্ত্তি",
+    "inputHex": "U+09B0 U+09CD U+09A4 U+09CD U+09A4 U+09BF",
+    "output": null,
+    "outputHex": null,
+    "error": "RangeError: RangeError (index): Invalid value: Not in inclusive range 0..5: -1"
+  },
+  {
+    "id": "reph-09",
+    "category": "reph",
+    "input": "র্ষ্ণে",
+    "inputHex": "U+09B0 U+09CD U+09B7 U+09CD U+09A3 U+09C7",
+    "output": null,
+    "outputHex": null,
+    "error": "RangeError: RangeError (index): Invalid value: Not in inclusive range 0..5: -1"
+  },
+  {
+    "id": "reph-10",
+    "category": "reph",
+    "input": "র্ক্ষ্য",
+    "inputHex": "U+09B0 U+09CD U+0995 U+09CD U+09B7 U+09CD U+09AF",
+    "output": null,
+    "outputHex": null,
+    "error": "RangeError: RangeError (index): Invalid value: Not in inclusive range 0..6: -1"
+  },
+  {
+    "id": "phala-00",
+    "category": "phala",
+    "input": "ব্য",
+    "inputHex": "U+09AC U+09CD U+09AF",
+    "output": "e¨",
+    "outputHex": "U+0065 U+00A8",
+    "error": null
+  },
+  {
+    "id": "phala-01",
+    "category": "phala",
+    "input": "ক্র",
+    "inputHex": "U+0995 U+09CD U+09B0",
+    "output": "µ",
+    "outputHex": "U+00B5",
+    "error": null
+  },
+  {
+    "id": "phala-02",
+    "category": "phala",
+    "input": "প্র",
+    "inputHex": "U+09AA U+09CD U+09B0",
+    "output": "cª",
+    "outputHex": "U+0063 U+00AA",
+    "error": null
+  },
+  {
+    "id": "phala-03",
+    "category": "phala",
+    "input": "স্ত্র",
+    "inputHex": "U+09B8 U+09CD U+09A4 U+09CD U+09B0",
+    "output": "¯¿",
+    "outputHex": "U+00AF U+00BF",
+    "error": null
+  },
+  {
+    "id": "phala-04",
+    "category": "phala",
+    "input": "গ্র্য",
+    "inputHex": "U+0997 U+09CD U+09B0 U+09CD U+09AF",
+    "output": "Mª¨",
+    "outputHex": "U+004D U+00AA U+00A8",
+    "error": null
+  },
+  {
+    "id": "phala-05",
+    "category": "phala",
+    "input": "ম্র",
+    "inputHex": "U+09AE U+09CD U+09B0",
+    "output": "gª",
+    "outputHex": "U+0067 U+00AA",
+    "error": null
+  },
+  {
+    "id": "phala-06",
+    "category": "phala",
+    "input": "হ্য",
+    "inputHex": "U+09B9 U+09CD U+09AF",
+    "output": "n¨",
+    "outputHex": "U+006E U+00A8",
+    "error": null
+  },
+  {
+    "id": "conj-00",
+    "category": "conjunct",
+    "input": "ক্ষ",
+    "inputHex": "U+0995 U+09CD U+09B7",
+    "output": "¶",
+    "outputHex": "U+00B6",
+    "error": null
+  },
+  {
+    "id": "conj-01",
+    "category": "conjunct",
+    "input": "জ্ঞ",
+    "inputHex": "U+099C U+09CD U+099E",
+    "output": "Á",
+    "outputHex": "U+00C1",
+    "error": null
+  },
+  {
+    "id": "conj-02",
+    "category": "conjunct",
+    "input": "ষ্ণ",
+    "inputHex": "U+09B7 U+09CD U+09A3",
+    "output": "ò",
+    "outputHex": "U+00F2",
+    "error": null
+  },
+  {
+    "id": "conj-03",
+    "category": "conjunct",
+    "input": "ন্ত্র",
+    "inputHex": "U+09A8 U+09CD U+09A4 U+09CD U+09B0",
+    "output": "š¿",
+    "outputHex": "U+0161 U+00BF",
+    "error": null
+  },
+  {
+    "id": "conj-04",
+    "category": "conjunct",
+    "input": "ক্ষ্ম",
+    "inputHex": "U+0995 U+09CD U+09B7 U+09CD U+09AE",
+    "output": "¶&g",
+    "outputHex": "U+00B6 U+0026 U+0067",
+    "error": null
+  },
+  {
+    "id": "conj-05",
+    "category": "conjunct",
+    "input": "ঙ্ক্ষ",
+    "inputHex": "U+0999 U+09CD U+0995 U+09CD U+09B7",
+    "output": "O&¶",
+    "outputHex": "U+004F U+0026 U+00B6",
+    "error": null
+  },
+  {
+    "id": "conj-06",
+    "category": "conjunct",
+    "input": "স্ত্র্য",
+    "inputHex": "U+09B8 U+09CD U+09A4 U+09CD U+09B0 U+09CD U+09AF",
+    "output": "¯Zª¨",
+    "outputHex": "U+00AF U+005A U+00AA U+00A8",
+    "error": null
+  },
+  {
+    "id": "conj-07",
+    "category": "conjunct",
+    "input": "ন্ধ্র",
+    "inputHex": "U+09A8 U+09CD U+09A7 U+09CD U+09B0",
+    "output": "Üª",
+    "outputHex": "U+00DC U+00AA",
+    "error": null
+  },
+  {
+    "id": "conj-08",
+    "category": "conjunct",
+    "input": "ক্ত",
+    "inputHex": "U+0995 U+09CD U+09A4",
+    "output": "³",
+    "outputHex": "U+00B3",
+    "error": null
+  },
+  {
+    "id": "conj-09",
+    "category": "conjunct",
+    "input": "দ্ধ",
+    "inputHex": "U+09A6 U+09CD U+09A7",
+    "output": "×",
+    "outputHex": "U+00D7",
+    "error": null
+  },
+  {
+    "id": "conj-10",
+    "category": "conjunct",
+    "input": "ল্ল",
+    "inputHex": "U+09B2 U+09CD U+09B2",
+    "output": "jø",
+    "outputHex": "U+006A U+00F8",
+    "error": null
+  },
+  {
+    "id": "conj-11",
+    "category": "conjunct",
+    "input": "ত্ত্ব",
+    "inputHex": "U+09A4 U+09CD U+09A4 U+09CD U+09AC",
+    "output": "Ë&e",
+    "outputHex": "U+00CB U+0026 U+0065",
+    "error": null
+  },
+  {
+    "id": "conj-12",
+    "category": "conjunct",
+    "input": "চ্ছ্ব",
+    "inputHex": "U+099A U+09CD U+099B U+09CD U+09AC",
+    "output": "”Q&e",
+    "outputHex": "U+201D U+0051 U+0026 U+0065",
+    "error": null
+  },
+  {
+    "id": "conj-13",
+    "category": "conjunct",
+    "input": "ম্ভ্র",
+    "inputHex": "U+09AE U+09CD U+09AD U+09CD U+09B0",
+    "output": "g&å",
+    "outputHex": "U+0067 U+0026 U+00E5",
+    "error": null
+  },
+  {
+    "id": "has-00",
+    "category": "hasanta",
+    "input": "বাক্‌",
+    "inputHex": "U+09AC U+09BE U+0995 U+09CD U+200C",
+    "output": "evK&",
+    "outputHex": "U+0065 U+0076 U+004B U+0026",
+    "error": null
+  },
+  {
+    "id": "has-01",
+    "category": "hasanta",
+    "input": "ৎ",
+    "inputHex": "U+09CE",
+    "output": "r",
+    "outputHex": "U+0072",
+    "error": null
+  },
+  {
+    "id": "has-02",
+    "category": "hasanta",
+    "input": "ত্",
+    "inputHex": "U+09A4 U+09CD",
+    "output": "Z&",
+    "outputHex": "U+005A U+0026",
+    "error": null
+  },
+  {
+    "id": "has-03",
+    "category": "hasanta",
+    "input": "উৎসব",
+    "inputHex": "U+0989 U+09CE U+09B8 U+09AC",
+    "output": "Drme",
+    "outputHex": "U+0044 U+0072 U+006D U+0065",
+    "error": null
+  },
+  {
+    "id": "nuk-00",
+    "category": "nukta",
+    "input": "ড়ঢ়য়",
+    "inputHex": "U+09A1 U+09BC U+09A2 U+09BC U+09AF U+09BC",
+    "output": "opq",
+    "outputHex": "U+006F U+0070 U+0071",
+    "error": null
+  },
+  {
+    "id": "nuk-01",
+    "category": "nukta",
+    "input": "ড়ঢ়য়",
+    "inputHex": "U+09A1 U+09BC U+09A2 U+09BC U+09AF U+09BC",
+    "output": "opq",
+    "outputHex": "U+006F U+0070 U+0071",
+    "error": null
+  },
+  {
+    "id": "nuk-02",
+    "category": "nukta",
+    "input": "বাংলাদেশ",
+    "inputHex": "U+09AC U+09BE U+0982 U+09B2 U+09BE U+09A6 U+09C7 U+09B6",
+    "output": "evsjv‡`k",
+    "outputHex": "U+0065 U+0076 U+0073 U+006A U+0076 U+2021 U+0060 U+006B",
+    "error": null
+  },
+  {
+    "id": "mark-00",
+    "category": "marks",
+    "input": "চাঁদ",
+    "inputHex": "U+099A U+09BE U+0981 U+09A6",
+    "output": "Pvu`",
+    "outputHex": "U+0050 U+0076 U+0075 U+0060",
+    "error": null
+  },
+  {
+    "id": "mark-01",
+    "category": "marks",
+    "input": "বাংলা",
+    "inputHex": "U+09AC U+09BE U+0982 U+09B2 U+09BE",
+    "output": "evsjv",
+    "outputHex": "U+0065 U+0076 U+0073 U+006A U+0076",
+    "error": null
+  },
+  {
+    "id": "mark-02",
+    "category": "marks",
+    "input": "দুঃখ",
+    "inputHex": "U+09A6 U+09C1 U+0983 U+0996",
+    "output": "`ytL",
+    "outputHex": "U+0060 U+0079 U+0074 U+004C",
+    "error": null
+  },
+  {
+    "id": "num-00",
+    "category": "digits",
+    "input": "০১২৩৪৫৬৭৮৯",
+    "inputHex": "U+09E6 U+09E7 U+09E8 U+09E9 U+09EA U+09EB U+09EC U+09ED U+09EE U+09EF",
+    "output": "0123456789",
+    "outputHex": "U+0030 U+0031 U+0032 U+0033 U+0034 U+0035 U+0036 U+0037 U+0038 U+0039",
+    "error": null
+  },
+  {
+    "id": "num-01",
+    "category": "digits",
+    "input": "৳ ১২৩৪.৫৬",
+    "inputHex": "U+09F3 U+0020 U+09E7 U+09E8 U+09E9 U+09EA U+002E U+09EB U+09EC",
+    "output": "$ 1234.56",
+    "outputHex": "U+0024 U+0020 U+0031 U+0032 U+0033 U+0034 U+002E U+0035 U+0036",
+    "error": null
+  },
+  {
+    "id": "num-02",
+    "category": "digits",
+    "input": "ৰ ৱ",
+    "inputHex": "U+09F0 U+0020 U+09F1",
+    "output": "ৰ ৱ",
+    "outputHex": "U+09F0 U+0020 U+09F1",
+    "error": null
+  },
+  {
+    "id": "num-03",
+    "category": "digits",
+    "input": "বাক্য। শেষ॥",
+    "inputHex": "U+09AC U+09BE U+0995 U+09CD U+09AF U+0964 U+0020 U+09B6 U+09C7 U+09B7 U+0965",
+    "output": "evK¨| ‡kl॥",
+    "outputHex": "U+0065 U+0076 U+004B U+00A8 U+007C U+0020 U+2021 U+006B U+006C U+0965",
+    "error": null
+  },
+  {
+    "id": "mix-00",
+    "category": "mixed",
+    "input": "আমার Invoice #123 total ৳৫০০ ✅",
+    "inputHex": "U+0986 U+09AE U+09BE U+09B0 U+0020 U+0049 U+006E U+0076 U+006F U+0069 U+0063 U+0065 U+0020 U+0023 U+0031 U+0032 U+0033 U+0020 U+0074 U+006F U+0074 U+0061 U+006C U+0020 U+09F3 U+09EB U+09E6 U+09E6 U+0020 U+2705",
+    "output": "Avgvi Invoice #123 total $500 ✅",
+    "outputHex": "U+0041 U+0076 U+0067 U+0076 U+0069 U+0020 U+0049 U+006E U+0076 U+006F U+0069 U+0063 U+0065 U+0020 U+0023 U+0031 U+0032 U+0033 U+0020 U+0074 U+006F U+0074 U+0061 U+006C U+0020 U+0024 U+0035 U+0030 U+0030 U+0020 U+2705",
+    "error": null
+  },
+  {
+    "id": "mix-01",
+    "category": "mixed",
+    "input": "Hello বাংলাদেশ world!",
+    "inputHex": "U+0048 U+0065 U+006C U+006C U+006F U+0020 U+09AC U+09BE U+0982 U+09B2 U+09BE U+09A6 U+09C7 U+09B6 U+0020 U+0077 U+006F U+0072 U+006C U+0064 U+0021",
+    "output": "Hello evsjv‡`k world!",
+    "outputHex": "U+0048 U+0065 U+006C U+006C U+006F U+0020 U+0065 U+0076 U+0073 U+006A U+0076 U+2021 U+0060 U+006B U+0020 U+0077 U+006F U+0072 U+006C U+0064 U+0021",
+    "error": null
+  },
+  {
+    "id": "zwj-00",
+    "category": "zwj",
+    "input": "র‍্য",
+    "inputHex": "U+09B0 U+200D U+09CD U+09AF",
+    "output": "i¨",
+    "outputHex": "U+0069 U+00A8",
+    "error": null
+  },
+  {
+    "id": "zwj-01",
+    "category": "zwj",
+    "input": "র্য",
+    "inputHex": "U+09B0 U+09CD U+09AF",
+    "output": null,
+    "outputHex": null,
+    "error": "RangeError: RangeError (index): Invalid value: Not in inclusive range 0..2: -1"
+  },
+  {
+    "id": "zwj-02",
+    "category": "zwj",
+    "input": "ক্‌ষ",
+    "inputHex": "U+0995 U+09CD U+200C U+09B7",
+    "output": "K&l",
+    "outputHex": "U+004B U+0026 U+006C",
+    "error": null
+  },
+  {
+    "id": "zwj-03",
+    "category": "zwj",
+    "input": "ক্ষ",
+    "inputHex": "U+0995 U+09CD U+09B7",
+    "output": "¶",
+    "outputHex": "U+00B6",
+    "error": null
+  },
+  {
+    "id": "norm-00",
+    "category": "normalisation",
+    "input": "ড়া",
+    "inputHex": "U+09A1 U+09BC U+09BE",
+    "output": "ov",
+    "outputHex": "U+006F U+0076",
+    "error": null
+  },
+  {
+    "id": "norm-01",
+    "category": "normalisation",
+    "input": "ড়া",
+    "inputHex": "U+09DC U+09BE",
+    "output": "ov",
+    "outputHex": "U+006F U+0076",
+    "error": null
+  },
+  {
+    "id": "norm-02",
+    "category": "normalisation",
+    "input": "কো",
+    "inputHex": "U+0995 U+09C7 U+09BE",
+    "output": "‡Kv",
+    "outputHex": "U+2021 U+004B U+0076",
+    "error": null
+  },
+  {
+    "id": "norm-03",
+    "category": "normalisation",
+    "input": "কো",
+    "inputHex": "U+0995 U+09CB",
+    "output": "‡Kv",
+    "outputHex": "U+2021 U+004B U+0076",
+    "error": null
+  },
+  {
+    "id": "para-00",
+    "category": "paragraph",
+    "input": "আমার সোনার বাংলা, আমি তোমায় ভালোবাসি।",
+    "inputHex": "U+0986 U+09AE U+09BE U+09B0 U+0020 U+09B8 U+09CB U+09A8 U+09BE U+09B0 U+0020 U+09AC U+09BE U+0982 U+09B2 U+09BE U+002C U+0020 U+0986 U+09AE U+09BF U+0020 U+09A4 U+09CB U+09AE U+09BE U+09AF U+09BC U+0020 U+09AD U+09BE U+09B2 U+09CB U+09AC U+09BE U+09B8 U+09BF U+0964",
+    "output": "Avgvi ‡mvbvi evsjv, Avwg ‡Zvgvq fv‡jvevwm|",
+    "outputHex": "U+0041 U+0076 U+0067 U+0076 U+0069 U+0020 U+2021 U+006D U+0076 U+0062 U+0076 U+0069 U+0020 U+0065 U+0076 U+0073 U+006A U+0076 U+002C U+0020 U+0041 U+0076 U+0077 U+0067 U+0020 U+2021 U+005A U+0076 U+0067 U+0076 U+0071 U+0020 U+0066 U+0076 U+2021 U+006A U+0076 U+0065 U+0076 U+0077 U+006D U+007C",
+    "error": null
+  },
+  {
+    "id": "para-01",
+    "category": "paragraph",
+    "input": "চিরদিন তোমার আকাশ, তোমার বাতাস, আমার প্রাণে বাজায় বাঁশি।",
+    "inputHex": "U+099A U+09BF U+09B0 U+09A6 U+09BF U+09A8 U+0020 U+09A4 U+09CB U+09AE U+09BE U+09B0 U+0020 U+0986 U+0995 U+09BE U+09B6 U+002C U+0020 U+09A4 U+09CB U+09AE U+09BE U+09B0 U+0020 U+09AC U+09BE U+09A4 U+09BE U+09B8 U+002C U+0020 U+0986 U+09AE U+09BE U+09B0 U+0020 U+09AA U+09CD U+09B0 U+09BE U+09A3 U+09C7 U+0020 U+09AC U+09BE U+099C U+09BE U+09AF U+09BC U+0020 U+09AC U+09BE U+0981 U+09B6 U+09BF U+0964",
+    "output": "wPiw`b ‡Zvgvi AvKvk, ‡Zvgvi evZvm, Avgvi cªv‡Y evRvq evuwk|",
+    "outputHex": "U+0077 U+0050 U+0069 U+0077 U+0060 U+0062 U+0020 U+2021 U+005A U+0076 U+0067 U+0076 U+0069 U+0020 U+0041 U+0076 U+004B U+0076 U+006B U+002C U+0020 U+2021 U+005A U+0076 U+0067 U+0076 U+0069 U+0020 U+0065 U+0076 U+005A U+0076 U+006D U+002C U+0020 U+0041 U+0076 U+0067 U+0076 U+0069 U+0020 U+0063 U+00AA U+0076 U+2021 U+0059 U+0020 U+0065 U+0076 U+0052 U+0076 U+0071 U+0020 U+0065 U+0076 U+0075 U+0077 U+006B U+007C",
+    "error": null
+  },
+  {
+    "id": "para-02",
+    "category": "paragraph",
+    "input": "ঢাকা বিশ্ববিদ্যালয়ের শিক্ষার্থীরা গতকাল কেন্দ্রীয় শহীদ মিনারে সমাবেশ করেছেন।",
+    "inputHex": "U+09A2 U+09BE U+0995 U+09BE U+0020 U+09AC U+09BF U+09B6 U+09CD U+09AC U+09AC U+09BF U+09A6 U+09CD U+09AF U+09BE U+09B2 U+09AF U+09BC U+09C7 U+09B0 U+0020 U+09B6 U+09BF U+0995 U+09CD U+09B7 U+09BE U+09B0 U+09CD U+09A5 U+09C0 U+09B0 U+09BE U+0020 U+0997 U+09A4 U+0995 U+09BE U+09B2 U+0020 U+0995 U+09C7 U+09A8 U+09CD U+09A6 U+09CD U+09B0 U+09C0 U+09AF U+09BC U+0020 U+09B6 U+09B9 U+09C0 U+09A6 U+0020 U+09AE U+09BF U+09A8 U+09BE U+09B0 U+09C7 U+0020 U+09B8 U+09AE U+09BE U+09AC U+09C7 U+09B6 U+0020 U+0995 U+09B0 U+09C7 U+099B U+09C7 U+09A8 U+0964",
+    "output": "XvKv wek¦we`¨vj‡qi wk¶v_©xiv MZKvj ‡K›`ªxq knx` wgbv‡i mgv‡ek K‡i‡Qb|",
+    "outputHex": "U+0058 U+0076 U+004B U+0076 U+0020 U+0077 U+0065 U+006B U+00A6 U+0077 U+0065 U+0060 U+00A8 U+0076 U+006A U+2021 U+0071 U+0069 U+0020 U+0077 U+006B U+00B6 U+0076 U+005F U+00A9 U+0078 U+0069 U+0076 U+0020 U+004D U+005A U+004B U+0076 U+006A U+0020 U+2021 U+004B U+203A U+0060 U+00AA U+0078 U+0071 U+0020 U+006B U+006E U+0078 U+0060 U+0020 U+0077 U+0067 U+0062 U+0076 U+2021 U+0069 U+0020 U+006D U+0067 U+0076 U+2021 U+0065 U+006B U+0020 U+004B U+2021 U+0069 U+2021 U+0051 U+0062 U+007C",
+    "error": null
+  },
+  {
+    "id": "para-03",
+    "category": "paragraph",
+    "input": "বিবরণ: কম্পিউটার যন্ত্রাংশ — পরিমাণ ৩ — একক মূল্য ৳১২,৫০০.০০ — তারিখ ০১/০৯/২০২৬",
+    "inputHex": "U+09AC U+09BF U+09AC U+09B0 U+09A3 U+003A U+0020 U+0995 U+09AE U+09CD U+09AA U+09BF U+0989 U+099F U+09BE U+09B0 U+0020 U+09AF U+09A8 U+09CD U+09A4 U+09CD U+09B0 U+09BE U+0982 U+09B6 U+0020 U+2014 U+0020 U+09AA U+09B0 U+09BF U+09AE U+09BE U+09A3 U+0020 U+09E9 U+0020 U+2014 U+0020 U+098F U+0995 U+0995 U+0020 U+09AE U+09C2 U+09B2 U+09CD U+09AF U+0020 U+09F3 U+09E7 U+09E8 U+002C U+09EB U+09E6 U+09E6 U+002E U+09E6 U+09E6 U+0020 U+2014 U+0020 U+09A4 U+09BE U+09B0 U+09BF U+0996 U+0020 U+09E6 U+09E7 U+002F U+09E6 U+09EF U+002F U+09E8 U+09E6 U+09E8 U+09EC",
+    "output": "weeiY: Kw¤úDUvi hš¿vsk — cwigvY 3 — GKK g~j¨ $12,500.00 — ZvwiL 01/09/2026",
+    "outputHex": "U+0077 U+0065 U+0065 U+0069 U+0059 U+003A U+0020 U+004B U+0077 U+00A4 U+00FA U+0044 U+0055 U+0076 U+0069 U+0020 U+0068 U+0161 U+00BF U+0076 U+0073 U+006B U+0020 U+2014 U+0020 U+0063 U+0077 U+0069 U+0067 U+0076 U+0059 U+0020 U+0033 U+0020 U+2014 U+0020 U+0047 U+004B U+004B U+0020 U+0067 U+007E U+006A U+00A8 U+0020 U+0024 U+0031 U+0032 U+002C U+0035 U+0030 U+0030 U+002E U+0030 U+0030 U+0020 U+2014 U+0020 U+005A U+0076 U+0077 U+0069 U+004C U+0020 U+0030 U+0031 U+002F U+0030 U+0039 U+002F U+0032 U+0030 U+0032 U+0036",
+    "error": null
+  },
+  {
+    "id": "para-04",
+    "category": "paragraph",
+    "input": "উক্ত চুক্তির শর্তাবলী লঙ্ঘিত হইলে কর্তৃপক্ষ আইনানুগ ব্যবস্থা গ্রহণ করিবেন।",
+    "inputHex": "U+0989 U+0995 U+09CD U+09A4 U+0020 U+099A U+09C1 U+0995 U+09CD U+09A4 U+09BF U+09B0 U+0020 U+09B6 U+09B0 U+09CD U+09A4 U+09BE U+09AC U+09B2 U+09C0 U+0020 U+09B2 U+0999 U+09CD U+0998 U+09BF U+09A4 U+0020 U+09B9 U+0987 U+09B2 U+09C7 U+0020 U+0995 U+09B0 U+09CD U+09A4 U+09C3 U+09AA U+0995 U+09CD U+09B7 U+0020 U+0986 U+0987 U+09A8 U+09BE U+09A8 U+09C1 U+0997 U+0020 U+09AC U+09CD U+09AF U+09AC U+09B8 U+09CD U+09A5 U+09BE U+0020 U+0997 U+09CD U+09B0 U+09B9 U+09A3 U+0020 U+0995 U+09B0 U+09BF U+09AC U+09C7 U+09A8 U+0964",
+    "output": "D³ Pyw³i kZ©vejx jw•NZ nB‡j KZ©…c¶ AvBbvbyM e¨e¯’v MªnY Kwi‡eb|",
+    "outputHex": "U+0044 U+00B3 U+0020 U+0050 U+0079 U+0077 U+00B3 U+0069 U+0020 U+006B U+005A U+00A9 U+0076 U+0065 U+006A U+0078 U+0020 U+006A U+0077 U+2022 U+004E U+005A U+0020 U+006E U+0042 U+2021 U+006A U+0020 U+004B U+005A U+00A9 U+2026 U+0063 U+00B6 U+0020 U+0041 U+0076 U+0042 U+0062 U+0076 U+0062 U+0079 U+004D U+0020 U+0065 U+00A8 U+0065 U+00AF U+2019 U+0076 U+0020 U+004D U+00AA U+006E U+0059 U+0020 U+004B U+0077 U+0069 U+2021 U+0065 U+0062 U+007C",
+    "error": null
+  },
+  {
+    "id": "para-05",
+    "category": "paragraph",
+    "input": "স্থিতি: ৳৪৫,৬৭৮.৯০ | লেনদেন: ডেবিট | শাখা: মতিঝিল",
+    "inputHex": "U+09B8 U+09CD U+09A5 U+09BF U+09A4 U+09BF U+003A U+0020 U+09F3 U+09EA U+09EB U+002C U+09EC U+09ED U+09EE U+002E U+09EF U+09E6 U+0020 U+007C U+0020 U+09B2 U+09C7 U+09A8 U+09A6 U+09C7 U+09A8 U+003A U+0020 U+09A1 U+09C7 U+09AC U+09BF U+099F U+0020 U+007C U+0020 U+09B6 U+09BE U+0996 U+09BE U+003A U+0020 U+09AE U+09A4 U+09BF U+099D U+09BF U+09B2",
+    "output": "w¯’wZ: $45,678.90 | ‡jb‡`b: ‡WweU | kvLv: gwZwSj",
+    "outputHex": "U+0077 U+00AF U+2019 U+0077 U+005A U+003A U+0020 U+0024 U+0034 U+0035 U+002C U+0036 U+0037 U+0038 U+002E U+0039 U+0030 U+0020 U+007C U+0020 U+2021 U+006A U+0062 U+2021 U+0060 U+0062 U+003A U+0020 U+2021 U+0057 U+0077 U+0065 U+0055 U+0020 U+007C U+0020 U+006B U+0076 U+004C U+0076 U+003A U+0020 U+0067 U+0077 U+005A U+0077 U+0053 U+006A",
+    "error": null
+  },
+  {
+    "id": "edge-00",
+    "category": "edge",
+    "input": "ি",
+    "inputHex": "U+09BF",
+    "output": null,
+    "outputHex": null,
+    "error": "RangeError: RangeError (index): Invalid value: Only valid value is 0: -1"
+  },
+  {
+    "id": "edge-01",
+    "category": "edge",
+    "input": "ে",
+    "inputHex": "U+09C7",
+    "output": null,
+    "outputHex": null,
+    "error": "RangeError: RangeError (index): Invalid value: Only valid value is 0: -1"
+  },
+  {
+    "id": "edge-02",
+    "category": "edge",
+    "input": " ি",
+    "inputHex": "U+0020 U+09BF",
+    "output": "w ",
+    "outputHex": "U+0077 U+0020",
+    "error": null
+  },
+  {
+    "id": "edge-03",
+    "category": "edge",
+    "input": "র্",
+    "inputHex": "U+09B0 U+09CD",
+    "output": "©",
+    "outputHex": "U+00A9",
+    "error": null
+  },
+  {
+    "id": "edge-04",
+    "category": "edge",
+    "input": "্র",
+    "inputHex": "U+09CD U+09B0",
+    "output": null,
+    "outputHex": null,
+    "error": "RangeError: RangeError (index): Invalid value: Not in inclusive range 0..1: -1"
+  },
+  {
+    "id": "edge-05",
+    "category": "edge",
+    "input": "aি",
+    "inputHex": "U+0061 U+09BF",
+    "output": "wa",
+    "outputHex": "U+0077 U+0061",
+    "error": null
+  },
+  {
+    "id": "edge-06",
+    "category": "edge",
+    "input": "",
+    "inputHex": "",
+    "output": "",
+    "outputHex": "",
+    "error": null
+  }
+]

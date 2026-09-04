@@ -2,14 +2,25 @@
 ///
 /// This package provides widgets like [Text], [Table], [BulletList], etc.,
 /// that automatically handle mixed Bangla and English text rendering in PDFs.
-/// It includes a default Bangla font (Kalpurush) and supports custom fonts.
+///
+/// Since 1.1.0 Bangla is shaped with the font's own OpenType GSUB/GPOS tables,
+/// so conjuncts, reph, phalas and pre-base vowel signs render correctly and
+/// the text copies out of the PDF as the original Unicode. The legacy Bijoy
+/// ANSI pipeline is still available through [BanglaShapingMode.legacy].
 library;
 
 import 'dart:convert';
+
+import 'package:bangla_pdf/src/pdf/bangla_font.dart';
+import 'package:bangla_pdf/src/shaping/bengali_shaper.dart';
+import 'package:bangla_pdf/src/widgets/shaped_text.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/pdf.dart' as pw show PdfColor;
 import 'package:pdf/widgets.dart' as pw;
+
+export 'package:bangla_pdf/src/shaping/bengali_shaper.dart'
+    show ShapedCluster, ShapedRun;
 
 /*
 BSD 3-Clause License
@@ -48,3 +59,5 @@ part 'src/widgets/fx_widgets.dart';
 part 'src/core/font_manager.dart';
 part 'src/widgets/fx_more.dart';
 part 'src/core/default_font_data.dart';
+part 'src/core/unicode_font_data.dart';
+part 'src/core/config.dart';

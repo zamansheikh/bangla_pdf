@@ -25,20 +25,35 @@ class BulletList extends pw.StatelessWidget {
 
   @override
   pw.Widget build(pw.Context context) {
+    // Not every Bangla font carries U+2022; Kalpurush does not. Fall back to
+    // a marker the font can actually draw rather than emitting a blank.
+    var marker = bullet;
+    if (!BanglaPdf.covers(banglaFont ?? banglaStyle?.font, marker)) {
+      for (final candidate in const <String>['\u2022 ', '\u00B7 ', '- ']) {
+        if (BanglaPdf.covers(banglaFont ?? banglaStyle?.font, candidate)) {
+          marker = candidate;
+          break;
+        }
+      }
+    }
+
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: items.map((item) {
         return pw.Row(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Text(
-              "$bullet  ",
-              style: style ??
-                  pw.TextStyle(
-                    fontSize: fontSize,
-                    fontWeight: fontWeight,
-                    color: color,
-                  ),
+            // Route the marker through AutoText too, so it is drawn with a
+            // real font instead of falling back to base-14 Helvetica, which
+            // has no glyph for the default bullet.
+            AutoText(
+              "$marker  ",
+              fontSize: fontSize,
+              fontWeight: fontWeight,
+              banglaFont: banglaFont,
+              color: color,
+              style: style,
+              banglaStyle: banglaStyle,
             ),
             pw.Expanded(
               child: AutoText(
@@ -100,20 +115,15 @@ class Table extends pw.StatelessWidget {
       children: data.first.map((text) {
         return pw.Padding(
           padding: cellPadding,
-          child: pw.RichText(
+          child: AutoText(
+            text,
             textAlign: headerAlignment,
-            text: pw.TextSpan(
-              children: FixingUtils.getAutoLocalizedSpans(
-                text: text,
-                banglaFont: banglaFont,
-                generalFont: generalFont,
-                fontSize: fontSize,
-                fontWeight: pw.FontWeight.bold,
-                style: style?.copyWith(fontWeight: pw.FontWeight.bold),
-                banglaStyle:
-                    banglaStyle?.copyWith(fontWeight: pw.FontWeight.bold),
-              ),
-            ),
+            banglaFont: banglaFont,
+            generalFont: generalFont,
+            fontSize: fontSize,
+            fontWeight: pw.FontWeight.bold,
+            style: style?.copyWith(fontWeight: pw.FontWeight.bold),
+            banglaStyle: banglaStyle?.copyWith(fontWeight: pw.FontWeight.bold),
           ),
         );
       }).toList(),
@@ -127,18 +137,14 @@ class Table extends pw.StatelessWidget {
             padding: cellPadding,
             child: pw.Align(
               alignment: cellAlignment,
-              child: pw.RichText(
-                text: pw.TextSpan(
-                  children: FixingUtils.getAutoLocalizedSpans(
-                    text: text,
-                    banglaFont: banglaFont,
-                    generalFont: generalFont,
-                    fontSize: fontSize,
-                    fontWeight: fontWeight,
-                    style: style,
-                    banglaStyle: banglaStyle,
-                  ),
-                ),
+              child: AutoText(
+                text,
+                banglaFont: banglaFont,
+                generalFont: generalFont,
+                fontSize: fontSize,
+                fontWeight: fontWeight,
+                style: style,
+                banglaStyle: banglaStyle,
               ),
             ),
           );

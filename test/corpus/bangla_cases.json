@@ -1,0 +1,1520 @@
+[
+ {
+  "id": "cons-00",
+  "category": "simple",
+  "text": "ক",
+  "notes": "bare consonant ক"
+ },
+ {
+  "id": "cons-01",
+  "category": "simple",
+  "text": "খ",
+  "notes": "bare consonant খ"
+ },
+ {
+  "id": "cons-02",
+  "category": "simple",
+  "text": "গ",
+  "notes": "bare consonant গ"
+ },
+ {
+  "id": "cons-03",
+  "category": "simple",
+  "text": "ঘ",
+  "notes": "bare consonant ঘ"
+ },
+ {
+  "id": "cons-04",
+  "category": "simple",
+  "text": "ঙ",
+  "notes": "bare consonant ঙ"
+ },
+ {
+  "id": "cons-05",
+  "category": "simple",
+  "text": "চ",
+  "notes": "bare consonant চ"
+ },
+ {
+  "id": "cons-06",
+  "category": "simple",
+  "text": "ছ",
+  "notes": "bare consonant ছ"
+ },
+ {
+  "id": "cons-07",
+  "category": "simple",
+  "text": "জ",
+  "notes": "bare consonant জ"
+ },
+ {
+  "id": "cons-08",
+  "category": "simple",
+  "text": "ঝ",
+  "notes": "bare consonant ঝ"
+ },
+ {
+  "id": "cons-09",
+  "category": "simple",
+  "text": "ঞ",
+  "notes": "bare consonant ঞ"
+ },
+ {
+  "id": "cons-10",
+  "category": "simple",
+  "text": "ট",
+  "notes": "bare consonant ট"
+ },
+ {
+  "id": "cons-11",
+  "category": "simple",
+  "text": "ঠ",
+  "notes": "bare consonant ঠ"
+ },
+ {
+  "id": "cons-12",
+  "category": "simple",
+  "text": "ড",
+  "notes": "bare consonant ড"
+ },
+ {
+  "id": "cons-13",
+  "category": "simple",
+  "text": "ঢ",
+  "notes": "bare consonant ঢ"
+ },
+ {
+  "id": "cons-14",
+  "category": "simple",
+  "text": "ণ",
+  "notes": "bare consonant ণ"
+ },
+ {
+  "id": "cons-15",
+  "category": "simple",
+  "text": "ত",
+  "notes": "bare consonant ত"
+ },
+ {
+  "id": "cons-16",
+  "category": "simple",
+  "text": "থ",
+  "notes": "bare consonant থ"
+ },
+ {
+  "id": "cons-17",
+  "category": "simple",
+  "text": "দ",
+  "notes": "bare consonant দ"
+ },
+ {
+  "id": "cons-18",
+  "category": "simple",
+  "text": "ধ",
+  "notes": "bare consonant ধ"
+ },
+ {
+  "id": "cons-19",
+  "category": "simple",
+  "text": "ন",
+  "notes": "bare consonant ন"
+ },
+ {
+  "id": "cons-20",
+  "category": "simple",
+  "text": "প",
+  "notes": "bare consonant প"
+ },
+ {
+  "id": "cons-21",
+  "category": "simple",
+  "text": "ফ",
+  "notes": "bare consonant ফ"
+ },
+ {
+  "id": "cons-22",
+  "category": "simple",
+  "text": "ব",
+  "notes": "bare consonant ব"
+ },
+ {
+  "id": "cons-23",
+  "category": "simple",
+  "text": "ভ",
+  "notes": "bare consonant ভ"
+ },
+ {
+  "id": "cons-24",
+  "category": "simple",
+  "text": "ম",
+  "notes": "bare consonant ম"
+ },
+ {
+  "id": "cons-25",
+  "category": "simple",
+  "text": "য",
+  "notes": "bare consonant য"
+ },
+ {
+  "id": "cons-26",
+  "category": "simple",
+  "text": "র",
+  "notes": "bare consonant র"
+ },
+ {
+  "id": "cons-27",
+  "category": "simple",
+  "text": "ল",
+  "notes": "bare consonant ল"
+ },
+ {
+  "id": "cons-28",
+  "category": "simple",
+  "text": "শ",
+  "notes": "bare consonant শ"
+ },
+ {
+  "id": "cons-29",
+  "category": "simple",
+  "text": "ষ",
+  "notes": "bare consonant ষ"
+ },
+ {
+  "id": "cons-30",
+  "category": "simple",
+  "text": "স",
+  "notes": "bare consonant স"
+ },
+ {
+  "id": "cons-31",
+  "category": "simple",
+  "text": "হ",
+  "notes": "bare consonant হ"
+ },
+ {
+  "id": "vow-00",
+  "category": "simple",
+  "text": "অ",
+  "notes": "independent vowel অ"
+ },
+ {
+  "id": "vow-01",
+  "category": "simple",
+  "text": "আ",
+  "notes": "independent vowel আ"
+ },
+ {
+  "id": "vow-02",
+  "category": "simple",
+  "text": "ই",
+  "notes": "independent vowel ই"
+ },
+ {
+  "id": "vow-03",
+  "category": "simple",
+  "text": "ঈ",
+  "notes": "independent vowel ঈ"
+ },
+ {
+  "id": "vow-04",
+  "category": "simple",
+  "text": "উ",
+  "notes": "independent vowel উ"
+ },
+ {
+  "id": "vow-05",
+  "category": "simple",
+  "text": "ঊ",
+  "notes": "independent vowel ঊ"
+ },
+ {
+  "id": "vow-06",
+  "category": "simple",
+  "text": "ঋ",
+  "notes": "independent vowel ঋ"
+ },
+ {
+  "id": "vow-07",
+  "category": "simple",
+  "text": "এ",
+  "notes": "independent vowel এ"
+ },
+ {
+  "id": "vow-08",
+  "category": "simple",
+  "text": "ঐ",
+  "notes": "independent vowel ঐ"
+ },
+ {
+  "id": "vow-09",
+  "category": "simple",
+  "text": "ও",
+  "notes": "independent vowel ও"
+ },
+ {
+  "id": "vow-10",
+  "category": "simple",
+  "text": "ঔ",
+  "notes": "independent vowel ঔ"
+ },
+ {
+  "id": "simple-extra-0",
+  "category": "simple",
+  "text": "ৎ",
+  "notes": "khanda ta"
+ },
+ {
+  "id": "simple-extra-1",
+  "category": "simple",
+  "text": "ড়ঢ়য়",
+  "notes": "precomposed nukta consonants"
+ },
+ {
+  "id": "kar-00",
+  "category": "vowelsign",
+  "text": "কা",
+  "notes": "ka + aa, post-base"
+ },
+ {
+  "id": "kar-01",
+  "category": "vowelsign",
+  "text": "কি",
+  "notes": "ka + i, PRE-BASE"
+ },
+ {
+  "id": "kar-02",
+  "category": "vowelsign",
+  "text": "কী",
+  "notes": "ka + ii, post-base"
+ },
+ {
+  "id": "kar-03",
+  "category": "vowelsign",
+  "text": "কু",
+  "notes": "ka + u, below"
+ },
+ {
+  "id": "kar-04",
+  "category": "vowelsign",
+  "text": "কূ",
+  "notes": "ka + uu, below"
+ },
+ {
+  "id": "kar-05",
+  "category": "vowelsign",
+  "text": "কৃ",
+  "notes": "ka + ri, below"
+ },
+ {
+  "id": "kar-06",
+  "category": "vowelsign",
+  "text": "কে",
+  "notes": "ka + e, PRE-BASE"
+ },
+ {
+  "id": "kar-07",
+  "category": "vowelsign",
+  "text": "কৈ",
+  "notes": "ka + ai, PRE-BASE"
+ },
+ {
+  "id": "kar-08",
+  "category": "vowelsign",
+  "text": "কো",
+  "notes": "ka + o, two-part pre+post"
+ },
+ {
+  "id": "kar-09",
+  "category": "vowelsign",
+  "text": "কৌ",
+  "notes": "ka + au, two-part pre+post"
+ },
+ {
+  "id": "kar-10",
+  "category": "vowelsign",
+  "text": "কৄ",
+  "notes": "ka + rri, below"
+ },
+ {
+  "id": "kar-m-00",
+  "category": "vowelsign",
+  "text": "মা",
+  "notes": "ma + aa, post-base"
+ },
+ {
+  "id": "kar-m-01",
+  "category": "vowelsign",
+  "text": "মি",
+  "notes": "ma + i, PRE-BASE"
+ },
+ {
+  "id": "kar-m-02",
+  "category": "vowelsign",
+  "text": "মী",
+  "notes": "ma + ii, post-base"
+ },
+ {
+  "id": "kar-m-03",
+  "category": "vowelsign",
+  "text": "মু",
+  "notes": "ma + u, below"
+ },
+ {
+  "id": "kar-m-04",
+  "category": "vowelsign",
+  "text": "মূ",
+  "notes": "ma + uu, below"
+ },
+ {
+  "id": "kar-m-05",
+  "category": "vowelsign",
+  "text": "মৃ",
+  "notes": "ma + ri, below"
+ },
+ {
+  "id": "kar-m-06",
+  "category": "vowelsign",
+  "text": "মে",
+  "notes": "ma + e, PRE-BASE"
+ },
+ {
+  "id": "kar-m-07",
+  "category": "vowelsign",
+  "text": "মৈ",
+  "notes": "ma + ai, PRE-BASE"
+ },
+ {
+  "id": "kar-m-08",
+  "category": "vowelsign",
+  "text": "মো",
+  "notes": "ma + o, two-part pre+post"
+ },
+ {
+  "id": "kar-m-09",
+  "category": "vowelsign",
+  "text": "মৌ",
+  "notes": "ma + au, two-part pre+post"
+ },
+ {
+  "id": "reph-00",
+  "category": "reph",
+  "text": "র্ক",
+  "notes": "reph + ka"
+ },
+ {
+  "id": "reph-01",
+  "category": "reph",
+  "text": "র্ম",
+  "notes": "reph + ma"
+ },
+ {
+  "id": "reph-02",
+  "category": "reph",
+  "text": "র্য",
+  "notes": "reph + ya-phala"
+ },
+ {
+  "id": "reph-03",
+  "category": "reph",
+  "text": "র্যা",
+  "notes": "reph + ya-phala + aa"
+ },
+ {
+  "id": "reph-04",
+  "category": "reph",
+  "text": "কর্ম",
+  "notes": "karma"
+ },
+ {
+  "id": "reph-05",
+  "category": "reph",
+  "text": "বর্ষ",
+  "notes": "borsho"
+ },
+ {
+  "id": "reph-06",
+  "category": "reph",
+  "text": "দুর্গা",
+  "notes": "durga"
+ },
+ {
+  "id": "reph-07",
+  "category": "reph",
+  "text": "ধর্ম",
+  "notes": "dhormo"
+ },
+ {
+  "id": "reph-08",
+  "category": "reph",
+  "text": "পূর্ব",
+  "notes": "purbo"
+ },
+ {
+  "id": "reph-09",
+  "category": "reph",
+  "text": "শর্ত",
+  "notes": "shorto"
+ },
+ {
+  "id": "reph-10",
+  "category": "reph",
+  "text": "অর্থ",
+  "notes": "ortho"
+ },
+ {
+  "id": "reph-11",
+  "category": "reph",
+  "text": "সূর্য",
+  "notes": "surjo"
+ },
+ {
+  "id": "reph-12",
+  "category": "reph",
+  "text": "কার্য",
+  "notes": "karjo"
+ },
+ {
+  "id": "reph-13",
+  "category": "reph",
+  "text": "নির্মাণ",
+  "notes": "nirman"
+ },
+ {
+  "id": "reph-14",
+  "category": "reph",
+  "text": "পরিবর্তন",
+  "notes": "poriborton"
+ },
+ {
+  "id": "reph-15",
+  "category": "reph",
+  "text": "কর্তৃপক্ষ",
+  "notes": "kortripokkho"
+ },
+ {
+  "id": "reph-16",
+  "category": "reph",
+  "text": "বিশ্ববিদ্যালয়",
+  "notes": "biswabidyaloy"
+ },
+ {
+  "id": "reph-17",
+  "category": "reph",
+  "text": "দুর্ভাগ্য",
+  "notes": "durbhagyo"
+ },
+ {
+  "id": "reph-18",
+  "category": "reph",
+  "text": "অর্ধেক",
+  "notes": "ordhek"
+ },
+ {
+  "id": "reph-19",
+  "category": "reph",
+  "text": "গর্ব",
+  "notes": "gorbo"
+ },
+ {
+  "id": "rephconj-00",
+  "category": "reph-conjunct",
+  "text": "র্ত্তি",
+  "notes": "reph + t+t + i"
+ },
+ {
+  "id": "rephconj-01",
+  "category": "reph-conjunct",
+  "text": "র্ষ্ণে",
+  "notes": "reph + ss+na + e"
+ },
+ {
+  "id": "rephconj-02",
+  "category": "reph-conjunct",
+  "text": "র্ক্ষ্য",
+  "notes": "reph + k+ss + ya-phala"
+ },
+ {
+  "id": "rephconj-03",
+  "category": "reph-conjunct",
+  "text": "র্ধ্ব",
+  "notes": "reph + dh+b"
+ },
+ {
+  "id": "rephconj-04",
+  "category": "reph-conjunct",
+  "text": "ঊর্ধ্বে",
+  "notes": "urdhbe"
+ },
+ {
+  "id": "rephconj-05",
+  "category": "reph-conjunct",
+  "text": "কার্ত্তিক",
+  "notes": "kartik"
+ },
+ {
+  "id": "rephconj-06",
+  "category": "reph-conjunct",
+  "text": "সর্বোচ্চ",
+  "notes": "sorbocho"
+ },
+ {
+  "id": "rephconj-07",
+  "category": "reph-conjunct",
+  "text": "মূর্ছা",
+  "notes": "murchha"
+ },
+ {
+  "id": "phala-00",
+  "category": "phala",
+  "text": "ব্য",
+  "notes": "ya-phala on ba"
+ },
+ {
+  "id": "phala-01",
+  "category": "phala",
+  "text": "ক্র",
+  "notes": "ra-phala on ka"
+ },
+ {
+  "id": "phala-02",
+  "category": "phala",
+  "text": "প্র",
+  "notes": "ra-phala on pa"
+ },
+ {
+  "id": "phala-03",
+  "category": "phala",
+  "text": "স্ত্র",
+  "notes": "s+t+ra-phala"
+ },
+ {
+  "id": "phala-04",
+  "category": "phala",
+  "text": "গ্র্য",
+  "notes": "ga+ra-phala+ya-phala"
+ },
+ {
+  "id": "phala-05",
+  "category": "phala",
+  "text": "ম্র",
+  "notes": "ra-phala on ma"
+ },
+ {
+  "id": "phala-06",
+  "category": "phala",
+  "text": "হ্য",
+  "notes": "ya-phala on ha"
+ },
+ {
+  "id": "phala-07",
+  "category": "phala",
+  "text": "দ্ব",
+  "notes": "ba-phala on da"
+ },
+ {
+  "id": "phala-08",
+  "category": "phala",
+  "text": "শ্ব",
+  "notes": "ba-phala on sha"
+ },
+ {
+  "id": "phala-09",
+  "category": "phala",
+  "text": "ত্র",
+  "notes": "ra-phala on ta"
+ },
+ {
+  "id": "phala-10",
+  "category": "phala",
+  "text": "ভ্র",
+  "notes": "ra-phala on bha"
+ },
+ {
+  "id": "phala-11",
+  "category": "phala",
+  "text": "ন্য",
+  "notes": "ya-phala on na"
+ },
+ {
+  "id": "phala-12",
+  "category": "phala",
+  "text": "ক্য",
+  "notes": "ya-phala on ka"
+ },
+ {
+  "id": "phala-13",
+  "category": "phala",
+  "text": "দ্য",
+  "notes": "ya-phala on da"
+ },
+ {
+  "id": "phala-14",
+  "category": "phala",
+  "text": "গ্র",
+  "notes": "ra-phala on ga"
+ },
+ {
+  "id": "phala-15",
+  "category": "phala",
+  "text": "ব্যক্তি",
+  "notes": "byakti"
+ },
+ {
+  "id": "phala-16",
+  "category": "phala",
+  "text": "প্রথম",
+  "notes": "prothom"
+ },
+ {
+  "id": "phala-17",
+  "category": "phala",
+  "text": "ক্রম",
+  "notes": "krom"
+ },
+ {
+  "id": "conj2-00",
+  "category": "conjunct-2",
+  "text": "ক্ক",
+  "notes": "kka"
+ },
+ {
+  "id": "conj2-01",
+  "category": "conjunct-2",
+  "text": "ক্ট",
+  "notes": "kta-retro"
+ },
+ {
+  "id": "conj2-02",
+  "category": "conjunct-2",
+  "text": "ক্ত",
+  "notes": "kta"
+ },
+ {
+  "id": "conj2-03",
+  "category": "conjunct-2",
+  "text": "ক্ব",
+  "notes": "kba"
+ },
+ {
+  "id": "conj2-04",
+  "category": "conjunct-2",
+  "text": "ক্ষ",
+  "notes": "kssa"
+ },
+ {
+  "id": "conj2-05",
+  "category": "conjunct-2",
+  "text": "ক্স",
+  "notes": "ksa"
+ },
+ {
+  "id": "conj2-06",
+  "category": "conjunct-2",
+  "text": "গ্ধ",
+  "notes": "gdha"
+ },
+ {
+  "id": "conj2-07",
+  "category": "conjunct-2",
+  "text": "গ্ন",
+  "notes": "gna"
+ },
+ {
+  "id": "conj2-08",
+  "category": "conjunct-2",
+  "text": "ঙ্ক",
+  "notes": "nka"
+ },
+ {
+  "id": "conj2-09",
+  "category": "conjunct-2",
+  "text": "ঙ্গ",
+  "notes": "nga"
+ },
+ {
+  "id": "conj2-10",
+  "category": "conjunct-2",
+  "text": "চ্চ",
+  "notes": "chcha"
+ },
+ {
+  "id": "conj2-11",
+  "category": "conjunct-2",
+  "text": "চ্ছ",
+  "notes": "chchha"
+ },
+ {
+  "id": "conj2-12",
+  "category": "conjunct-2",
+  "text": "জ্জ",
+  "notes": "jja"
+ },
+ {
+  "id": "conj2-13",
+  "category": "conjunct-2",
+  "text": "জ্ঞ",
+  "notes": "gya"
+ },
+ {
+  "id": "conj2-14",
+  "category": "conjunct-2",
+  "text": "ঞ্চ",
+  "notes": "ncha"
+ },
+ {
+  "id": "conj2-15",
+  "category": "conjunct-2",
+  "text": "ট্ট",
+  "notes": "tta"
+ },
+ {
+  "id": "conj2-16",
+  "category": "conjunct-2",
+  "text": "ড্ড",
+  "notes": "dda"
+ },
+ {
+  "id": "conj2-17",
+  "category": "conjunct-2",
+  "text": "ণ্ট",
+  "notes": "nta"
+ },
+ {
+  "id": "conj2-18",
+  "category": "conjunct-2",
+  "text": "ণ্ড",
+  "notes": "nda"
+ },
+ {
+  "id": "conj2-19",
+  "category": "conjunct-2",
+  "text": "ত্ত",
+  "notes": "tta-dental"
+ },
+ {
+  "id": "conj2-20",
+  "category": "conjunct-2",
+  "text": "ত্থ",
+  "notes": "ttha"
+ },
+ {
+  "id": "conj2-21",
+  "category": "conjunct-2",
+  "text": "ত্ন",
+  "notes": "tna"
+ },
+ {
+  "id": "conj2-22",
+  "category": "conjunct-2",
+  "text": "দ্দ",
+  "notes": "dda-dental"
+ },
+ {
+  "id": "conj2-23",
+  "category": "conjunct-2",
+  "text": "দ্ধ",
+  "notes": "ddha"
+ },
+ {
+  "id": "conj2-24",
+  "category": "conjunct-2",
+  "text": "দ্ম",
+  "notes": "dma"
+ },
+ {
+  "id": "conj2-25",
+  "category": "conjunct-2",
+  "text": "ধ্ব",
+  "notes": "dhba"
+ },
+ {
+  "id": "conj2-26",
+  "category": "conjunct-2",
+  "text": "ন্ত",
+  "notes": "nta-dental"
+ },
+ {
+  "id": "conj2-27",
+  "category": "conjunct-2",
+  "text": "ন্দ",
+  "notes": "nda-dental"
+ },
+ {
+  "id": "conj2-28",
+  "category": "conjunct-2",
+  "text": "ন্ধ",
+  "notes": "ndha"
+ },
+ {
+  "id": "conj2-29",
+  "category": "conjunct-2",
+  "text": "ন্ন",
+  "notes": "nna"
+ },
+ {
+  "id": "conj2-30",
+  "category": "conjunct-2",
+  "text": "প্ত",
+  "notes": "pta"
+ },
+ {
+  "id": "conj2-31",
+  "category": "conjunct-2",
+  "text": "প্প",
+  "notes": "ppa"
+ },
+ {
+  "id": "conj2-32",
+  "category": "conjunct-2",
+  "text": "ব্দ",
+  "notes": "bda"
+ },
+ {
+  "id": "conj2-33",
+  "category": "conjunct-2",
+  "text": "ম্প",
+  "notes": "mpa"
+ },
+ {
+  "id": "conj2-34",
+  "category": "conjunct-2",
+  "text": "ম্ব",
+  "notes": "mba"
+ },
+ {
+  "id": "conj2-35",
+  "category": "conjunct-2",
+  "text": "ম্ভ",
+  "notes": "mbha"
+ },
+ {
+  "id": "conj2-36",
+  "category": "conjunct-2",
+  "text": "ল্ক",
+  "notes": "lka"
+ },
+ {
+  "id": "conj2-37",
+  "category": "conjunct-2",
+  "text": "ল্ল",
+  "notes": "lla"
+ },
+ {
+  "id": "conj2-38",
+  "category": "conjunct-2",
+  "text": "শ্চ",
+  "notes": "schа"
+ },
+ {
+  "id": "conj2-39",
+  "category": "conjunct-2",
+  "text": "শ্ন",
+  "notes": "shna"
+ },
+ {
+  "id": "conj2-40",
+  "category": "conjunct-2",
+  "text": "ষ্ক",
+  "notes": "ska"
+ },
+ {
+  "id": "conj2-41",
+  "category": "conjunct-2",
+  "text": "ষ্ট",
+  "notes": "sta"
+ },
+ {
+  "id": "conj2-42",
+  "category": "conjunct-2",
+  "text": "ষ্ঠ",
+  "notes": "stha"
+ },
+ {
+  "id": "conj2-43",
+  "category": "conjunct-2",
+  "text": "ষ্ণ",
+  "notes": "ssna"
+ },
+ {
+  "id": "conj2-44",
+  "category": "conjunct-2",
+  "text": "স্ক",
+  "notes": "ska-dental"
+ },
+ {
+  "id": "conj2-45",
+  "category": "conjunct-2",
+  "text": "স্ট",
+  "notes": "sta-dental"
+ },
+ {
+  "id": "conj2-46",
+  "category": "conjunct-2",
+  "text": "স্থ",
+  "notes": "stha-dental"
+ },
+ {
+  "id": "conj2-47",
+  "category": "conjunct-2",
+  "text": "স্ন",
+  "notes": "sna"
+ },
+ {
+  "id": "conj2-48",
+  "category": "conjunct-2",
+  "text": "হ্ন",
+  "notes": "hna"
+ },
+ {
+  "id": "conj2-49",
+  "category": "conjunct-2",
+  "text": "হ্ম",
+  "notes": "hma"
+ },
+ {
+  "id": "conj3-00",
+  "category": "conjunct-3",
+  "text": "ন্ত্র",
+  "notes": "ntra"
+ },
+ {
+  "id": "conj3-01",
+  "category": "conjunct-3",
+  "text": "ক্ষ্ম",
+  "notes": "kssma"
+ },
+ {
+  "id": "conj3-02",
+  "category": "conjunct-3",
+  "text": "ঙ্ক্ষ",
+  "notes": "nkssa"
+ },
+ {
+  "id": "conj3-03",
+  "category": "conjunct-3",
+  "text": "ন্ধ্র",
+  "notes": "ndhra"
+ },
+ {
+  "id": "conj3-04",
+  "category": "conjunct-3",
+  "text": "ম্ভ্র",
+  "notes": "mbhra"
+ },
+ {
+  "id": "conj3-05",
+  "category": "conjunct-3",
+  "text": "ত্ত্ব",
+  "notes": "ttva"
+ },
+ {
+  "id": "conj3-06",
+  "category": "conjunct-3",
+  "text": "চ্ছ্ব",
+  "notes": "cchva"
+ },
+ {
+  "id": "conj3-07",
+  "category": "conjunct-3",
+  "text": "স্ত্র",
+  "notes": "stra"
+ },
+ {
+  "id": "conj3-08",
+  "category": "conjunct-3",
+  "text": "ষ্ট্র",
+  "notes": "stra-retro"
+ },
+ {
+  "id": "conj3-09",
+  "category": "conjunct-3",
+  "text": "ন্দ্ব",
+  "notes": "ndba"
+ },
+ {
+  "id": "conj3-10",
+  "category": "conjunct-3",
+  "text": "জ্জ্ব",
+  "notes": "jjva"
+ },
+ {
+  "id": "conj3-11",
+  "category": "conjunct-3",
+  "text": "দ্ভ্র",
+  "notes": "dbhra"
+ },
+ {
+  "id": "conj3-12",
+  "category": "conjunct-3",
+  "text": "ক্ষ্ণ",
+  "notes": "kssna"
+ },
+ {
+  "id": "conj3-13",
+  "category": "conjunct-3",
+  "text": "ত্ম্য",
+  "notes": "tmya"
+ },
+ {
+  "id": "conj4-00",
+  "category": "conjunct-4",
+  "text": "স্ত্র্য",
+  "notes": "strya (4)"
+ },
+ {
+  "id": "conj4-01",
+  "category": "conjunct-4",
+  "text": "ঙ্ক্ষ্য",
+  "notes": "nkssya (4)"
+ },
+ {
+  "id": "conj4-02",
+  "category": "conjunct-4",
+  "text": "ক্ষ্ম্য",
+  "notes": "kssmya (4)"
+ },
+ {
+  "id": "hasanta-00",
+  "category": "hasanta",
+  "text": "বাক্‌",
+  "notes": "explicit visible hasanta via ZWNJ"
+ },
+ {
+  "id": "hasanta-01",
+  "category": "hasanta",
+  "text": "ৎ",
+  "notes": "khanda ta"
+ },
+ {
+  "id": "hasanta-02",
+  "category": "hasanta",
+  "text": "ত্",
+  "notes": "ta + hasanta at end"
+ },
+ {
+  "id": "hasanta-03",
+  "category": "hasanta",
+  "text": "উৎসব",
+  "notes": "utsob with khanda-ta"
+ },
+ {
+  "id": "hasanta-04",
+  "category": "hasanta",
+  "text": "বাক্য",
+  "notes": "bakya"
+ },
+ {
+  "id": "hasanta-05",
+  "category": "hasanta",
+  "text": "সাক্ষাৎ",
+  "notes": "sakkhat, ends with khanda-ta"
+ },
+ {
+  "id": "hasanta-06",
+  "category": "hasanta",
+  "text": "হঠাৎ",
+  "notes": "hothat"
+ },
+ {
+  "id": "nukta-00",
+  "category": "nukta",
+  "text": "ড়",
+  "notes": "precomposed U+09DC"
+ },
+ {
+  "id": "nukta-01",
+  "category": "nukta",
+  "text": "ড়",
+  "notes": "decomposed U+09A1 U+09BC"
+ },
+ {
+  "id": "nukta-02",
+  "category": "nukta",
+  "text": "ঢ়",
+  "notes": "precomposed U+09DD"
+ },
+ {
+  "id": "nukta-03",
+  "category": "nukta",
+  "text": "ঢ়",
+  "notes": "decomposed U+09A2 U+09BC"
+ },
+ {
+  "id": "nukta-04",
+  "category": "nukta",
+  "text": "য়",
+  "notes": "precomposed U+09DF"
+ },
+ {
+  "id": "nukta-05",
+  "category": "nukta",
+  "text": "য়",
+  "notes": "decomposed U+09AF U+09BC"
+ },
+ {
+  "id": "nukta-06",
+  "category": "nukta",
+  "text": "বড়",
+  "notes": "boro, precomposed"
+ },
+ {
+  "id": "nukta-07",
+  "category": "nukta",
+  "text": "বড়",
+  "notes": "boro, decomposed"
+ },
+ {
+  "id": "nukta-08",
+  "category": "nukta",
+  "text": "পড়া",
+  "notes": "pora with matra"
+ },
+ {
+  "id": "nukta-09",
+  "category": "nukta",
+  "text": "হয়েছে",
+  "notes": "hoyeche"
+ },
+ {
+  "id": "mark-00",
+  "category": "marks",
+  "text": "চাঁদ",
+  "notes": "chandrabindu"
+ },
+ {
+  "id": "mark-01",
+  "category": "marks",
+  "text": "বাংলা",
+  "notes": "anusvara"
+ },
+ {
+  "id": "mark-02",
+  "category": "marks",
+  "text": "দুঃখ",
+  "notes": "visarga"
+ },
+ {
+  "id": "mark-03",
+  "category": "marks",
+  "text": "বাঁশি",
+  "notes": "banshi"
+ },
+ {
+  "id": "mark-04",
+  "category": "marks",
+  "text": "সংস্কৃতি",
+  "notes": "songskriti"
+ },
+ {
+  "id": "mark-05",
+  "category": "marks",
+  "text": "অংশ",
+  "notes": "onsho"
+ },
+ {
+  "id": "mark-06",
+  "category": "marks",
+  "text": "পুনঃ",
+  "notes": "punoh"
+ },
+ {
+  "id": "mark-07",
+  "category": "marks",
+  "text": "চাঁদনী",
+  "notes": "chandni"
+ },
+ {
+  "id": "num-00",
+  "category": "digits",
+  "text": "০১২৩৪৫৬৭৮৯",
+  "notes": "all Bengali digits"
+ },
+ {
+  "id": "num-01",
+  "category": "digits",
+  "text": "৳ ১২৩৪.৫৬",
+  "notes": "taka + amount"
+ },
+ {
+  "id": "num-02",
+  "category": "digits",
+  "text": "৳১২,৫০০.০০",
+  "notes": "taka amount with separators"
+ },
+ {
+  "id": "num-03",
+  "category": "digits",
+  "text": "০১/০৯/২০২৬",
+  "notes": "Bengali date"
+ },
+ {
+  "id": "assamese-00",
+  "category": "assamese",
+  "text": "ৰ",
+  "notes": "Assamese ra U+09F0"
+ },
+ {
+  "id": "assamese-01",
+  "category": "assamese",
+  "text": "ৱ",
+  "notes": "Assamese wa U+09F1"
+ },
+ {
+  "id": "assamese-02",
+  "category": "assamese",
+  "text": "ৰং",
+  "notes": "Assamese ra + anusvara"
+ },
+ {
+  "id": "punct-00",
+  "category": "punctuation",
+  "text": "বাক্য।",
+  "notes": "danda"
+ },
+ {
+  "id": "punct-01",
+  "category": "punctuation",
+  "text": "শেষ॥",
+  "notes": "double danda"
+ },
+ {
+  "id": "punct-02",
+  "category": "punctuation",
+  "text": "‘উক্তি’ ও “উদ্ধৃতি”",
+  "notes": "Bengali quotes"
+ },
+ {
+  "id": "mix-00",
+  "category": "mixed",
+  "text": "Hello বাংলাদেশ world!",
+  "notes": "bangla + latin"
+ },
+ {
+  "id": "mix-01",
+  "category": "mixed",
+  "text": "আমার Invoice #123 total ৳৫০০",
+  "notes": "bangla + latin + digits"
+ },
+ {
+  "id": "mix-02",
+  "category": "mixed",
+  "text": "ঢাকা 2026 সালে",
+  "notes": "embedded western digits"
+ },
+ {
+  "id": "mix-03",
+  "category": "mixed",
+  "text": "বাংলা ✅ ঠিক আছে",
+  "notes": "bangla + emoji"
+ },
+ {
+  "id": "mix-04",
+  "category": "mixed",
+  "text": "Email: test@example.com ঠিকানা",
+  "notes": "latin punctuation run"
+ },
+ {
+  "id": "mix-05",
+  "category": "mixed",
+  "text": "৫০% ছাড়",
+  "notes": "percent sign"
+ },
+ {
+  "id": "zwj-00",
+  "category": "zwj",
+  "text": "র‍্য",
+  "notes": "ra + ZWJ + hasanta + ya (ra-ya, NOT reph)"
+ },
+ {
+  "id": "zwj-01",
+  "category": "zwj",
+  "text": "র্য",
+  "notes": "ra + hasanta + ya (reph + ya-phala)"
+ },
+ {
+  "id": "zwj-02",
+  "category": "zwj",
+  "text": "ক্‌ষ",
+  "notes": "ka + hasanta + ZWNJ + ssa: must NOT ligate"
+ },
+ {
+  "id": "zwj-03",
+  "category": "zwj",
+  "text": "ক্ষ",
+  "notes": "ka + hasanta + ssa: must ligate"
+ },
+ {
+  "id": "zwj-04",
+  "category": "zwj",
+  "text": "র‍্যাব",
+  "notes": "RAB with ZWJ"
+ },
+ {
+  "id": "zwj-05",
+  "category": "zwj",
+  "text": "ব‍্য",
+  "notes": "ba + ZWJ + hasanta + ya"
+ },
+ {
+  "id": "norm-00",
+  "category": "normalisation",
+  "text": "কো",
+  "notes": "NFC ka + U+09CB"
+ },
+ {
+  "id": "norm-01",
+  "category": "normalisation",
+  "text": "কো",
+  "notes": "NFD ka + U+09C7 + U+09BE"
+ },
+ {
+  "id": "norm-02",
+  "category": "normalisation",
+  "text": "কৌ",
+  "notes": "NFC ka + U+09CC"
+ },
+ {
+  "id": "norm-03",
+  "category": "normalisation",
+  "text": "কৌ",
+  "notes": "NFD ka + U+09C7 + U+09D7"
+ },
+ {
+  "id": "norm-04",
+  "category": "normalisation",
+  "text": "ড়া",
+  "notes": "NFC rra + aa"
+ },
+ {
+  "id": "norm-05",
+  "category": "normalisation",
+  "text": "ড়া",
+  "notes": "NFD dda + nukta + aa"
+ },
+ {
+  "id": "para-00",
+  "category": "paragraph",
+  "text": "আমার সোনার বাংলা, আমি তোমায় ভালোবাসি।",
+  "notes": "Rabindranath, anthem line 1"
+ },
+ {
+  "id": "para-01",
+  "category": "paragraph",
+  "text": "চিরদিন তোমার আকাশ, তোমার বাতাস, আমার প্রাণে বাজায় বাঁশি।",
+  "notes": "anthem line 2"
+ },
+ {
+  "id": "para-02",
+  "category": "paragraph",
+  "text": "ও মা, ফাগুনে তোর আমের বনে ঘ্রাণে পাগল করে।",
+  "notes": "anthem line 3"
+ },
+ {
+  "id": "para-03",
+  "category": "paragraph",
+  "text": "ঢাকা বিশ্ববিদ্যালয়ের শিক্ষার্থীরা গতকাল কেন্দ্রীয় শহীদ মিনারে সমাবেশ করেছেন।",
+  "notes": "news paragraph"
+ },
+ {
+  "id": "para-04",
+  "category": "paragraph",
+  "text": "আবহাওয়া অধিদপ্তর জানিয়েছে, আগামী ২৪ ঘণ্টায় সারা দেশে বৃষ্টিপাতের সম্ভাবনা রয়েছে।",
+  "notes": "news, weather"
+ },
+ {
+  "id": "para-05",
+  "category": "paragraph",
+  "text": "বিবরণ: কম্পিউটার যন্ত্রাংশ — পরিমাণ ৩ — একক মূল্য ৳১২,৫০০.০০ — তারিখ ০১/০৯/২০২৬",
+  "notes": "invoice line"
+ },
+ {
+  "id": "para-06",
+  "category": "paragraph",
+  "text": "উক্ত চুক্তির শর্তাবলী লঙ্ঘিত হইলে কর্তৃপক্ষ আইনানুগ ব্যবস্থা গ্রহণ করিবেন।",
+  "notes": "legal clause"
+ },
+ {
+  "id": "para-07",
+  "category": "paragraph",
+  "text": "স্থিতি: ৳৪৫,৬৭৮.৯০ | লেনদেন: ডেবিট | শাখা: মতিঝিল",
+  "notes": "bank statement row"
+ },
+ {
+  "id": "para-08",
+  "category": "paragraph",
+  "text": "জন্ম নিবন্ধন সনদ প্রাপ্তির জন্য নির্ধারিত ফরম পূরণ করে সংশ্লিষ্ট কার্যালয়ে জমা দিন।",
+  "notes": "government notice"
+ },
+ {
+  "id": "para-09",
+  "category": "paragraph",
+  "text": "স্বাধীনতা সংগ্রামে শহীদদের আত্মত্যাগ জাতি চিরকাল শ্রদ্ধার সঙ্গে স্মরণ করবে।",
+  "notes": "formal prose"
+ },
+ {
+  "id": "long-00",
+  "category": "paragraph",
+  "text": "বাংলাদেশ দক্ষিণ এশিয়ার একটি সার্বভৌম রাষ্ট্র। এর রাজধানী ঢাকা। বাংলাদেশের উত্তরে ভারত, পূর্বে ভারত ও মিয়ানমার এবং দক্ষিণে বঙ্গোপসাগর অবস্থিত।",
+  "notes": "multi-sentence wrap test"
+ },
+ {
+  "id": "edge-00",
+  "category": "edge",
+  "text": "ি",
+  "notes": "lone pre-base vowel sign"
+ },
+ {
+  "id": "edge-01",
+  "category": "edge",
+  "text": "ে",
+  "notes": "lone e-kar"
+ },
+ {
+  "id": "edge-02",
+  "category": "edge",
+  "text": "্র",
+  "notes": "hasanta + ra at string start"
+ },
+ {
+  "id": "edge-03",
+  "category": "edge",
+  "text": "র্",
+  "notes": "ra + hasanta at end"
+ },
+ {
+  "id": "edge-04",
+  "category": "edge",
+  "text": "aি",
+  "notes": "latin then pre-base kar"
+ },
+ {
+  "id": "edge-05",
+  "category": "edge",
+  "text": "",
+  "notes": "empty string"
+ },
+ {
+  "id": "edge-06",
+  "category": "edge",
+  "text": "   ",
+  "notes": "whitespace only"
+ },
+ {
+  "id": "edge-07",
+  "category": "edge",
+  "text": "্",
+  "notes": "lone hasanta"
+ },
+ {
+  "id": "edge-08",
+  "category": "edge",
+  "text": "‍",
+  "notes": "lone ZWJ"
+ },
+ {
+  "id": "edge-09",
+  "category": "edge",
+  "text": "কককককককককক",
+  "notes": "repeated consonant"
+ }
+]

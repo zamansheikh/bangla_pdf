@@ -81,6 +81,27 @@ class RichText extends pw.StatelessWidget {
 
   @override
   pw.Widget build(pw.Context context) {
+    // Under the shaping pipeline each span is laid out by its own widget, so
+    // they are flowed with a Wrap rather than merged into one pw.TextSpan.
+    if (BanglaPdf.resolveShapingFont(null) != null ||
+        spans.any((s) => BanglaPdf.resolveShapingFont(s.banglaFont) != null)) {
+      return pw.Wrap(
+        crossAxisAlignment: pw.WrapCrossAlignment.end,
+        children: spans
+            .map(
+              (span) => AutoText(
+                span.text,
+                banglaFont: span.banglaFont,
+                fontSize: span.fontSize,
+                fontWeight: span.fontWeight,
+                color: span.color,
+                textAlign: textAlign,
+              ),
+            )
+            .toList(),
+      );
+    }
+
     final List<pw.InlineSpan> children = [];
 
     for (final span in spans) {
@@ -231,7 +252,10 @@ class AutoText extends pw.StatelessWidget {
 
   /// The font to use for Bangla text.
   ///
-  /// If not provided, the default embedded Kalpurush font will be used.
+  /// If not provided, the bundled Noto Sans Bengali is used and shaped with
+  /// its own OpenType tables. Supply a font from [BanglaPdf.loadFont] to shape
+  /// with a different Unicode font; a `pw.Font.ttf` holding a legacy Bijoy
+  /// font still takes the 1.0.x ANSI path.
   final pw.Font? banglaFont;
 
   /// The font to use for non-Bangla text.
@@ -264,6 +288,25 @@ class AutoText extends pw.StatelessWidget {
 
   @override
   pw.Widget build(pw.Context context) {
+    // Prefer real OpenType shaping. It only declines when the caller supplied
+    // a legacy 8-bit font or asked for BanglaShapingMode.legacy, in which case
+    // the 1.0.x Bijoy pipeline below runs unchanged.
+    final shapingFont = BanglaPdf.resolveShapingFont(
+      banglaFont ?? banglaStyle?.font,
+    );
+    if (shapingFont != null) {
+      final effective = banglaStyle ?? style;
+      return ShapedTextWidget(
+        text: text,
+        font: shapingFont,
+        fontSize: (effective?.fontSize ?? fontSize) * textScaleFactor,
+        color: effective?.color ?? color,
+        textAlign: textAlign ?? pw.TextAlign.start,
+        maxLines: maxLines,
+        lineSpacing: effective?.lineSpacing ?? 1.2,
+      );
+    }
+
     return pw.RichText(
       textAlign: textAlign,
       textDirection: textDirection,

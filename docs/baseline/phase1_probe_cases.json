@@ -1,0 +1,506 @@
+[
+ {
+  "id": "vowel-00",
+  "category": "vowelsign",
+  "text": "ক",
+  "notes": "ka + bare"
+ },
+ {
+  "id": "vowel-01",
+  "category": "vowelsign",
+  "text": "কা",
+  "notes": "ka + aa"
+ },
+ {
+  "id": "vowel-02",
+  "category": "vowelsign",
+  "text": "কি",
+  "notes": "ka + i (pre-base)"
+ },
+ {
+  "id": "vowel-03",
+  "category": "vowelsign",
+  "text": "কী",
+  "notes": "ka + ii"
+ },
+ {
+  "id": "vowel-04",
+  "category": "vowelsign",
+  "text": "কু",
+  "notes": "ka + u"
+ },
+ {
+  "id": "vowel-05",
+  "category": "vowelsign",
+  "text": "কূ",
+  "notes": "ka + uu"
+ },
+ {
+  "id": "vowel-06",
+  "category": "vowelsign",
+  "text": "কৃ",
+  "notes": "ka + ri"
+ },
+ {
+  "id": "vowel-07",
+  "category": "vowelsign",
+  "text": "কে",
+  "notes": "ka + e (pre-base)"
+ },
+ {
+  "id": "vowel-08",
+  "category": "vowelsign",
+  "text": "কৈ",
+  "notes": "ka + ai (pre-base)"
+ },
+ {
+  "id": "vowel-09",
+  "category": "vowelsign",
+  "text": "কো",
+  "notes": "ka + o (split: e+aa)"
+ },
+ {
+  "id": "vowel-10",
+  "category": "vowelsign",
+  "text": "কৌ",
+  "notes": "ka + au (split: e+au-length)"
+ },
+ {
+  "id": "indep-00",
+  "category": "simple",
+  "text": "অআইঈউঊঋএঐওঔ",
+  "notes": "all independent vowels"
+ },
+ {
+  "id": "simple-00",
+  "category": "simple",
+  "text": "কখগঘঙচছজঝঞ",
+  "notes": "consonant series 1"
+ },
+ {
+  "id": "simple-01",
+  "category": "simple",
+  "text": "টঠডঢণতথদধন",
+  "notes": "consonant series 2"
+ },
+ {
+  "id": "simple-02",
+  "category": "simple",
+  "text": "পফবভমযরলশষসহ",
+  "notes": "consonant series 3"
+ },
+ {
+  "id": "reph-00",
+  "category": "reph",
+  "text": "র্ক",
+  "notes": "reph+ka"
+ },
+ {
+  "id": "reph-01",
+  "category": "reph",
+  "text": "র্ম",
+  "notes": "reph+ma"
+ },
+ {
+  "id": "reph-02",
+  "category": "reph",
+  "text": "র্য",
+  "notes": "reph+ya -> ya-phala after reph"
+ },
+ {
+  "id": "reph-03",
+  "category": "reph",
+  "text": "র্যা",
+  "notes": "reph+ya+aa"
+ },
+ {
+  "id": "reph-04",
+  "category": "reph",
+  "text": "কর্ম",
+  "notes": "karma"
+ },
+ {
+  "id": "reph-05",
+  "category": "reph",
+  "text": "বর্ষ",
+  "notes": "borsho"
+ },
+ {
+  "id": "reph-06",
+  "category": "reph",
+  "text": "দুর্গা",
+  "notes": "durga"
+ },
+ {
+  "id": "reph-07",
+  "category": "reph",
+  "text": "র্তি",
+  "notes": "reph + ta + i(pre-base)"
+ },
+ {
+  "id": "reph-08",
+  "category": "reph",
+  "text": "র্ত্তি",
+  "notes": "reph + t+t + i"
+ },
+ {
+  "id": "reph-09",
+  "category": "reph",
+  "text": "র্ষ্ণে",
+  "notes": "reph + ss+na + e"
+ },
+ {
+  "id": "reph-10",
+  "category": "reph",
+  "text": "র্ক্ষ্য",
+  "notes": "reph + k+ss + ya-phala"
+ },
+ {
+  "id": "phala-00",
+  "category": "phala",
+  "text": "ব্য",
+  "notes": "ya-phala on ba"
+ },
+ {
+  "id": "phala-01",
+  "category": "phala",
+  "text": "ক্র",
+  "notes": "ra-phala on ka"
+ },
+ {
+  "id": "phala-02",
+  "category": "phala",
+  "text": "প্র",
+  "notes": "ra-phala on pa"
+ },
+ {
+  "id": "phala-03",
+  "category": "phala",
+  "text": "স্ত্র",
+  "notes": "s+t+ra-phala"
+ },
+ {
+  "id": "phala-04",
+  "category": "phala",
+  "text": "গ্র্য",
+  "notes": "ga+ra-phala+ya-phala"
+ },
+ {
+  "id": "phala-05",
+  "category": "phala",
+  "text": "ম্র",
+  "notes": "ra-phala on ma"
+ },
+ {
+  "id": "phala-06",
+  "category": "phala",
+  "text": "হ্য",
+  "notes": "ya-phala on ha"
+ },
+ {
+  "id": "conj-00",
+  "category": "conjunct",
+  "text": "ক্ষ",
+  "notes": "kssa"
+ },
+ {
+  "id": "conj-01",
+  "category": "conjunct",
+  "text": "জ্ঞ",
+  "notes": "gya"
+ },
+ {
+  "id": "conj-02",
+  "category": "conjunct",
+  "text": "ষ্ণ",
+  "notes": "ssna"
+ },
+ {
+  "id": "conj-03",
+  "category": "conjunct",
+  "text": "ন্ত্র",
+  "notes": "ntra (3)"
+ },
+ {
+  "id": "conj-04",
+  "category": "conjunct",
+  "text": "ক্ষ্ম",
+  "notes": "kssma (3)"
+ },
+ {
+  "id": "conj-05",
+  "category": "conjunct",
+  "text": "ঙ্ক্ষ",
+  "notes": "nkssa (3)"
+ },
+ {
+  "id": "conj-06",
+  "category": "conjunct",
+  "text": "স্ত্র্য",
+  "notes": "strya (4)"
+ },
+ {
+  "id": "conj-07",
+  "category": "conjunct",
+  "text": "ন্ধ্র",
+  "notes": "ndhra (3)"
+ },
+ {
+  "id": "conj-08",
+  "category": "conjunct",
+  "text": "ক্ত",
+  "notes": "kta"
+ },
+ {
+  "id": "conj-09",
+  "category": "conjunct",
+  "text": "দ্ধ",
+  "notes": "ddha"
+ },
+ {
+  "id": "conj-10",
+  "category": "conjunct",
+  "text": "ল্ল",
+  "notes": "lla"
+ },
+ {
+  "id": "conj-11",
+  "category": "conjunct",
+  "text": "ত্ত্ব",
+  "notes": "ttva (3)"
+ },
+ {
+  "id": "conj-12",
+  "category": "conjunct",
+  "text": "চ্ছ্ব",
+  "notes": "cchva (3)"
+ },
+ {
+  "id": "conj-13",
+  "category": "conjunct",
+  "text": "ম্ভ্র",
+  "notes": "mbhra (3)"
+ },
+ {
+  "id": "has-00",
+  "category": "hasanta",
+  "text": "বাক্‌",
+  "notes": "explicit visible hasanta via ZWNJ"
+ },
+ {
+  "id": "has-01",
+  "category": "hasanta",
+  "text": "ৎ",
+  "notes": "khanda ta"
+ },
+ {
+  "id": "has-02",
+  "category": "hasanta",
+  "text": "ত্",
+  "notes": "ta + hasanta at end"
+ },
+ {
+  "id": "has-03",
+  "category": "hasanta",
+  "text": "উৎসব",
+  "notes": "utsob with khanda-ta"
+ },
+ {
+  "id": "nuk-00",
+  "category": "nukta",
+  "text": "ড়ঢ়য়",
+  "notes": "precomposed nukta forms"
+ },
+ {
+  "id": "nuk-01",
+  "category": "nukta",
+  "text": "ড়ঢ়য়",
+  "notes": "decomposed nukta forms"
+ },
+ {
+  "id": "nuk-02",
+  "category": "nukta",
+  "text": "বাংলাদেশ",
+  "notes": "common word"
+ },
+ {
+  "id": "mark-00",
+  "category": "marks",
+  "text": "চাঁদ",
+  "notes": "chandrabindu"
+ },
+ {
+  "id": "mark-01",
+  "category": "marks",
+  "text": "বাংলা",
+  "notes": "anusvara"
+ },
+ {
+  "id": "mark-02",
+  "category": "marks",
+  "text": "দুঃখ",
+  "notes": "visarga"
+ },
+ {
+  "id": "num-00",
+  "category": "digits",
+  "text": "০১২৩৪৫৬৭৮৯",
+  "notes": "bengali digits"
+ },
+ {
+  "id": "num-01",
+  "category": "digits",
+  "text": "৳ ১২৩৪.৫৬",
+  "notes": "taka + amount"
+ },
+ {
+  "id": "num-02",
+  "category": "digits",
+  "text": "ৰ ৱ",
+  "notes": "assamese ra/wa"
+ },
+ {
+  "id": "num-03",
+  "category": "digits",
+  "text": "বাক্য। শেষ॥",
+  "notes": "danda and double danda"
+ },
+ {
+  "id": "mix-00",
+  "category": "mixed",
+  "text": "আমার Invoice #123 total ৳৫০০ ✅",
+  "notes": "bangla+latin+digits+emoji"
+ },
+ {
+  "id": "mix-01",
+  "category": "mixed",
+  "text": "Hello বাংলাদেশ world!",
+  "notes": "README example"
+ },
+ {
+  "id": "zwj-00",
+  "category": "zwj",
+  "text": "র‍্য",
+  "notes": "ra + ZWJ + hasanta + ya  (ra-ya with ZWJ)"
+ },
+ {
+  "id": "zwj-01",
+  "category": "zwj",
+  "text": "র্য",
+  "notes": "ra + hasanta + ya (reph + ya)"
+ },
+ {
+  "id": "zwj-02",
+  "category": "zwj",
+  "text": "ক্‌ষ",
+  "notes": "ka + hasanta + ZWNJ + ssa (must NOT form kssa)"
+ },
+ {
+  "id": "zwj-03",
+  "category": "zwj",
+  "text": "ক্ষ",
+  "notes": "ka + hasanta + ssa (must form kssa)"
+ },
+ {
+  "id": "norm-00",
+  "category": "normalisation",
+  "text": "ড়া",
+  "notes": "NFD: da+nukta+aa"
+ },
+ {
+  "id": "norm-01",
+  "category": "normalisation",
+  "text": "ড়া",
+  "notes": "NFC: rra+aa"
+ },
+ {
+  "id": "norm-02",
+  "category": "normalisation",
+  "text": "কো",
+  "notes": "NFD-ish: ka + e + aa  == ko"
+ },
+ {
+  "id": "norm-03",
+  "category": "normalisation",
+  "text": "কো",
+  "notes": "NFC: ka + o"
+ },
+ {
+  "id": "para-00",
+  "category": "paragraph",
+  "text": "আমার সোনার বাংলা, আমি তোমায় ভালোবাসি।",
+  "notes": "Rabindranath - national anthem line 1"
+ },
+ {
+  "id": "para-01",
+  "category": "paragraph",
+  "text": "চিরদিন তোমার আকাশ, তোমার বাতাস, আমার প্রাণে বাজায় বাঁশি।",
+  "notes": "anthem line 2"
+ },
+ {
+  "id": "para-02",
+  "category": "paragraph",
+  "text": "ঢাকা বিশ্ববিদ্যালয়ের শিক্ষার্থীরা গতকাল কেন্দ্রীয় শহীদ মিনারে সমাবেশ করেছেন।",
+  "notes": "news paragraph"
+ },
+ {
+  "id": "para-03",
+  "category": "paragraph",
+  "text": "বিবরণ: কম্পিউটার যন্ত্রাংশ — পরিমাণ ৩ — একক মূল্য ৳১২,৫০০.০০ — তারিখ ০১/০৯/২০২৬",
+  "notes": "invoice line"
+ },
+ {
+  "id": "para-04",
+  "category": "paragraph",
+  "text": "উক্ত চুক্তির শর্তাবলী লঙ্ঘিত হইলে কর্তৃপক্ষ আইনানুগ ব্যবস্থা গ্রহণ করিবেন।",
+  "notes": "legal clause"
+ },
+ {
+  "id": "para-05",
+  "category": "paragraph",
+  "text": "স্থিতি: ৳৪৫,৬৭৮.৯০ | লেনদেন: ডেবিট | শাখা: মতিঝিল",
+  "notes": "bank statement row"
+ },
+ {
+  "id": "edge-00",
+  "category": "edge",
+  "text": "ি",
+  "notes": "lone pre-base vowel sign at string start"
+ },
+ {
+  "id": "edge-01",
+  "category": "edge",
+  "text": "ে",
+  "notes": "lone e-kar"
+ },
+ {
+  "id": "edge-02",
+  "category": "edge",
+  "text": " ি",
+  "notes": "space then pre-base kar"
+ },
+ {
+  "id": "edge-03",
+  "category": "edge",
+  "text": "র্",
+  "notes": "ra + hasanta at end of string"
+ },
+ {
+  "id": "edge-04",
+  "category": "edge",
+  "text": "্র",
+  "notes": "hasanta + ra at string start"
+ },
+ {
+  "id": "edge-05",
+  "category": "edge",
+  "text": "aি",
+  "notes": "latin then pre-base kar"
+ },
+ {
+  "id": "edge-06",
+  "category": "edge",
+  "text": "",
+  "notes": "empty string"
+ }
+]

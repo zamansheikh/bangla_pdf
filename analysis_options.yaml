@@ -9,6 +9,9 @@ include: package:lint/strict.yaml # For production apps
 analyzer:
   exclude:
     - build/**
+    # Development-only harnesses: they print to stdout by design.
+    - tool/**
+    - example/**
     #- '**.freezed.dart'
     #- '**.g.dart'
 

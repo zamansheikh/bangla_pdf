@@ -16,8 +16,14 @@ class BanglaPdfService {
   /// - BulletList
   /// - Table
   ///
+  /// Pass [shapingMode] to compare the OpenType pipeline against the legacy
+  /// Bijoy one; the difference is most obvious in the conjunct and reph rows.
+  ///
   /// Returns a [pw.Document] that can be saved or previewed.
-  static Future<pw.Document> generateSamplePdf() async {
+  static Future<pw.Document> generateSamplePdf({
+    BanglaShapingMode shapingMode = BanglaShapingMode.auto,
+  }) async {
+    BanglaPdf.configure(shapingMode: shapingMode);
     final pdf = pw.Document();
 
     // Sample table data for Table
@@ -29,96 +35,114 @@ class BanglaPdfService {
       ['মোট', '', '', '\$50'], // Footer
     ];
 
-    // Add a page to the PDF
+    // MultiPage so the sample flows onto a second page instead of overflowing.
     pdf.addPage(
-      pw.Page(
-        build: (context) => pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            /// Custom text using BanglaFontManager directly
-            Text(
-              'বাংলা',
-              style: pw.TextStyle(
-                fontSize: 24,
-                font: BanglaFontManager().defaultFont,
+      pw.MultiPage(
+        build: (context) => [
+          pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              /// Custom text using BanglaFontManager directly
+              Text(
+                'বাংলা',
+                style: pw.TextStyle(
+                  fontSize: 24,
+                  font: BanglaFontManager().defaultFont,
+                ),
               ),
-            ),
 
-            /// Simple Bangla text
-            Text(
-              'বাংলা সাধারণ টেক্সট',
-              fontSize: 20,
-            ),
-
-            pw.SizedBox(height: 20),
-
-            /// Bangla rich text with multiple fonts and styles
-            RichText(
-              spans: [
-                TextSpan(
-                  'বাংলা বোল্ড ',
-                  fontWeight: pw.FontWeight.bold,
-                  fontSize: 20,
-                  color: PdfColors.red,
-                ),
-                TextSpan(
-                  'এবং ইটালিক',
-                  fontSize: 18,
-                  color: PdfColors.blue,
-                ),
-              ],
-            ),
-
-            pw.SizedBox(height: 20),
-
-            /// Bangla header
-            Header('বাংলা শিরোনাম'),
-            pw.SizedBox(height: 10),
-
-            /// Bangla paragraph
-            Paragraph('বাংলা অনুচ্ছেদ এখানে লেখা হবে।'),
-
-            pw.SizedBox(height: 20),
-
-            /// Another rich text example
-            RichText(
-              spans: [
-                TextSpan('বাংলা বোল্ড ', fontWeight: pw.FontWeight.bold),
-                TextSpan(
-                  'এবং ইটালিক',
-                ),
-              ],
-            ),
-
-            /// Bangla bullet list
-            Header('বাংলা বুলেট লিস্ট'),
-            pw.SizedBox(height: 10),
-            BulletList(
-              items: [
-                'প্রথম আইটেম',
-                'দ্বিতীয় আইটেম',
-                'তৃতীয় আইটেম',
-              ],
-            ),
-
-            pw.SizedBox(height: 20),
-
-            /// Bangla table
-            Header('বাংলা টেবিল'),
-            pw.SizedBox(height: 10),
-            Table(
-              data: tableData,
-              fontSize: 16,
-              headerColor: PdfColors.blue,
-              borderColor: PdfColors.grey200,
-              cellAlignment: pw.Alignment.center,
-              cellPadding: const pw.EdgeInsets.symmetric(
-                vertical: 8,
-                horizontal: 6,
+              /// Simple Bangla text
+              Text(
+                'বাংলা সাধারণ টেক্সট',
+                fontSize: 20,
               ),
-            ),
-          ],
-        ),
+
+              pw.SizedBox(height: 12),
+
+              /// Conjuncts. Every one of these rendered with a stray hasanta
+              /// before 1.1.0.
+              Text('যুক্তাক্ষর: ক্ষ্ম ঙ্ক্ষ ত্ত্ব চ্ছ্ব ম্ভ্র স্ত্র্য',
+                  fontSize: 16),
+
+              /// Reph. Every one of these threw RangeError before 1.1.0.
+              Text('রেফ: কর্ম ধর্ম বর্ষ পূর্ব শর্ত দুর্গা', fontSize: 16),
+
+              /// Pre-base vowel signs, which render to the left of the consonant.
+              Text('কার: কি কে কৈ কো কৌ কা কু', fontSize: 16),
+
+              /// Bengali digits and currency survive as themselves.
+              Text('সংখ্যা: ০১২৩৪৫৬৭৮৯ — ৳১২,৫০০.০০', fontSize: 16),
+
+              pw.SizedBox(height: 20),
+
+              /// Bangla rich text with multiple fonts and styles
+              RichText(
+                spans: [
+                  TextSpan(
+                    'বাংলা বোল্ড ',
+                    fontWeight: pw.FontWeight.bold,
+                    fontSize: 20,
+                    color: PdfColors.red,
+                  ),
+                  TextSpan(
+                    'এবং ইটালিক',
+                    fontSize: 18,
+                    color: PdfColors.blue,
+                  ),
+                ],
+              ),
+
+              pw.SizedBox(height: 20),
+
+              /// Bangla header
+              Header('বাংলা শিরোনাম'),
+              pw.SizedBox(height: 10),
+
+              /// Bangla paragraph
+              Paragraph('বাংলা অনুচ্ছেদ এখানে লেখা হবে।'),
+
+              pw.SizedBox(height: 20),
+
+              /// Another rich text example
+              RichText(
+                spans: [
+                  TextSpan('বাংলা বোল্ড ', fontWeight: pw.FontWeight.bold),
+                  TextSpan(
+                    'এবং ইটালিক',
+                  ),
+                ],
+              ),
+
+              /// Bangla bullet list
+              Header('বাংলা বুলেট লিস্ট'),
+              pw.SizedBox(height: 10),
+              BulletList(
+                items: [
+                  'প্রথম আইটেম',
+                  'দ্বিতীয় আইটেম',
+                  'তৃতীয় আইটেম',
+                ],
+              ),
+
+              pw.SizedBox(height: 20),
+
+              /// Bangla table
+              Header('বাংলা টেবিল'),
+              pw.SizedBox(height: 10),
+              Table(
+                data: tableData,
+                fontSize: 16,
+                headerColor: PdfColors.blue,
+                borderColor: PdfColors.grey200,
+                cellAlignment: pw.Alignment.center,
+                cellPadding: const pw.EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 6,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
 

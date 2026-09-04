@@ -1,6 +1,8 @@
 name: bangla_pdf
-description: A package to fix broken font issues in PDFs for Bangla text.
-version: 1.0.6
+description: >-
+  Correct Bangla (Bengali) text in PDFs: real OpenType shaping for conjuncts,
+  reph and vowel signs, with text that copies back out as clean Unicode.
+version: 1.1.0
 homepage: https://github.com/zamansheikh/bangla_pdf
 issue_tracker: https://github.com/zamansheikh/bangla_pdf/issues
 documentation: https://github.com/zamansheikh/bangla_pdf/wiki
@@ -10,11 +12,11 @@ screenshots:
     path: preview/preview.png
 
 topics:
-  - flutter
   - pdf
   - bangla
-  - fonts
-  - pdf-generation
+  - unicode
+  - typography
+  - text-shaping
 
 environment:
   sdk: ^3.5.4

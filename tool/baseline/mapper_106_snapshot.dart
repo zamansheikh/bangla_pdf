@@ -1,4 +1,6 @@
-part of 'package:bangla_pdf/bangla_pdf.dart';
+// VERBATIM snapshot of bangla_pdf 1.0.6 lib/src/utils/unicode_mapper.dart
+// (only the `part of` directive removed) so the shipped transform can be run standalone.
+// Do not edit — regenerate with: tail -n +2 lib/src/utils/unicode_mapper.dart
 
 /// What It Does?:
 // The code is essentially a Bangla text renderer or converter that ensures:
@@ -60,22 +62,16 @@ class BanglaUnicodeMapper {
       // Ensure only Bangla text is processed here
       if (_isBanglaCharacter(processedText[i])) {
         // Apply rearrangement logic only if the character is Bangla
-        if (_isBanglaPreKar(processedText[i]) && i > 0) {
+        if (_isBanglaPreKar(processedText[i])) {
           int j = 1;
-          // Every index is bounds-checked before use: the 1.0.6 version read
-          // processedText[i - j] first and threw RangeError on input like
-          // a lone 'ি'.
-          while (i - j >= 0 && _isBanglaBanjonborno(processedText[i - j])) {
+          while (_isBanglaBanjonborno(processedText[i - j])) {
+            if (i - j < 0) break;
             if (i - j <= barrier) break;
-            if (i - j - 1 >= 0 && _isBanglaHalant(processedText[i - j - 1])) {
+            if (_isBanglaHalant(processedText[i - j - 1])) {
               j += 2;
             } else {
               break;
             }
-          }
-          if (i - j < 0) {
-            i += 1;
-            continue;
           }
 
           String temp = processedText.substring(0, i - j);
@@ -86,17 +82,13 @@ class BanglaUnicodeMapper {
           barrier = i + 1;
         }
 
-        if (i >= 1 &&
-            i < (processedText.length - 1) &&
+        if (i < (processedText.length - 1) &&
             _isBanglaHalant(processedText[i]) &&
             processedText[i - 1] == 'র' &&
-            (i < 2 || !_isBanglaHalant(processedText[i - 2]))) {
+            !_isBanglaHalant(processedText[i - 2])) {
           int j = 1;
           int foundPreKar = 0;
-          // The 1.0.6 version walked forward without an upper bound, so any
-          // reph word ending a Bangla run (কর্ম, ধর্ম, বর্ষ) threw RangeError
-          // out of pw.Widget.build and aborted pdf.save().
-          while (i + j + 1 < processedText.length) {
+          while (true) {
             if (_isBanglaBanjonborno(processedText[i + j]) &&
                 _isBanglaHalant(processedText[i + j + 1])) {
               j += 2;
@@ -107,10 +99,6 @@ class BanglaUnicodeMapper {
             } else {
               break;
             }
-          }
-          if (i + j + foundPreKar + 1 > processedText.length) {
-            i += 1;
-            continue;
           }
 
           String temp = processedText.substring(0, i - 1);
