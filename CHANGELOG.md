@@ -1,3 +1,9 @@
+## 1.4.1
+
+- README: the drop-in section rewritten in plain language, and the three sample
+  documents re-rendered at 220dpi so they are readable at full width. The higher
+  resolution files are also smaller — 104 KB the set, down from 178 KB.
+
 ## 1.4.0
 
 Adds a second entry point that makes this package a true drop-in for
