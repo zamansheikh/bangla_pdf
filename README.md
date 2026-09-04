@@ -69,7 +69,7 @@ splitting.
 
 ```yaml
 dependencies:
-  bangla_pdf: ^1.4.1
+  bangla_pdf: ^1.4.2
 ```
 
 Now change one import:
@@ -207,18 +207,31 @@ it.
 
 ## 🔤 Want a different font?
 
+Name it in an ordinary `TextStyle`, like any other font:
+
 ```dart
-final font = BanglaPdf.loadFont(
+import 'package:flutter/services.dart' show rootBundle;
+
+final solaiman = pw.Font.ttf(
   await rootBundle.load('assets/fonts/SolaimanLipi.ttf'),
 );
 
-BanglaPdf.configure(defaultFont: font);   // everywhere
-Text('বাংলা', banglaFont: font);          // or just here
+pw.Text('বাংলা', style: pw.TextStyle(font: solaiman));
+```
+
+To use it everywhere, set it once at startup:
+
+```dart
+BanglaPdf.configure(defaultFont: solaiman);
 ```
 
 SolaimanLipi, Siyam Rupali, Noto Sans Bengali and Noto Serif Bengali are all
-tested. Your own Bijoy font keeps working too — it is detected and handled the
-old way.
+tested and match HarfBuzz exactly.
+
+**Already using a Bijoy (8-bit) font?** Keep passing it. It is recognised by
+what it actually contains — Bangla glyphs reached through Latin-1 byte values,
+with no Bengali in its `cmap` — and your text is transcoded and drawn with
+*your* font, exactly as in 1.0.x. Nothing silently substitutes the bundled one.
 
 ---
 
@@ -279,7 +292,7 @@ Signature parity is checked too: a script diffs all 14 replacement
 constructors against their `package:pdf` counterparts, and all **156
 parameters** match.
 
-All of it runs on every commit — `flutter test` is 55 tests.
+All of it runs on every commit — `flutter test` is 61 tests.
 
 <details>
 <summary>How the shaping actually works</summary>

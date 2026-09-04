@@ -5,6 +5,7 @@
 library;
 
 import 'package:bangla_pdf/bangla_pdf.dart' as bp;
+import 'package:bangla_pdf/src/ot/ot_font.dart';
 import 'package:bangla_pdf/src/pdf/bangla_font.dart';
 import 'package:bangla_pdf/src/widgets/shaped_text.dart';
 import 'package:pdf/pdf.dart';
@@ -13,16 +14,98 @@ import 'package:pdf/widgets.dart' as pw;
 /// Whether [text] contains anything from the Bengali block.
 bool containsBangla(String text) => bp.BanglaFontManager.isBanglaText(text);
 
+/// How a font named in a [pw.TextStyle] relates to Bangla.
+enum _FontKind {
+  /// Draws Bangla from Unicode codepoints: shape with it.
+  unicodeBangla,
+
+  /// Draws Bangla from Latin-1 byte values: a Bijoy face, so take the legacy
+  /// transcoding path and leave the font alone.
+  legacyBangla,
+
+  /// Has nothing to do with Bangla — Helvetica, Roboto and every other Latin
+  /// face. Bangla in a run styled with one of these gets the bundled font.
+  other,
+}
+
+/// Parsing a TTF is not free and [pw.Widget.build] runs per widget per layout
+/// pass, so each font is classified once.
+final Expando<Object> _fontKindCache = Expando<Object>('banglaPdfFontKind');
+
+_FontKind _classify(pw.Font font) {
+  final cached = _fontKindCache[font];
+  if (cached is _FontKind) return cached;
+
+  final kind = _computeKind(font);
+  _fontKindCache[font] = kind;
+  return kind;
+}
+
+_FontKind _computeKind(pw.Font font) {
+  if (font is BanglaUnicodeFont) return _FontKind.unicodeBangla;
+  if (font is! pw.TtfFont) return _FontKind.other;
+
+  final otf = OtFont.parse(font.data);
+  if (otf == null) return _FontKind.other;
+  if (otf.hasBengaliCoverage) return _FontKind.unicodeBangla;
+
+  // No Bengali in the cmap, yet the Latin-1 supplement is densely covered:
+  // that is a Bijoy face, which reaches its Bangla glyphs through high byte
+  // values. A Latin text font has no reason to cover that range so heavily.
+  // The same test identifies Bijoy documents in `package:bangla_pdf/extract.dart`.
+  final high = otf.cmap.keys.where((c) => c >= 0xA0 && c <= 0xFF).length;
+  return high >= 60 ? _FontKind.legacyBangla : _FontKind.other;
+}
+
 /// The font a run styled with [style] should shape Bangla with.
 ///
-/// The style's own font wins when it can shape — that is how a caller picks a
-/// different Bangla typeface through an ordinary [pw.TextStyle]. Otherwise the
-/// configured default is used, so Bangla still renders when the surrounding
-/// theme names a Latin-only font. Returns `null` when nothing can shape, which
-/// is the signal to stay on `package:pdf`'s own text path.
-BanglaUnicodeFont? shapingFontFor(pw.TextStyle? style) =>
-    bp.BanglaPdf.resolveShapingFont(style?.font) ??
-    bp.BanglaPdf.resolveShapingFont(null);
+/// Returns `null` when the run must not be shaped, which is the signal to fall
+/// back to the legacy Bijoy path.
+///
+/// The rules, in order:
+///
+/// 1. A font from [bp.BanglaPdf.loadFont] shapes with itself.
+/// 2. A plain `pw.Font.ttf` that covers Bengali is promoted to a shaping font,
+///    so naming a Bangla TTF through an ordinary [pw.TextStyle] works without
+///    the caller having to know about `loadFont`.
+/// 3. A legacy Bijoy face is honoured as chosen: shaping declines so the run
+///    is transcoded and drawn with that font.
+/// 4. Anything else — Helvetica, a Latin theme font, no font at all — leaves
+///    Bangla to the configured default, so it still renders.
+BanglaUnicodeFont? shapingFontFor(pw.TextStyle? style) {
+  final requested = style?.font;
+
+  if (requested != null) {
+    switch (_classify(requested)) {
+      case _FontKind.unicodeBangla:
+        final shaped =
+            bp.BanglaPdf.resolveShapingFont(requested) ?? _promoted(requested);
+        if (shaped != null) return shaped;
+      case _FontKind.legacyBangla:
+        return null;
+      case _FontKind.other:
+        break;
+    }
+  }
+
+  return bp.BanglaPdf.resolveShapingFont(null);
+}
+
+/// Re-reads a plain [pw.TtfFont] as a shaping font, once per font object.
+final Expando<Object> _promotedCache = Expando<Object>('banglaPdfPromoted');
+
+BanglaUnicodeFont? _promoted(pw.Font font) {
+  if (font is! pw.TtfFont) return null;
+  final cached = _promotedCache[font];
+  if (cached is BanglaUnicodeFont) return cached;
+
+  final promoted = bp.BanglaPdf.loadFont(font.data);
+  if (promoted is! BanglaUnicodeFont) return null;
+  // Respect the configured mode: `legacy` must stay legacy even here.
+  if (bp.BanglaPdf.resolveShapingFont(promoted) == null) return null;
+  _promotedCache[font] = promoted;
+  return promoted;
+}
 
 /// A leaf of a flattened [pw.InlineSpan] tree.
 class SpanRun {

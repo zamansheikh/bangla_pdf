@@ -34,14 +34,25 @@ class BanglaPdf {
   /// Configures the package.
   ///
   /// [defaultFont] replaces the bundled Bangla font everywhere a widget is not
-  /// given an explicit one. Pass a font created with [BanglaPdf.loadFont] to
-  /// keep OpenType shaping; a `pw.Font.ttf` is treated as a legacy 8-bit font.
+  /// given an explicit one. Either a font from [BanglaPdf.loadFont] or a plain
+  /// `pw.Font.ttf` works: a `pw.Font.ttf` that covers Bengali is upgraded to a
+  /// shaping font here, so callers do not have to know which to use. A legacy
+  /// Bijoy face is kept as it is and drives the 1.0.x transcoding path.
   static void configure({
     BanglaShapingMode? shapingMode,
     pw.Font? defaultFont,
   }) {
     if (shapingMode != null) _shapingMode = shapingMode;
-    if (defaultFont != null) _defaultFont = defaultFont;
+    if (defaultFont != null) _defaultFont = _promoteToShaping(defaultFont);
+  }
+
+  /// Re-reads a plain `pw.Font.ttf` as a shaping font when it can draw Bangla
+  /// from Unicode. Anything else — a Bijoy face, a Latin font, a font already
+  /// from [loadFont] — is returned unchanged.
+  static pw.Font _promoteToShaping(pw.Font font) {
+    if (font is BanglaUnicodeFont || font is! pw.TtfFont) return font;
+    final promoted = BanglaUnicodeFont.tryParse(font.data);
+    return promoted != null && promoted.canShapeBangla ? promoted : font;
   }
 
   /// Restores the shipped defaults. Mainly useful in tests.

@@ -10,6 +10,7 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables
 
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:bangla_pdf/bangla_pdf.dart' show BanglaPdf, BanglaShapingMode;
@@ -282,6 +283,97 @@ void main() {
         ),
       );
       expect(bytes, isNotEmpty);
+    });
+  });
+
+  group('choosing a font', () {
+    pw.Font fixture(String name) => pw.Font.ttf(
+          File('test/fixtures/fonts/$name')
+              .readAsBytesSync()
+              .buffer
+              .asByteData(),
+        );
+
+    /// The PostScript names of the fonts embedded in [bytes].
+    Set<String> embedded(Uint8List bytes) =>
+        RegExp(r'/BaseFont\s*/([A-Za-z0-9+\-]+)')
+            .allMatches(latin1.decode(bytes, allowInvalid: true))
+            .map((m) => m.group(1)!)
+            .toSet();
+
+    Future<Uint8List> styled(pw.Font? font) => page(
+          pw.Text(
+            'আমার বাংলা',
+            style: font == null ? null : pw.TextStyle(font: font),
+          ),
+        );
+
+    test('a font from BanglaPdf.loadFont shapes with itself', () async {
+      final font = BanglaPdf.loadFont(
+        File('test/fixtures/fonts/NotoSansBengali-Regular.ttf')
+            .readAsBytesSync()
+            .buffer
+            .asByteData(),
+      );
+      final bytes = await styled(font);
+      expect(wasShaped(bytes), isTrue);
+      expect(embedded(bytes).single, contains('NotoSansBengali'));
+    });
+
+    test('BanglaPdf.configure(defaultFont:) applies to every widget', () async {
+      // A plain pw.Font.ttf is accepted here as well as one from loadFont:
+      // configure() upgrades it when it covers Bengali.
+      for (final font in <pw.Font>[
+        fixture('SolaimanLipi.ttf'),
+        BanglaPdf.loadFont(
+          File('test/fixtures/fonts/SolaimanLipi.ttf')
+              .readAsBytesSync()
+              .buffer
+              .asByteData(),
+        )!,
+      ]) {
+        BanglaPdf.reset();
+        BanglaPdf.configure(defaultFont: font);
+        final bytes = await styled(null);
+        expect(wasShaped(bytes), isTrue);
+        expect(embedded(bytes).single, contains('SolaimanLipi'));
+      }
+    });
+
+    test('configure() with a Bijoy font keeps the legacy pipeline', () async {
+      BanglaPdf.configure(defaultFont: fixture('Kalpurush-ANSI.ttf'));
+      final bytes = await styled(null);
+      expect(wasShaped(bytes), isFalse);
+      expect(embedded(bytes).single, contains('ANSI'));
+    });
+
+    test('a plain pw.Font.ttf covering Bengali is shaped, not ignored',
+        () async {
+      // The caller never had to hear about loadFont: naming a Bangla TTF in an
+      // ordinary TextStyle is enough.
+      final bytes = await styled(fixture('SolaimanLipi.ttf'));
+      expect(wasShaped(bytes), isTrue);
+      expect(embedded(bytes).single, contains('SolaimanLipi'));
+    });
+
+    test('a legacy Bijoy font is honoured, not silently replaced', () async {
+      for (final name in const <String>[
+        'SiyamRupali-ANSI.ttf',
+        'Kalpurush-ANSI.ttf',
+      ]) {
+        final font = fixture(name);
+        final bytes = await styled(font);
+        // Shaping declines so the Bijoy pipeline runs, and the caller's font
+        // is the one embedded -- not the bundled Unicode Kalpurush.
+        expect(wasShaped(bytes), isFalse, reason: name);
+        expect(embedded(bytes).single, contains('ANSI'), reason: name);
+      }
+    });
+
+    test('a Latin-only font leaves Bangla to the bundled face', () async {
+      // Helvetica and friends must not disable shaping just by being current.
+      final bytes = await styled(fixture('Kalpurush-Subset.ttf'));
+      expect(wasShaped(bytes), isTrue);
     });
   });
 

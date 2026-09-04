@@ -1,3 +1,30 @@
+## 1.4.2
+
+Fixes font selection through the new `widgets.dart` entry point.
+
+### Fixed
+
+- **A legacy Bijoy font passed to a compat widget was silently ignored** and
+  replaced with the bundled Unicode Kalpurush, so 1.0.x documents moved to the
+  new entry point would have changed typeface without warning. A font is now
+  classified by what it contains — whether its `cmap` covers Bengali, and how
+  densely it covers the Latin-1 supplement — so a Bijoy face is recognised and
+  drives the transcoding path with *that* font, as it does in the original API.
+
+### Added
+
+- A plain `pw.Font.ttf` covering Bengali is **promoted to a shaping font**,
+  both in a `TextStyle` and in `BanglaPdf.configure(defaultFont:)`. Callers no
+  longer have to know that `BanglaPdf.loadFont` exists; either works.
+- Six tests covering every font route: no font, `loadFont`, a plain Bangla
+  `pw.Font.ttf`, two Bijoy faces, and a Latin-only font.
+
+### Changed
+
+- README: the "Want a different font?" section showed `Text(banglaFont: …)`,
+  which is the original API and does not compile against the `pw`-shaped
+  widgets the rest of the page now uses.
+
 ## 1.4.1
 
 - README: the drop-in section rewritten in plain language, and the three sample
