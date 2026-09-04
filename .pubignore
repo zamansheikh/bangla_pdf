@@ -3,7 +3,6 @@
 tool/
 docs/baseline/
 build/
-preview/
 .dart_tool/
 bangla_pdf.iml
 

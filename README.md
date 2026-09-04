@@ -1,156 +1,246 @@
-# Bangla PDF 🔧
+<h1 align="center">bangla_pdf</h1>
 
-[![Stand With Palestine](https://github.com/zamansheikh/bangla_pdf/raw/main/images/StandWithPalestine.svg)](https://pub.dev/packages/bangla_pdf)
+<p align="center">
+  <strong>Correct Bangla in PDFs.</strong><br>
+  Real OpenType shaping for conjuncts, reph and vowel signs — and text that copies back out as clean Unicode.
+</p>
 
-**Bangla PDF** renders correct Bangla in PDFs — real OpenType shaping, and text
-that copies back out as clean Unicode.
+<p align="center">
+  <a href="https://pub.dev/packages/bangla_pdf"><img src="https://img.shields.io/pub/v/bangla_pdf.svg" alt="pub package"></a>
+  <a href="https://pub.dev/packages/bangla_pdf/score"><img src="https://img.shields.io/pub/points/bangla_pdf" alt="pub points"></a>
+  <a href="https://github.com/zamansheikh/bangla_pdf/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-BSD--3--Clause-blue.svg" alt="license"></a>
+  <img src="https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Web%20%7C%20macOS%20%7C%20Windows%20%7C%20Linux-lightgrey" alt="platforms">
+</p>
 
-A lightweight, focused solution for Bangla in PDFs—**nothing more, nothing less**.
-
----
-
-## What changed in 1.1.0
-
-Up to 1.0.6 this package transcoded Unicode to **Bijoy ANSI** and drew it with a
-legacy 8-bit font. That worked for ordinary prose, but conjuncts outside a
-hand-written table broke, reph words *crashed*, and the PDF contained no Bengali
-at all — copy/paste gave you `Avgvi ‡mvbvi evsjv`.
-
-1.1.0 shapes Bangla with the font's own GSUB/GPOS tables, in pure Dart.
-
-| | 1.0.6 | 1.1.0 |
-|---|---|---|
-| `কর্ম` `ধর্ম` `বর্ষ` `পূর্ব` `শর্ত` | **throws `RangeError`, kills `pdf.save()`** | renders correctly |
-| corpus cases that crash | **21 / 253** | **0 / 253** |
-| `ক্ষ্ম` `ঙ্ক্ষ` `ত্ত্ব` `চ্ছ্ব` `ম্ভ্র` `স্ত্র্য` | base + a stray hasanta `্` | ligated |
-| shaping vs HarfBuzz | not a shaper | **234 / 234 exact (100%)**, on all 3 test fonts |
-| copy/paste, search, `pdftotext` | **mojibake (0%)** | **249 / 251 exact (99%)** |
-| Bengali digits `০–৯` | silently became `0–9` | preserved |
-| `৳` | silently became `$` | preserved |
-| `ৰ` `ৱ` `॥` | missing glyph | rendered |
-| NFC vs NFD input | mostly equivalent | identical |
-| `র‍্য` vs `র্য` (ZWJ) | ZWJ discarded | distinguished |
-
-Full evidence: [docs/VERIFICATION_REPORT.md](docs/VERIFICATION_REPORT.md).
-How 1.0.6 worked and why: [docs/CURRENT_STATE.md](docs/CURRENT_STATE.md).
-
-### Migration for 1.x users — three lines
-
-1. Nothing to change. `Text(...)`, `banglaStyle:`, `banglaFont:` and
-   no-initialisation-needed all work as before.
-2. The typeface does not change: the bundled font is still **Kalpurush**, now
-   the Unicode build instead of the 8-bit Bijoy one. Documents look the same;
-   what changes is that the Bangla in them is shaped correctly.
-3. If you pass your own **Bijoy/ANSI** font to `banglaFont:`, it is detected and
-   keeps the old pipeline automatically — no change needed. To force the old
-   output everywhere, call
-   `BanglaPdf.configure(shapingMode: BanglaShapingMode.legacy)` once at startup.
+<p align="center">
+  <a href="https://pub.dev/packages/bangla_pdf"><img src="https://github.com/zamansheikh/bangla_pdf/raw/main/images/StandWithPalestine.svg" alt="Stand With Palestine"></a>
+</p>
 
 ---
 
-## Installation
+`package:pdf` has no complex-script shaping, so Bangla comes out broken:
+conjuncts fall apart, `ি` `ে` `ৈ` land on the wrong side of their consonant, and
+reph (`র্`) goes anywhere but where it belongs.
 
-Add to your `pubspec.yaml`:
+`bangla_pdf` shapes Bangla with the font's own OpenType `GSUB`/`GPOS` tables, in
+**pure Dart** — no FFI, no native toolchain, works on web. Drop in `Text()` and
+it just works.
+
+![Before and after](https://github.com/zamansheikh/bangla_pdf/raw/main/images/before-after.png)
+
+---
+
+## Quick start
 
 ```yaml
 dependencies:
   bangla_pdf: ^1.1.0
 ```
 
-```bash
-flutter pub get
-```
-
----
-
-## Usage ✨
-
-### The Magic 🪄 (Auto Mixed Text)
-
-```dart
-// No initialisation. Bangla is shaped, Latin and digits just work.
-Text('আমার সোনার বাংলা, আমি তোমায় ভালোবাসি।');
-
-Text(
-  'Hello বাংলাদেশ world! ৳১২,৫০০.০০',
-  style: pw.TextStyle(fontSize: 25, color: PdfColors.blue),
-);
-```
-
-### Using your own Unicode Bangla font
-
-```dart
-final font = BanglaPdf.loadFont(
-  await rootBundle.load('assets/SolaimanLipi.ttf'),
-);
-
-Text('বাংলা', banglaFont: font);
-// or set it once for everything:
-BanglaPdf.configure(defaultFont: font);
-```
-
-`BanglaPdf.loadFont` returns a font that shapes with its own OpenType tables.
-A plain `pw.Font.ttf` still works, but is treated as a legacy 8-bit font.
-
-### Choosing a shaping mode
-
-```dart
-BanglaPdf.configure(shapingMode: BanglaShapingMode.auto);    // default
-BanglaPdf.configure(shapingMode: BanglaShapingMode.unicode); // always shape
-BanglaPdf.configure(shapingMode: BanglaShapingMode.legacy);  // 1.0.x Bijoy output
-```
-
----
-
-## Example: Generate a PDF
-
 ```dart
 import 'package:bangla_pdf/bangla_pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:path_provider/path_provider.dart';
-import 'package:open_file/open_file.dart';
-import 'dart:io';
 
-Future<void> generateAndOpenPdf() async {
-  final pdf = pw.Document();
+final pdf = pw.Document();
 
-  pdf.addPage(
-    pw.Page(
-      build: (context) => pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          Text(
-            'This is a mixed text: আমি বাংলাদেশ ভালোবাসি। I love Bangladesh.',
-            style: pw.TextStyle(fontSize: 20),
-          ),
-        ],
-      ),
-    ),
-  );
+pdf.addPage(
+  pw.Page(
+    build: (context) => Text('আমার সোনার বাংলা, আমি তোমায় ভালোবাসি।'),
+  ),
+);
 
-  final dir = await getApplicationDocumentsDirectory();
-  final file = File("${dir.path}/example.pdf");
-  await file.writeAsBytes(await pdf.save());
-  await OpenFile.open(file.path);
-}
+final bytes = await pdf.save();
+```
+
+No initialisation, no font registration, no asset bundling. A Bangla font ships
+with the package and is used automatically.
+
+---
+
+## What it fixes
+
+| | before (1.0.6) | now |
+|---|---|---|
+| `কর্ম` `ধর্ম` `বর্ষ` `পূর্ব` `শর্ত` | **threw `RangeError`, killed `pdf.save()`** | render correctly |
+| `ক্ষ্ম` `ঙ্ক্ষ` `ত্ত্ব` `চ্ছ্ব` `ম্ভ্র` `স্ত্র্য` | base + a stray hasanta `্` | ligated |
+| copy/paste, search, `pdftotext` | `Avgvi ‡mvbvi evsjv` | the original Unicode |
+| Bengali digits `০–৯` | silently became `0–9` | preserved |
+| `৳` | silently became `$` | preserved |
+| `ৰ` `ৱ` `॥` | missing glyph | rendered |
+| `র‍্য` vs `র্য` (ZWJ) | ZWJ discarded, both identical | distinguished |
+| NFC vs NFD input | mostly equivalent | identical by construction |
+
+Measured, not asserted — see [Verification](#verification).
+
+---
+
+## Widgets
+
+Every widget takes a plain Dart `String` in logical order and handles the rest.
+
+```dart
+Text('বাংলা টেক্সট')
+Header('বাংলা শিরোনাম')
+Paragraph('একটি অনুচ্ছেদ।')
+
+BulletList(items: ['প্রথম আইটেম', 'Second item', 'তৃতীয় আইটেম'])
+
+Table(data: [
+  ['পণ্য',   'পরিমাণ', 'মূল্য'],
+  ['কফি',    '২',      '৳২০'],
+  ['বিস্কুট', '৩',      '৳১৫'],
+])
+
+RichText(spans: [
+  TextSpan('বাংলা বোল্ড ', fontWeight: pw.FontWeight.bold),
+  TextSpan('এবং সাধারণ'),
+])
+```
+
+Mixed scripts need no special handling — Latin, Bengali digits and currency all
+render in one pass:
+
+```dart
+Text('Invoice #1042 - মোট ৳১২,৫০০.০০ - তারিখ ০১/০৯/২০২৬')
+```
+
+<details>
+<summary><strong>Full <code>Text</code> parameters</strong></summary>
+
+```dart
+Text(
+  'বাংলা',
+  fontSize: 16,
+  fontWeight: pw.FontWeight.normal,
+  color: PdfColors.black,
+  textAlign: pw.TextAlign.start,
+  maxLines: 3,
+  banglaFont: myFont,               // font for Bangla runs
+  style: pw.TextStyle(...),         // non-Bangla runs
+  banglaStyle: pw.TextStyle(...),   // Bangla runs
+)
+```
+
+</details>
+
+---
+
+## Using your own font
+
+```dart
+final font = BanglaPdf.loadFont(
+  await rootBundle.load('assets/fonts/SolaimanLipi.ttf'),
+);
+
+Text('বাংলা', banglaFont: font);          // one widget
+BanglaPdf.configure(defaultFont: font);   // everywhere
+```
+
+`BanglaPdf.loadFont` returns a font that shapes with its own OpenType tables and
+can draw conjunct glyphs no codepoint maps to. A plain `pw.Font.ttf` still works
+but is treated as a legacy 8-bit font.
+
+---
+
+## Shaping modes
+
+```dart
+BanglaPdf.configure(shapingMode: BanglaShapingMode.auto);
+```
+
+| mode | behaviour |
+|---|---|
+| `auto` *(default)* | shape with the font's OpenType tables; fall back to `legacy` for a font with no Bengali coverage |
+| `unicode` | always shape, even if the font looks unsuitable |
+| `legacy` | the 1.0.x Bijoy ANSI pipeline, for byte-identical old output |
+
+---
+
+## API
+
+| symbol | purpose |
+|---|---|
+| `Text` `AutoText` `Header` `Paragraph` `RichText` `TextSpan` `BulletList` `Table` | widgets |
+| `BanglaPdf.configure({shapingMode, defaultFont})` | package-wide settings |
+| `BanglaPdf.loadFont(ByteData)` | load a Unicode Bangla font |
+| `BanglaPdf.covers(font, text)` | can this font draw this string? |
+| `BanglaPdf.defaultFont` · `.shapingMode` · `.reset()` | current configuration |
+| `BanglaShapingMode` | `auto` · `unicode` · `legacy` |
+| `String.shapeForPdf(font)` → `ShapedRun` | glyphs, advances, offsets and cluster text, for callers drawing their own content |
+| `BanglaFontManager().defaultFont` · `.legacyFont` | the bundled fonts |
+| `String.fix` · `String.isBanglaText` | 1.0.x helpers, unchanged |
+
+---
+
+## How it works
+
+1. **Normalise** — NFC and NFD are reconciled, two-part vowels (`ো` `ৌ`) are
+   split the way font rules expect, and nukta pairs are composed.
+2. **Segment** the text into Indic syllables.
+3. **Find the base consonant** by asking the font which consonants it gives
+   below-base or post-base forms to.
+4. **Reorder** — pre-base matras move in front of the cluster; reph moves after
+   the base and any below-base form.
+5. **Apply GSUB** in the OpenType Indic order — `nukt akhn rphf blwf half pstf
+   vatu cjct`, then `pres abvs blws psts haln`, then `calt clig rclt rlig` —
+   each under the right per-glyph mask.
+6. **Apply GPOS** — `dist abvm blwm mark mkmk kern`, including mark-to-base,
+   mark-to-ligature and mark-to-mark attachment.
+7. **Emit PDF text** as a `Type0`/`Identity-H` CID font addressed by glyph id,
+   with an explicit `/CIDToGIDMap` and a `/ToUnicode` CMap whose entries may span
+   several codepoints — so a conjunct copies back as its full sequence.
+8. **Wrap each line** in a `/Span <</ActualText …>> BDC … EMC` marked-content
+   span. This is what makes copy/paste survive Bengali's glyph reordering: `কি`
+   draws `ি` first, so no per-glyph mapping alone can express logical order.
+
+Line breaking happens on syllable boundaries, so a line never breaks inside a
+conjunct or between a vowel sign and its consonant.
+
+---
+
+## Verification
+
+Every claim below is produced by code in this repository — see
+[`docs/VERIFICATION_REPORT.md`](docs/VERIFICATION_REPORT.md) for the full run,
+and [`docs/CURRENT_STATE.md`](docs/CURRENT_STATE.md) for how 1.0.6 worked and why
+it broke.
+
+**Shaping** is diffed glyph-by-glyph and position-by-position against
+**HarfBuzz** (`hb-shape`) over a 253-case corpus:
+
+| font | exact match |
+|---|---|
+| Kalpurush *(bundled)* | **234 / 234** |
+| Noto Sans Bengali | **234 / 234** |
+| Noto Serif Bengali | **234 / 234** |
+
+**Round-trip** — every corpus case is rendered to a real PDF and extracted with
+`pdftotext`: **249 / 251 identical** to the source. The two exceptions are one
+artefact: a lone ZWJ renders as nothing, so the line-by-line comparison shifts.
+
+**Structure** — automated tests parse the generated PDF and assert it is a
+`Type0` CID font, that every `/ToUnicode` entry is real Unicode with no U+FFFD or
+NUL, and that each line's `/ActualText` decodes back to its source string.
+
+```bash
+flutter test    # 26 tests
 ```
 
 ---
 
-## Other Widgets (Optional)
+## Upgrading from 1.0.x
 
-* **Table**: mixed language in cells.
-* **BulletList**: bullet points.
-* **Header**, **Paragraph**, **RichText**.
+Three things to know:
 
-```dart
-Table(data: [
-  ['Name', 'Country'],
-  ['Zaman', 'বাংলাদেশ'],
-]);
-
-BulletList(items: ['First Item', 'দ্বিতীয় আইটেম', 'Third Item']);
-```
+1. **Nothing to change.** `Text(...)`, `banglaStyle:`, `banglaFont:` and the
+   no-initialisation default all behave as before. No API was removed.
+2. **The typeface does not change.** The bundled font is still Kalpurush, now its
+   Unicode build instead of the 8-bit Bijoy one. Documents look the same; what
+   changes is that the Bangla in them is shaped correctly.
+3. **Custom Bijoy fonts keep working.** A legacy 8-bit font passed to
+   `banglaFont:` is detected and routed to the old pipeline automatically. To
+   force the old behaviour everywhere, call
+   `BanglaPdf.configure(shapingMode: BanglaShapingMode.legacy)` once at startup.
 
 ---
 
@@ -158,70 +248,66 @@ BulletList(items: ['First Item', 'দ্বিতীয় আইটেম', 'Th
 
 Stated plainly rather than glossed over.
 
-* **Only three fonts are measured.** Bundled Kalpurush, Noto Sans Bengali and
-  Noto Serif Bengali all match HarfBuzz on every corpus case. SolaimanLipi,
-  Siyam Rupali and others are untested. A font relying on GSUB lookup type 8
-  (reverse chaining) or GPOS type 3 (cursive attachment) would not shape —
-  neither is implemented, because no tested Bengali font uses them.
-* **Rendering is not pixel-diffed.** Output was rasterised and compared against
+- **PDF text extraction is not implemented.** There is no
+  `package:bangla_pdf/extract.dart` yet — no Bijoy→Unicode reverse mapping and no
+  scanned-PDF handling.
+- **Only three fonts are measured.** Bundled Kalpurush, Noto Sans Bengali and
+  Noto Serif Bengali all match HarfBuzz on every corpus case. SolaimanLipi, Siyam
+  Rupali and others are untested. A font relying on GSUB lookup type 8 (reverse
+  chaining) or GPOS type 3 (cursive attachment) would not shape — neither is
+  implemented, because no tested Bengali font uses them.
+- **Rendering is not pixel-diffed.** Output was rasterised and compared against
   HarfBuzz reference renders by eye for a sample, not automatically for all 253
   cases.
-* **Copy/paste is verified with poppler only.** Adobe Reader, macOS Preview,
-  Chrome and Android viewers have not been tested. `/ActualText` support varies.
-* **The full font is embedded in every PDF** (121 KB); there is no per-document
+- **Copy/paste is verified with poppler only.** Adobe Reader, macOS Preview,
+  Chrome and Android viewers have not been tested, and `/ActualText` support does
+  vary between them.
+- **The full font is embedded in every PDF** (121 KB); there is no per-document
   subsetter yet.
-* **Emoji need a fallback font.** The bundled font covers ASCII, the Bengali
-  block and common punctuation. Emoji still render as a placeholder box, and
-  `BulletList` falls back from `•` to `·` because Kalpurush has no bullet.
-* **PDF text extraction is not implemented.** There is no
-  `package:bangla_pdf/extract.dart` yet — no Bijoy→Unicode reverse mapping and
-  no scanned-PDF handling.
-* **No HarfBuzz companion.** Shaping is pure Dart, so it works on every
-  platform including web, but `BanglaShapingMode.harfbuzz` does not exist.
+- **Emoji need a fallback font.** The bundled font covers ASCII, the Bengali
+  block and common punctuation. Emoji render as a placeholder box, and
+  `BulletList` falls back from `•` to `·` because Kalpurush has no bullet glyph.
 
 ---
 
-## Contributing 🚀
+## Contributing
 
-Contributions are welcome! Whether you want to:
+Bug reports, corpus cases and pull requests are all welcome — a failing string is
+especially useful. Add it to
+[`test/corpus/bangla_cases.json`](test/corpus/bangla_cases.json) with an `id`,
+`category` and `notes`, and the differential harness will pick it up.
 
-* Report a bug
-* Suggest a feature
-* Improve widgets or documentation
+```bash
+flutter test                                  # unit and PDF-structure tests
+dart run tool/dev/shape_dump.dart <font.ttf>  # diff against hb-shape
+dart run tool/baseline/run_106_mapper.dart …  # the 1.0.6 baseline
+```
 
-**Fork the repository, make changes, and submit a Pull Request**. Together, we can enhance Bangla PDF! 💡
+`hb-shape`/`hb-view` (`brew install harfbuzz`) and `pdftotext`/`pdftoppm`
+(`brew install poppler`) are needed for the verification tooling, not for the
+package itself.
 
 ---
 
 ## License
 
-This project is licensed under the **BSD 3-Clause License**.
-Read the full license [here](https://github.com/zamansheikh/bangla_pdf/blob/main/LICENSE).
+BSD 3-Clause — see [LICENSE](LICENSE).
 
-The bundled Kalpurush is by Md. Tanbin Islam Siyam (Avro Font Development
-Project) under the SIL Open Font License 1.0; see
+The bundled **Kalpurush** is by Md. Tanbin Islam Siyam (Avro Font Development
+Project, [omicronlab.com](https://www.omicronlab.com)) under the SIL Open Font
+License 1.0; its Latin glyphs are from Gentium. Font licences are in
 [LICENSE-FONTS.txt](LICENSE-FONTS.txt).
 
 ---
 
-## Author
+## Credits
 
-Maintained by **Zaman Sheikh**
-Contact: [zaman6545@gmail.com](mailto:zaman6545@gmail.com)
+Maintained by **[Zaman Sheikh](https://github.com/zamansheikh)** ·
+[zaman6545@gmail.com](mailto:zaman6545@gmail.com)
 
----
+Inspired by **AR Rahman**'s
+[bangla_pdf_fixer](https://pub.dev/packages/bangla_pdf_fixer), which first put
+this problem on the map. Thanks to every Bangla font creator whose work makes
+readable Bangla typography possible.
 
-## Inspiration & Credit 💡
-
-This package is inspired by the work of **AR Rahman** and his package [bangla_pdf_fixer](https://pub.dev/packages/bangla_pdf_fixer).
-We acknowledge his contribution to the community in solving Bangla font rendering issues in PDFs.
-
----
-
-## Special Thanks 🙏✨
-
-A big thank you to all **Bangla font creators and contributors**. Your efforts make **high-quality, beautiful Bangla PDFs** possible. 💖
-
----
-
-⭐ If you find Bangla PDF helpful, please **star the repository**!
+⭐ If this saved you a day of debugging, star the repo.
