@@ -15,6 +15,9 @@ void main(List<String> args) {
   for (final g in run.glyphs) {
     print('  gid=${g.gid.toString().padLeft(4)} cluster=${g.cluster} '
         'syl=${g.syllable} pos=${g.position} adv=${g.xAdvance} '
-        'off=(${g.xOffset},${g.yOffset}) text=${g.text.map((c) => c.toRadixString(16)).join(',')}');
+        'off=(${g.xOffset},${g.yOffset}) '
+        'attached=${g.isAttached} chain=${g.attachChain} '
+        'gclass=${font.glyphClass(g.gid)} '
+        'text=${g.text.map((c) => c.toRadixString(16)).join(',')}');
   }
 }

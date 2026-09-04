@@ -95,9 +95,9 @@ class GposEngine {
       final r = switch (effectiveType) {
         1 => _single(buf, pos, sub),
         2 => _pair(buf, pos, sub, flags, markFilteringSet),
-        4 => _markToBase(buf, pos, sub, flags),
-        5 => _markToLigature(buf, pos, sub, flags),
-        6 => _markToMark(buf, pos, sub, flags),
+        4 => _markToBase(buf, pos, sub),
+        5 => _markToLigature(buf, pos, sub),
+        6 => _markToMark(buf, pos, sub, flags, markFilteringSet),
         8 => _chainContext(buf, pos, sub, flags, markFilteringSet),
         _ => null,
       };
@@ -223,33 +223,53 @@ class GposEngine {
 
   // --- Types 4, 5, 6: mark attachment ---------------------------------------
 
+  /// Index of the glyph a mark at [pos] attaches to.
+  ///
+  /// Mark-to-base and mark-to-ligature always step over every mark, whatever
+  /// the lookup's own flags say. Mark-to-mark instead honours the lookup's
+  /// flags *and* its mark filtering set, so a mark can attach to an earlier
+  /// mark with other marks in between — which is how ৃ reaches the base of
+  /// স্কৃ past two intervening pieces.
+  int? _attachmentTarget(
+    List<GlyphInfo> buf,
+    int pos, {
+    required bool baseIsMark,
+    int flags = 0,
+    int markFilteringSet = -1,
+  }) {
+    if (!baseIsMark) {
+      for (var i = pos - 1; i >= 0; i--) {
+        if (!font.isMark(buf[i].gid)) return i;
+      }
+      return null;
+    }
+    final skipper = SkipFilter(font, flags, markFilteringSet);
+    final previous = skipper.previous(buf, pos);
+    if (previous == null) return null;
+    return font.isMark(buf[previous].gid) ? previous : null;
+  }
+
   /// Shared body for mark-to-base and mark-to-mark.
   int? _markAttach(
     List<GlyphInfo> buf,
     int pos,
-    int sub,
-    int flags, {
+    int sub, {
     required bool baseIsMark,
+    int flags = 0,
+    int markFilteringSet = -1,
   }) {
     if (d.u16(sub) != 1) return null;
     final markCoverage = Coverage.parse(d, sub + d.u16(sub + 2));
     final markIndex = markCoverage.indexOf(buf[pos].gid);
     if (markIndex == null) return null;
 
-    // Find the preceding glyph this mark attaches to. Marks attach to the
-    // previous base; other marks are skipped for mark-to-base.
-    int? basePos;
-    for (var i = pos - 1; i >= 0; i--) {
-      final isMark = font.isMark(buf[i].gid);
-      if (baseIsMark) {
-        basePos = i;
-        break;
-      }
-      if (!isMark) {
-        basePos = i;
-        break;
-      }
-    }
+    final basePos = _attachmentTarget(
+      buf,
+      pos,
+      baseIsMark: baseIsMark,
+      flags: flags,
+      markFilteringSet: markFilteringSet,
+    );
     if (basePos == null) return null;
 
     final baseCoverage = Coverage.parse(d, sub + d.u16(sub + 4));
@@ -283,28 +303,35 @@ class GposEngine {
     return 1;
   }
 
-  int? _markToBase(List<GlyphInfo> buf, int pos, int sub, int flags) =>
-      _markAttach(buf, pos, sub, flags, baseIsMark: false);
+  int? _markToBase(List<GlyphInfo> buf, int pos, int sub) =>
+      _markAttach(buf, pos, sub, baseIsMark: false);
 
-  int? _markToMark(List<GlyphInfo> buf, int pos, int sub, int flags) =>
-      _markAttach(buf, pos, sub, flags, baseIsMark: true);
+  int? _markToMark(
+    List<GlyphInfo> buf,
+    int pos,
+    int sub,
+    int flags,
+    int markFilteringSet,
+  ) =>
+      _markAttach(
+        buf,
+        pos,
+        sub,
+        baseIsMark: true,
+        flags: flags,
+        markFilteringSet: markFilteringSet,
+      );
 
   /// Mark-to-ligature: like mark-to-base but the base carries one anchor set
   /// per ligature component. We attach to the last component, which is correct
   /// for Bengali where marks follow the whole conjunct.
-  int? _markToLigature(List<GlyphInfo> buf, int pos, int sub, int flags) {
+  int? _markToLigature(List<GlyphInfo> buf, int pos, int sub) {
     if (d.u16(sub) != 1) return null;
     final markCoverage = Coverage.parse(d, sub + d.u16(sub + 2));
     final markIndex = markCoverage.indexOf(buf[pos].gid);
     if (markIndex == null) return null;
 
-    int? basePos;
-    for (var i = pos - 1; i >= 0; i--) {
-      if (!font.isMark(buf[i].gid)) {
-        basePos = i;
-        break;
-      }
-    }
+    final basePos = _attachmentTarget(buf, pos, baseIsMark: false);
     if (basePos == null) return null;
 
     final ligCoverage = Coverage.parse(d, sub + d.u16(sub + 4));

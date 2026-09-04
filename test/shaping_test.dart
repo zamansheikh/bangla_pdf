@@ -194,6 +194,22 @@ void main() {
       expect(run.glyphs.map((g) => g.gid), isNot(contains(0)));
     });
 
+    test('a mark attaches past marks outside the mark filtering set', () {
+      final font = loadBundledFont();
+      // ৃ has to reach its base past two intervening pieces of the স্ক
+      // cluster. Taking the immediately previous glyph left it unattached at
+      // the origin, stacking it on top of the wrong thing.
+      final run = font.shape('সংস্কৃতি');
+      final vocalic = run.glyphs.where(
+        (g) => g.text.isNotEmpty && g.text.first == 0x09C3,
+      );
+      expect(vocalic, hasLength(1), reason: 'ৃ should survive as one glyph');
+      final mark = vocalic.first;
+      expect(font.otf.isMark(mark.gid), isTrue);
+      expect(mark.isAttached, isTrue, reason: 'ৃ was left unattached');
+      expect(mark.xOffset, isNot(0));
+    });
+
     test('attached marks keep any advance GPOS gave them', () {
       final font = loadBundledFont();
       // Zeroing every attached mark's advance used to lose `dist` adjustments.
@@ -201,6 +217,44 @@ void main() {
       expect(run.glyphs, isNotEmpty);
       expect(run.advance, greaterThan(0));
     });
+  });
+
+  group('every fixture font shapes the corpus cleanly', () {
+    const fixtures = <String>[
+      'test/fixtures/fonts/Kalpurush-Subset.ttf',
+      'test/fixtures/fonts/NotoSansBengali-Regular.ttf',
+      'test/fixtures/fonts/NotoSerifBengali-Regular.ttf',
+    ];
+
+    for (final path in fixtures) {
+      test(path.split('/').last, () {
+        final file = File(path);
+        if (!file.existsSync()) {
+          // Fixtures are excluded from the published archive.
+          markTestSkipped('fixture not present: $path');
+          return;
+        }
+        final font = BanglaUnicodeFont.tryParse(
+          ByteData.sublistView(file.readAsBytesSync()),
+        );
+        expect(font, isNotNull);
+        expect(font!.canShapeBangla, isTrue);
+
+        final broken = <String>[];
+        for (final c in loadCorpus()) {
+          final text = c['text'] as String;
+          if (text.trim().isEmpty) continue;
+          final run = font.shape(text);
+          for (final g in run.glyphs) {
+            if (g.gid == 0 && g.text.any(_isBanglaRune)) {
+              broken.add('${c['id']}: $text');
+              break;
+            }
+          }
+        }
+        expect(broken, isEmpty, reason: broken.join('\n'));
+      });
+    }
   });
 
   group('legacy mode', () {

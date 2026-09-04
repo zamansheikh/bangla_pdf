@@ -77,9 +77,9 @@ Corpus ids that rendered wrongly in 1.0.6 and are correct now:
 
 ### Verified
 
-- Shaping is identical to HarfBuzz on all 234 pure-Bangla corpus cases with the
-  bundled Kalpurush and with Noto Serif Bengali; Noto Sans Bengali differs on
-  two, both mark positioning rather than glyph choice.
+- Shaping is identical to HarfBuzz — same glyphs, same positions — on all 234
+  pure-Bangla corpus cases, for all three test fonts: the bundled Kalpurush,
+  Noto Sans Bengali and Noto Serif Bengali.
 - 249 of 251 corpus cases round-trip through `pdftotext` exactly. The two
   exceptions are one artefact: a lone ZWJ renders as nothing, so the
   line-by-line comparison shifts.
