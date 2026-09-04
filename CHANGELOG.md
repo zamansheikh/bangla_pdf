@@ -42,6 +42,8 @@ final result = BanglaPdfExtractor.extract(bytes);
 
 ## 1.1.2
 
+_Never released on its own; these changes ship as part of 1.2.0._
+
 - **FIX**: Fonts that declare only the version 1 Indic script tag (`beng`)
   rather than `bng2` now shape correctly. **SolaimanLipi** is the notable one:
   it formed no ya-phala or ra-phala at all and left a bare virama behind, so
