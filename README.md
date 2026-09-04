@@ -35,7 +35,7 @@ it just works.
 | 🎯 **Zero config** | No initialisation, no asset bundling. A Bangla font ships with the package. |
 | 🪶 **Pure Dart** | No FFI, no C toolchain, no native build step — so it works on **web** too. |
 | 🔒 **Drop-in** | Nothing removed from the 1.0.x API, and the bundled typeface is unchanged. |
-| 🧪 **Verified** | Diffed glyph-by-glyph against HarfBuzz: **234/234** on three fonts. |
+| 🧪 **Verified** | Diffed glyph-by-glyph against HarfBuzz: **234/234** on five fonts. |
 
 ---
 
@@ -43,7 +43,7 @@ it just works.
 
 ```yaml
 dependencies:
-  bangla_pdf: ^1.1.1
+  bangla_pdf: ^1.1.2
 ```
 
 ```dart
@@ -246,11 +246,17 @@ live there rather than in the published package — see the
 **Shaping** is diffed glyph-by-glyph and position-by-position against
 **HarfBuzz** (`hb-shape`) over a 253-case corpus:
 
-| font | exact match |
-|---|---|
-| Kalpurush *(bundled)* | **234 / 234** |
-| Noto Sans Bengali | **234 / 234** |
-| Noto Serif Bengali | **234 / 234** |
+| font | Indic spec | exact match |
+|---|---|---|
+| Kalpurush *(bundled)* | v2 `bng2` | **234 / 234** |
+| SolaimanLipi | v1 `beng` | **234 / 234** |
+| Siyam Rupali | v2 `bng2` | **234 / 234** |
+| Noto Sans Bengali | v2 `bng2` | **234 / 234** |
+| Noto Serif Bengali | v2 `bng2` | **234 / 234** |
+
+Both generations of the OpenType Indic spec are handled: v1 fonts write their
+`half`/`blwf`/`pstf` rules as *consonant + virama* and v2 fonts the other way
+round, so the shaper reorders to give each the order it expects.
 
 **Round-trip** — every corpus case is rendered to a real PDF and extracted with
 `pdftotext`: **249 / 251 identical** to the source. The two exceptions are one
@@ -289,9 +295,9 @@ Stated plainly rather than glossed over.
 - **PDF text extraction is not implemented.** There is no
   `package:bangla_pdf/extract.dart` yet — no Bijoy→Unicode reverse mapping and no
   scanned-PDF handling.
-- **Only three fonts are measured.** Bundled Kalpurush, Noto Sans Bengali and
-  Noto Serif Bengali all match HarfBuzz on every corpus case. SolaimanLipi, Siyam
-  Rupali and others are untested. A font relying on GSUB lookup type 8 (reverse
+- **Five fonts are measured**, all matching HarfBuzz exactly: bundled
+  Kalpurush, SolaimanLipi, Siyam Rupali, Noto Sans Bengali and Noto Serif
+  Bengali. Others are untested. A font relying on GSUB lookup type 8 (reverse
   chaining) or GPOS type 3 (cursive attachment) would not shape — neither is
   implemented, because no tested Bengali font uses them.
 - **Rendering is not pixel-diffed.** Output was rasterised and compared against

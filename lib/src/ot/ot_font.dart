@@ -47,6 +47,18 @@ class LayoutTable {
   /// Number of lookups in the table's LookupList.
   int get lookupCount => d.u16(_lookupList);
 
+  /// Whether the table declares [tag] in its ScriptList.
+  ///
+  /// Used to tell an OpenType Indic v2 font (`bng2`) from a v1 one (`beng`);
+  /// the two order their `half`/`blwf`/`pstf` rules differently.
+  bool hasScript(String tag) {
+    final count = d.u16(_scriptList);
+    for (var i = 0; i < count; i++) {
+      if (d.tag(_scriptList + 2 + 6 * i) == tag) return true;
+    }
+    return false;
+  }
+
   /// Byte offset of lookup [index], or `null` when out of range.
   int? lookupOffset(int index) {
     if (index < 0 || index >= lookupCount) return null;

@@ -165,6 +165,13 @@ class BengaliShaper {
   /// Whether this font carries the layout data the shaper needs.
   bool get canShape => _gsub != null && font.hasBengaliCoverage;
 
+  /// Whether the font only declares the v1 Indic script tag (`beng`).
+  ///
+  /// Version 1 fonts write their `half`, `blwf` and `pstf` rules as
+  /// *consonant + virama*; version 2 (`bng2`) writes them the other way round.
+  /// The shaper has to hand each the order it expects.
+  late final bool _isOldSpec = !(font.gsub?.hasScript('bng2') ?? false);
+
   int? _viramaGlyph;
   final Map<int, int> _consonantPositionCache = <int, int>{};
 
@@ -199,7 +206,12 @@ class BengaliShaper {
     _applyFeature('ccmp', _F.ccmp, buf);
     _applyFeature('locl', _F.locl, buf);
 
-    final positions = List<int>.filled(buf.length, IndicPosition.baseConsonant);
+    // Growable: the version 1 halant move reorders these alongside the buffer.
+    final positions = List<int>.filled(
+      buf.length,
+      IndicPosition.baseConsonant,
+      growable: true,
+    );
     final codepoints = <int>[for (final u in units) u.codepoint];
     final categories = <IndicCategory>[
       for (final u in units) categoryOf(u.codepoint),
@@ -538,6 +550,14 @@ class BengaliShaper {
       pos[start + 1] = IndicPosition.raToBecomeReph;
     }
 
+    // 5b. Version 1 fonts write their rules as consonant + virama, so the
+    //     first virama after the base moves to sit after the last consonant of
+    //     the syllable. Without this a font like SolaimanLipi forms no
+    //     ya-phala or ra-phala at all.
+    if (_isOldSpec) {
+      _moveHalantAfterLastConsonant(buf, cps, cat, pos, base, end);
+    }
+
     // 6. Halants, joiners and nuktas take the position of the character they
     //    follow, so they travel with it rather than being sorted away from it.
     var lastPos = IndicPosition.start;
@@ -578,9 +598,10 @@ class BengaliShaper {
     }
 
     // 8. Masks, per the Indic model: half and blwf before the base (Bengali
-    //    applies blwf both sides), blwf/abvf/pstf after it.
+    //    applies blwf both sides), blwf/abvf/pstf after it. Version 1 fonts
+    //    get half only before the base.
     for (var k = limit; k < base; k++) {
-      buf[k].mask |= _F.half | _F.blwf;
+      buf[k].mask |= _isOldSpec ? _F.half : (_F.half | _F.blwf);
     }
     for (var k = base + 1; k < end; k++) {
       buf[k].mask |= _F.blwf | _F.abvf | _F.pstf;
@@ -644,6 +665,39 @@ class BengaliShaper {
         previous != IndicCategory.halant &&
         previous != IndicCategory.syllableModifier &&
         previous != IndicCategory.placeholder;
+  }
+
+  /// Moves the first virama after [base] to just after the last consonant or
+  /// vowel of the syllable, keeping every parallel array in step.
+  void _moveHalantAfterLastConsonant(
+    List<GlyphInfo> buf,
+    List<int> cps,
+    List<IndicCategory> cat,
+    List<int> pos,
+    int base,
+    int end,
+  ) {
+    for (var i = base + 1; i < end; i++) {
+      if (cat[i] != IndicCategory.halant) continue;
+      var target = -1;
+      for (var j = end - 1; j > i; j--) {
+        if (isConsonantCategory(cat[j]) || cat[j] == IndicCategory.vowel) {
+          target = j;
+          break;
+        }
+      }
+      if (target > i) {
+        final glyph = buf.removeAt(i);
+        final cp = cps.removeAt(i);
+        final category = cat.removeAt(i);
+        final position = pos.removeAt(i);
+        buf.insert(target, glyph);
+        cps.insert(target, cp);
+        cat.insert(target, category);
+        pos.insert(target, position);
+      }
+      return;
+    }
   }
 
   bool _hasReph(

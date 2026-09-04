@@ -1,3 +1,20 @@
+## 1.1.2
+
+- **FIX**: Fonts that declare only the version 1 Indic script tag (`beng`)
+  rather than `bng2` now shape correctly. **SolaimanLipi** is the notable one:
+  it formed no ya-phala or ra-phala at all and left a bare virama behind, so
+  `ব্য` `ক্র` `প্র` `স্ত্র` and every conjunct built on a phala came out wrong.
+  Version 1 fonts write their `half`/`blwf`/`pstf` rules as *consonant +
+  virama*; the shaper now moves the virama after the last consonant of the
+  syllable for those fonts, and applies `half` alone before the base rather
+  than `half`+`blwf`. SolaimanLipi goes from 183/234 to **234/234** against
+  HarfBuzz, with no change to any version 2 font.
+- **VERIFIED**: Siyam Rupali matches HarfBuzz on all 234 cases with no changes
+  needed. Both bundled ANSI fonts are correctly detected as legacy and routed
+  to the Bijoy pipeline by `BanglaShapingMode.auto`.
+- Five fonts are now covered by the corpus tests, spanning both generations of
+  the OpenType Indic spec.
+
 ## 1.1.1
 
 Documentation only. No code changes, so nothing behaves differently.

@@ -224,6 +224,8 @@ void main() {
       'test/fixtures/fonts/Kalpurush-Subset.ttf',
       'test/fixtures/fonts/NotoSansBengali-Regular.ttf',
       'test/fixtures/fonts/NotoSerifBengali-Regular.ttf',
+      'test/fixtures/fonts/SolaimanLipi.ttf',
+      'test/fixtures/fonts/SiyamRupali.ttf',
     ];
 
     for (final path in fixtures) {
@@ -255,6 +257,60 @@ void main() {
         expect(broken, isEmpty, reason: broken.join('\n'));
       });
     }
+  });
+
+  group('font detection and the version 1 Indic spec', () {
+    BanglaUnicodeFont? load(String path) {
+      final file = File(path);
+      if (!file.existsSync()) return null;
+      return BanglaUnicodeFont.tryParse(
+        ByteData.sublistView(file.readAsBytesSync()),
+      );
+    }
+
+    test('a legacy 8-bit font is not mistaken for a Unicode one', () {
+      for (final path in const <String>[
+        'test/fixtures/fonts/Kalpurush-ANSI.ttf',
+        'test/fixtures/fonts/SiyamRupali-ANSI.ttf',
+      ]) {
+        final font = load(path);
+        if (font == null) {
+          markTestSkipped('fixture not present: $path');
+          continue;
+        }
+        // No Bengali in the cmap, so `auto` must route it to the Bijoy path
+        // rather than shaping it into notdefs.
+        expect(font.otf.hasBengaliCoverage, isFalse, reason: path);
+        expect(font.canShapeBangla, isFalse, reason: path);
+        expect(BanglaPdf.resolveShapingFont(font), isNull, reason: path);
+      }
+    });
+
+    test('a version 1 font forms phalas via the halant reordering', () {
+      final font = load('test/fixtures/fonts/SolaimanLipi.ttf');
+      if (font == null) {
+        markTestSkipped('SolaimanLipi fixture not present');
+        return;
+      }
+      // SolaimanLipi declares `beng` but not `bng2`, so its blwf/pstf rules
+      // are written consonant-first. Without moving the virama after the
+      // consonant it formed no phala at all and left a bare য / র behind.
+      expect(font.otf.gsub!.hasScript('bng2'), isFalse);
+      expect(font.otf.gsub!.hasScript('beng'), isTrue);
+
+      final virama = font.otf.glyphForRune(0x09CD);
+      for (final text in const <String>['ব্য', 'ক্র', 'প্র', 'হ্য']) {
+        final gids = font.shape(text).glyphs.map((g) => g.gid).toList();
+        // Each is three codepoints. Whether the font resolves it to one
+        // ligature or to base + phala is the font's business; what must not
+        // happen is the virama surviving as its own glyph, which is what an
+        // unreordered version 1 font produced.
+        expect(gids, isNot(contains(virama)),
+            reason: '$text still shows a bare virama');
+        expect(gids.length, lessThan(3),
+            reason: '$text did not combine at all');
+      }
+    });
   });
 
   group('legacy mode', () {

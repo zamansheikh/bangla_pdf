@@ -18,6 +18,9 @@ doc/api/
 # macOS
 .DS_Store
 
+# Font downloads: extract into test/fixtures/fonts/ instead
+*.zip
+
 # Local scratch output
 *.pdf
 !preview/*.pdf
