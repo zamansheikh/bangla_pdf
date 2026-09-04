@@ -39,6 +39,12 @@ class Text extends pw.StatelessWidget {
   /// How overflow is handled.
   final pw.TextOverflow? overflow;
 
+  /// Word-breaking callback, as in [pw.RichText.hyphenation].
+  ///
+  /// Applies to the legacy path only: the shaping pipeline breaks on syllable
+  /// boundaries so a line never splits inside a conjunct.
+  final pw.Hyphenation? hyphenation;
+
   /// The font to use for Bangla.
   ///
   /// Defaults to the bundled Kalpurush, shaped with its own OpenType tables.
@@ -71,6 +77,7 @@ class Text extends pw.StatelessWidget {
     this.textScaleFactor = 1.0,
     this.maxLines,
     this.overflow,
+    this.hyphenation,
     this.banglaFont,
     this.generalFont,
     this.style,
@@ -106,6 +113,7 @@ class Text extends pw.StatelessWidget {
       textScaleFactor: textScaleFactor,
       maxLines: maxLines,
       overflow: overflow ?? pw.TextOverflow.visible,
+      hyphenation: hyphenation,
       text: pw.TextSpan(
         children: FixingUtils.getAutoLocalizedSpans(
           text: text,
@@ -143,6 +151,7 @@ class AutoText extends Text {
     super.textScaleFactor,
     super.maxLines,
     super.overflow,
+    super.hyphenation,
     super.banglaFont,
     super.generalFont,
     super.style,
@@ -200,6 +209,9 @@ class RichText extends pw.StatelessWidget {
   /// How overflow is handled.
   final pw.TextOverflow? overflow;
 
+  /// Word-breaking callback, as in [pw.RichText.hyphenation].
+  final pw.Hyphenation? hyphenation;
+
   /// Creates a [RichText].
   RichText({
     required this.spans,
@@ -210,6 +222,7 @@ class RichText extends pw.StatelessWidget {
     this.textScaleFactor = 1.0,
     this.maxLines,
     this.overflow,
+    this.hyphenation,
   });
 
   @override
@@ -246,6 +259,8 @@ class RichText extends pw.StatelessWidget {
         fontWeight: span.effectiveFontWeight,
         color: span.effectiveColor,
         style: span.style,
+        baseline: span.baseline,
+        annotation: span.annotation,
       ));
     }
 
@@ -257,6 +272,7 @@ class RichText extends pw.StatelessWidget {
       textScaleFactor: textScaleFactor,
       maxLines: maxLines,
       overflow: overflow ?? pw.TextOverflow.visible,
+      hyphenation: hyphenation,
       text: pw.TextSpan(children: children),
     );
   }
@@ -282,6 +298,12 @@ class TextSpan {
   /// Style applied to this span, matching [pw.TextSpan.style].
   final pw.TextStyle? style;
 
+  /// Vertical shift from the baseline, as in [pw.TextSpan.baseline].
+  final double baseline;
+
+  /// Link or annotation attached to this span.
+  final pw.AnnotationBuilder? annotation;
+
   /// The font to use for Bangla runs in this span.
   final pw.Font? banglaFont;
 
@@ -292,6 +314,8 @@ class TextSpan {
     this.fontWeight = pw.FontWeight.normal,
     this.color = PdfColors.black,
     this.style,
+    this.baseline = 0,
+    this.annotation,
     this.banglaFont,
   });
 
@@ -313,6 +337,9 @@ class TextSpan {
 class Header extends pw.StatelessWidget {
   /// The heading text.
   final String text;
+
+  /// Content to place instead of [text], as in [pw.Header.child].
+  final pw.Widget? child;
 
   /// Font size. Ignored when [textStyle] or [banglaStyle] sets one.
   final double fontSize;
@@ -358,6 +385,7 @@ class Header extends pw.StatelessWidget {
     this.text, {
     this.fontSize = 24,
     this.fontWeight = pw.FontWeight.bold,
+    this.child,
     this.level = 0,
     this.title,
     this.margin,
@@ -381,14 +409,15 @@ class Header extends pw.StatelessWidget {
       decoration: decoration,
       outlineColor: outlineColor,
       outlineStyle: outlineStyle,
-      child: Text(
-        text,
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        banglaFont: banglaFont,
-        style: style ?? textStyle,
-        banglaStyle: banglaStyle,
-      ),
+      child: child ??
+          Text(
+            text,
+            fontSize: fontSize,
+            fontWeight: fontWeight,
+            banglaFont: banglaFont,
+            style: style ?? textStyle,
+            banglaStyle: banglaStyle,
+          ),
     );
   }
 }

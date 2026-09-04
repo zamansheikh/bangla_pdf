@@ -1,3 +1,30 @@
+## 1.3.1
+
+Completes signature parity with `package:pdf` and rewrites the README around
+real example documents.
+
+### Added
+
+The last parameters that were still missing from a `pw` counterpart. All
+optional, so no existing call changes.
+
+- `Text`, `AutoText`, `RichText` — `hyphenation`.
+- `Header` — `child`, matching `pw.Header`.
+- `TextSpan` — `baseline` and `annotation`, matching `pw.TextSpan`.
+- `BulletList` — `bulletSize`, `bulletShape`, `bulletMargin`. Setting
+  `bulletSize` draws a shape marker instead of a text bullet, as `pw.Bullet`
+  does.
+- `Table` — `headerAlignments`, `cellDecoration`, `textStyleBuilder`,
+  `cellBuilder`, completing `pw.TableHelper.fromTextArray`.
+
+### Changed
+
+- README rewritten to lead with example output and keep the shaping internals
+  in collapsible sections.
+- Three new screenshots — an invoice, a notice and a report — generated from
+  the public widgets by `tool/dev/make_showcase.dart`. They replace the old
+  single-page widget preview.
+
 ## 1.3.0
 
 Makes the widgets drop-in replacements for their `package:pdf` counterparts, so

@@ -32,6 +32,8 @@ class FixingUtils {
     PdfColor color = PdfColors.black,
     pw.TextStyle? style,
     pw.TextStyle? banglaStyle,
+    double baseline = 0,
+    pw.AnnotationBuilder? annotation,
   }) {
     final spans = <pw.TextSpan>[];
     // Regex to match Bangla characters, including Danda (।) and Double Danda (॥).
@@ -76,6 +78,8 @@ class FixingUtils {
         spans.add(pw.TextSpan(
           text: nonBanglaText,
           style: effectiveGeneralStyle,
+          baseline: baseline,
+          annotation: annotation,
         ));
       }
 
@@ -84,6 +88,8 @@ class FixingUtils {
       spans.add(pw.TextSpan(
         text: banglaText, // Apply the fix extension
         style: effectiveBanglaStyle,
+        baseline: baseline,
+        annotation: annotation,
       ));
 
       lastIndex = match.end;
@@ -95,6 +101,8 @@ class FixingUtils {
       spans.add(pw.TextSpan(
         text: remainingText,
         style: effectiveGeneralStyle,
+        baseline: baseline,
+        annotation: annotation,
       ));
     }
 

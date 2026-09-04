@@ -2,7 +2,7 @@ name: bangla_pdf
 description: >-
   Correct Bangla (Bengali) text in PDFs: real OpenType shaping for conjuncts,
   reph and vowel signs, with text that copies back out as clean Unicode.
-version: 1.3.0
+version: 1.3.1
 homepage: https://github.com/zamansheikh/bangla_pdf
 issue_tracker: https://github.com/zamansheikh/bangla_pdf/issues
 documentation: https://github.com/zamansheikh/bangla_pdf/wiki
@@ -13,9 +13,13 @@ screenshots:
       hasantas on the left, correctly shaped glyphs on the right.
     path: images/before-after.png
   - description: >-
-      A sample page exercising every widget - text, header, paragraph, rich
-      text, bullet list and table - all with correctly shaped Bangla.
-    path: images/preview.png
+      An invoice built with the package's widgets: Bengali digits, the taka
+      sign and a styled table, all shaped correctly.
+    path: images/sample-invoice.png
+  - description: >-
+      A notice built with the package's widgets: headings, a justified
+      paragraph and a bulleted list.
+    path: images/sample-notice.png
 
 topics:
   - pdf

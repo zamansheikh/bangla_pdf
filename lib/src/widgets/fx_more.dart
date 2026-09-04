@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'package:bangla_pdf/bangla_pdf.dart';
 
 /// A bulleted list, with Bangla shaped correctly.
@@ -29,6 +28,18 @@ class BulletList extends pw.StatelessWidget {
   /// Colour of the marker; defaults to [color].
   final pw.PdfColor? bulletColor;
 
+  /// Draw the marker as a shape of this size instead of as [bullet].
+  ///
+  /// Matches [pw.Bullet.bulletSize]. Leave null to draw the character, which is
+  /// the default and what this package has always done.
+  final double? bulletSize;
+
+  /// Shape used when [bulletSize] is set, as in [pw.Bullet.bulletShape].
+  final pw.BoxShape bulletShape;
+
+  /// Space around a shape marker, as in [pw.Bullet.bulletMargin].
+  final pw.EdgeInsetsGeometry bulletMargin;
+
   /// Space outside the list.
   final pw.EdgeInsetsGeometry? margin;
 
@@ -56,6 +67,13 @@ class BulletList extends pw.StatelessWidget {
     this.color = PdfColors.black,
     this.bullet = "\u2022 ",
     this.bulletColor,
+    this.bulletSize,
+    this.bulletShape = pw.BoxShape.circle,
+    this.bulletMargin = const pw.EdgeInsets.only(
+      top: 1.5 * PdfPageFormat.mm,
+      left: 2.0 * PdfPageFormat.mm,
+      right: 2.0 * PdfPageFormat.mm,
+    ),
     this.margin,
     this.padding,
     this.itemSpacing = 0,
@@ -89,15 +107,26 @@ class BulletList extends pw.StatelessWidget {
               // Route the marker through AutoText too, so it is drawn with a
               // real font instead of falling back to base-14 Helvetica, which
               // has no glyph for the default bullet.
-              Text(
-                "$marker  ",
-                fontSize: fontSize,
-                fontWeight: fontWeight,
-                banglaFont: banglaFont,
-                color: bulletColor ?? color,
-                style: style,
-                banglaStyle: banglaStyle,
-              ),
+              if (bulletSize != null)
+                pw.Container(
+                  width: bulletSize,
+                  height: bulletSize,
+                  margin: bulletMargin,
+                  decoration: pw.BoxDecoration(
+                    color: bulletColor ?? color,
+                    shape: bulletShape,
+                  ),
+                )
+              else
+                Text(
+                  "$marker  ",
+                  fontSize: fontSize,
+                  fontWeight: fontWeight,
+                  banglaFont: banglaFont,
+                  color: bulletColor ?? color,
+                  style: style,
+                  banglaStyle: banglaStyle,
+                ),
               pw.Expanded(
                 child: Text(
                   item,
@@ -173,6 +202,24 @@ class Table extends pw.StatelessWidget {
   /// Style for body cells.
   final pw.TextStyle? cellStyle;
 
+  /// Style for odd body rows, for banded text.
+  final pw.TextStyle? oddCellStyle;
+
+  /// Rewrites a body cell's text before it is drawn.
+  final String Function(int column, String value)? cellFormat;
+
+  /// Rewrites a header cell's text before it is drawn.
+  final String Function(int column, String value)? headerFormat;
+
+  /// Decoration behind each header cell, as opposed to the whole row.
+  final pw.BoxDecoration? headerCellDecoration;
+
+  /// Reading direction of the header row.
+  final pw.TextDirection? headerDirection;
+
+  /// Reading direction of the table as a whole.
+  final pw.TextDirection? tableDirection;
+
   /// Text colour in body cells.
   final pw.PdfColor cellTextColor;
 
@@ -185,8 +232,24 @@ class Table extends pw.StatelessWidget {
   /// Alignment of body cell contents.
   final pw.AlignmentGeometry cellAlignment;
 
-  /// Per-column alignment overrides.
+  /// Per-column alignment overrides for body cells.
   final Map<int, pw.AlignmentGeometry>? cellAlignments;
+
+  /// Per-column alignment overrides for header cells.
+  final Map<int, pw.AlignmentGeometry>? headerAlignments;
+
+  /// Decoration for one body cell: `(column, value, row)`.
+  final pw.BoxDecoration? Function(int column, String value, int row)?
+      cellDecoration;
+
+  /// Style for one body cell: `(column, value, row)`. Wins over [cellStyle].
+  final pw.TextStyle? Function(int column, String value, int row)?
+      textStyleBuilder;
+
+  /// Replaces a body cell entirely: `(column, value, row)`.
+  ///
+  /// Return null to fall back to the normal Bangla-shaped cell.
+  final pw.Widget? Function(int column, String value, int row)? cellBuilder;
 
   /// Decoration behind every body row.
   final pw.BoxDecoration? rowDecoration;
@@ -234,11 +297,21 @@ class Table extends pw.StatelessWidget {
     this.headerHeight,
     this.headerDecoration,
     this.cellStyle,
+    this.oddCellStyle,
+    this.cellFormat,
+    this.headerFormat,
+    this.headerCellDecoration,
+    this.headerDirection,
+    this.tableDirection,
     this.cellTextColor = PdfColors.black,
     this.cellPadding = const pw.EdgeInsets.all(6),
     this.cellHeight = 0,
     this.cellAlignment = pw.Alignment.centerLeft,
     this.cellAlignments,
+    this.headerAlignments,
+    this.cellDecoration,
+    this.textStyleBuilder,
+    this.cellBuilder,
     this.rowDecoration,
     this.oddRowDecoration,
     this.borderColor = PdfColors.grey,
@@ -258,13 +331,25 @@ class Table extends pw.StatelessWidget {
     final body = data.skip(headerCount).toList();
 
     pw.Widget cell(
-      String text, {
+      String raw, {
       required bool header,
       required int column,
+      int row = 0,
+      bool odd = false,
     }) {
+      if (!header) {
+        final custom = cellBuilder?.call(column, raw, row);
+        if (custom != null) return custom;
+      }
+      final text = header
+          ? (headerFormat?.call(column, raw) ?? raw)
+          : (cellFormat?.call(column, raw) ?? raw);
       final resolved = header
           ? (headerStyle ?? style?.copyWith(fontWeight: pw.FontWeight.bold))
-          : (cellStyle ?? style);
+          : (textStyleBuilder?.call(column, raw, row) ??
+              (odd ? oddCellStyle : null) ??
+              cellStyle ??
+              style);
       final content = Text(
         text,
         textAlign: header ? headerAlignment : pw.TextAlign.start,
@@ -278,15 +363,30 @@ class Table extends pw.StatelessWidget {
             ? banglaStyle?.copyWith(fontWeight: pw.FontWeight.bold)
             : banglaStyle,
       );
-      final padded = pw.Padding(
+      pw.Widget padded = pw.Padding(
         padding: (header ? headerPadding : null) ?? cellPadding,
         child: content,
       );
-      if (header) return padded;
-      return pw.Align(
+      if (header && headerCellDecoration != null) {
+        padded = pw.Container(
+          decoration: headerCellDecoration,
+          child: padded,
+        );
+      }
+      if (header) {
+        final align = headerAlignments?[column];
+        return align == null
+            ? padded
+            : pw.Align(alignment: align, child: padded);
+      }
+      final decoration = cellDecoration?.call(column, raw, row);
+      final aligned = pw.Align(
         alignment: cellAlignments?[column] ?? cellAlignment,
         child: padded,
       );
+      return decoration == null
+          ? aligned
+          : pw.Container(decoration: decoration, child: aligned);
     }
 
     final rows = <pw.TableRow>[
@@ -300,7 +400,12 @@ class Table extends pw.StatelessWidget {
                 height: headerHeight == null || headerHeight == 0
                     ? null
                     : headerHeight,
-                child: cell(row[c], header: true, column: c),
+                child: headerDirection == null
+                    ? cell(row[c], header: true, column: c)
+                    : pw.Directionality(
+                        textDirection: headerDirection!,
+                        child: cell(row[c], header: true, column: c),
+                      ),
               ),
           ],
         ),
@@ -311,13 +416,13 @@ class Table extends pw.StatelessWidget {
             for (var c = 0; c < body[r].length; c++)
               pw.SizedBox(
                 height: cellHeight == 0 ? null : cellHeight,
-                child: cell(body[r][c], header: false, column: c),
+                child: cell(body[r][c], header: false, column: c, odd: r.isOdd),
               ),
           ],
         ),
     ];
 
-    return pw.Table(
+    final table = pw.Table(
       border: border ?? pw.TableBorder.all(color: borderColor),
       defaultVerticalAlignment: defaultVerticalAlignment,
       columnWidths: columnWidths,
@@ -325,5 +430,7 @@ class Table extends pw.StatelessWidget {
       tableWidth: tableWidth,
       children: rows,
     );
+    if (tableDirection == null) return table;
+    return pw.Directionality(textDirection: tableDirection!, child: table);
   }
 }
