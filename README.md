@@ -34,7 +34,7 @@ it just works.
 | 📋 **Copy-pasteable** | The PDF holds real Unicode. `pdftotext`, search and screen readers get your original string back. |
 | 🎯 **Zero config** | No initialisation, no asset bundling. A Bangla font ships with the package. |
 | 🪶 **Pure Dart** | No FFI, no C toolchain, no native build step — so it works on **web** too. |
-| 🔒 **Drop-in** | Nothing removed from the 1.0.x API, and the bundled typeface is unchanged. |
+| 🔒 **Drop-in** | Same parameters as the `package:pdf` widgets — swap `pw.Text` for `Text` and nothing else changes. |
 | 📥 **Reads PDFs too** | `extract.dart` pulls Bangla back out — including **Bijoy** documents, converted to Unicode. |
 | 🧪 **Verified** | Diffed glyph-by-glyph against HarfBuzz: **234/234** on five fonts. |
 
@@ -44,7 +44,7 @@ it just works.
 
 ```yaml
 dependencies:
-  bangla_pdf: ^1.1.2
+  bangla_pdf: ^1.3.0
 ```
 
 ```dart
@@ -139,6 +139,28 @@ render in one pass:
 ```dart
 Text('Invoice #1042 - মোট ৳১২,৫০০.০০ - তারিখ ০১/০৯/২০২৬')
 ```
+
+### Drop-in for `package:pdf`
+
+Each widget takes the same parameters as its `pw` counterpart, so switching is
+a one-word change:
+
+```diff
+- pw.Text('বাংলা', style: pw.TextStyle(fontSize: 18), maxLines: 2)
++    Text('বাংলা', style: pw.TextStyle(fontSize: 18), maxLines: 2)
+```
+
+`Header`, `Paragraph`, `RichText`, `TextSpan` and `BulletList` accept their
+`pw` equivalents' parameters, and `Table` mirrors
+`pw.TableHelper.fromTextArray` — `headerCount`, `headerDecoration`,
+`oddRowDecoration`, `cellAlignments`, `columnWidths` and the rest.
+
+Two differences worth knowing:
+
+- `Header` and `Paragraph` take their text **positionally**
+  (`Header('শিরোনাম')`), where `pw` takes it as `text:`. That is how this
+  package has worked since 1.0 and changing it would break every existing call.
+- `Paragraph` defaults to `TextAlign.start` rather than `pw`'s `justify`.
 
 <details>
 <summary><strong>Full <code>Text</code> parameters</strong></summary>

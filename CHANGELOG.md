@@ -1,3 +1,46 @@
+## 1.3.0
+
+Makes the widgets drop-in replacements for their `package:pdf` counterparts, so
+Bangla is the only thing that changes when you switch.
+
+### Changed
+
+- **`pdf` is now `^3.13.0`** (was `^3.11.3`). `lib/src/pdf/shaped_pdf_font.dart`
+  reaches into `package:pdf`'s internals to build a glyph-addressed CID font, so
+  the narrower range is what is actually tested. If you are pinned below 3.13,
+  stay on 1.2.0.
+
+### Added
+
+Every one of these is optional, so no existing call changes.
+
+- `Header` — `level`, `title`, `margin`, `padding`, `decoration`, `textStyle`,
+  `outlineColor`, `outlineStyle`, matching `pw.Header`.
+- `Paragraph` — `margin`, `padding`, matching `pw.Paragraph`.
+- `RichText` — `textDirection`, `softWrap`, `tightBounds`, `textScaleFactor`,
+  `maxLines`, `overflow`, matching `pw.RichText`.
+- `TextSpan` — `style`, matching `pw.TextSpan`. It takes precedence over the
+  loose `fontSize` / `color` / `fontWeight` arguments.
+- `BulletList` — `bulletColor`, `margin`, `padding`, `itemSpacing`, `textAlign`.
+- `Table` — `headerCount`, `headerStyle`, `headerPadding`, `headerHeight`,
+  `headerDecoration`, `headerTextColor`, `cellStyle`, `cellTextColor`,
+  `cellHeight`, `cellAlignments`, `rowDecoration`, `oddRowDecoration`, `border`,
+  `defaultColumnWidth`, `tableWidth`, `defaultVerticalAlignment`, mirroring
+  `pw.TableHelper.fromTextArray`.
+
+`Text` already accepted the whole of `pw.Text`'s parameter list and is
+unchanged.
+
+### Notes
+
+- Header and Paragraph take their text **positionally**, as they have since
+  1.0, where `pw.Header` and `pw.Paragraph` take it as a named `text:`
+  argument. That is the one call-site difference.
+- `Paragraph` keeps `TextAlign.start` as its default rather than `pw`'s
+  `justify`, because changing it would alter existing documents.
+- A new `test/api_parity_test.dart` constructs every widget with its full
+  parameter set, so a dropped or renamed parameter fails the build.
+
 ## 1.2.0
 
 Adds PDF text extraction, in a separate library so generation-only users pay

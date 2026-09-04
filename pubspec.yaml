@@ -2,7 +2,7 @@ name: bangla_pdf
 description: >-
   Correct Bangla (Bengali) text in PDFs: real OpenType shaping for conjuncts,
   reph and vowel signs, with text that copies back out as clean Unicode.
-version: 1.2.0
+version: 1.3.0
 homepage: https://github.com/zamansheikh/bangla_pdf
 issue_tracker: https://github.com/zamansheikh/bangla_pdf/issues
 documentation: https://github.com/zamansheikh/bangla_pdf/wiki
@@ -34,7 +34,9 @@ dependencies:
   archive: ^4.0.0
   flutter:
     sdk: flutter
-  pdf: ^3.11.3
+  # Pinned to 3.13 because lib/src/pdf/shaped_pdf_font.dart reaches into
+  # package:pdf's internals to build a glyph-addressed CID font.
+  pdf: ^3.13.0
   plugin_platform_interface: ^2.1.8
   
 
