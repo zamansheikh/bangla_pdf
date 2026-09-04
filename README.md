@@ -200,10 +200,13 @@ conjunct or between a vowel sign and its consonant.
 
 ## Verification
 
-Every claim below is produced by code in this repository — see
-[`docs/VERIFICATION_REPORT.md`](docs/VERIFICATION_REPORT.md) for the full run,
-and [`docs/CURRENT_STATE.md`](docs/CURRENT_STATE.md) for how 1.0.6 worked and why
-it broke.
+Every claim below is produced by code in this repository. The full write-ups
+live there rather than in the published package — see the
+[verification report][report] for the complete run, and the
+[1.0.6 teardown][teardown] for how the old pipeline worked and why it broke.
+
+[report]: https://github.com/zamansheikh/bangla_pdf/blob/main/docs/VERIFICATION_REPORT.md
+[teardown]: https://github.com/zamansheikh/bangla_pdf/blob/main/docs/CURRENT_STATE.md
 
 **Shaping** is diffed glyph-by-glyph and position-by-position against
 **HarfBuzz** (`hb-shape`) over a 253-case corpus:
@@ -273,9 +276,10 @@ Stated plainly rather than glossed over.
 ## Contributing
 
 Bug reports, corpus cases and pull requests are all welcome — a failing string is
-especially useful. Add it to
-[`test/corpus/bangla_cases.json`](test/corpus/bangla_cases.json) with an `id`,
-`category` and `notes`, and the differential harness will pick it up.
+especially useful. Add it to [`test/corpus/bangla_cases.json`][corpus] with an
+`id`, `category` and `notes`, and the differential harness will pick it up.
+
+[corpus]: https://github.com/zamansheikh/bangla_pdf/blob/main/test/corpus/bangla_cases.json
 
 ```bash
 flutter test                                  # unit and PDF-structure tests
@@ -305,9 +309,13 @@ License 1.0; its Latin glyphs are from Gentium. Font licences are in
 Maintained by **[Zaman Sheikh](https://github.com/zamansheikh)** ·
 [zaman6545@gmail.com](mailto:zaman6545@gmail.com)
 
-Inspired by **AR Rahman**'s
-[bangla_pdf_fixer](https://pub.dev/packages/bangla_pdf_fixer), which first put
-this problem on the map. Thanks to every Bangla font creator whose work makes
-readable Bangla typography possible.
+The legacy Bijoy pipeline kept for backward compatibility
+(`BanglaShapingMode.legacy`) descends from the ANSI transcoding approach in
+**AR Rahman**'s [bangla_pdf_fixer](https://pub.dev/packages/bangla_pdf_fixer)
+2.x. It is retained only so 1.0.x users can reproduce their old output; the
+shaping in this package does not use it.
+
+Thanks to every Bangla font creator whose work makes readable Bangla typography
+possible.
 
 ⭐ If this saved you a day of debugging, star the repo.
