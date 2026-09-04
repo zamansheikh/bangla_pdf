@@ -63,6 +63,7 @@ class ShapedTextWidget extends pw.Widget {
     required this.color,
     this.textAlign = pw.TextAlign.start,
     this.lineSpacing = 1.2,
+    this.extraLeading = 0,
     this.maxLines,
     this.letterSpacing = 0,
   });
@@ -85,6 +86,12 @@ class ShapedTextWidget extends pw.Widget {
   /// Line height as a multiple of the font's natural line height.
   final double lineSpacing;
 
+  /// Extra space added to each line, in points.
+  ///
+  /// This is what `package:pdf` calls `TextStyle.lineSpacing`; it is kept
+  /// separate because [lineSpacing] here is a multiplier, not a length.
+  final double extraLeading;
+
   /// Optional cap on the number of lines rendered.
   final int? maxLines;
 
@@ -104,7 +111,8 @@ class ShapedTextWidget extends pw.Widget {
     bool parentUsesSize = false,
   }) {
     _ascent = font.ascent * fontSize;
-    _lineHeight = (font.ascent - font.descent) * fontSize * lineSpacing;
+    _lineHeight =
+        (font.ascent - font.descent) * fontSize * lineSpacing + extraLeading;
 
     final limit =
         constraints.hasBoundedWidth ? constraints.maxWidth : double.infinity;

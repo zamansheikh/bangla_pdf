@@ -14,6 +14,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:bangla_pdf/bangla_pdf.dart' show BanglaPdf, BanglaShapingMode;
+// The original API's Text, for comparing the drop-in's layout against it.
+import 'package:bangla_pdf/bangla_pdf.dart' as bp show Text;
 import 'package:bangla_pdf/extract.dart';
 import 'package:bangla_pdf/widgets.dart' as pw;
 import 'package:flutter_test/flutter_test.dart';
@@ -283,6 +285,53 @@ void main() {
         ),
       );
       expect(bytes, isNotEmpty);
+    });
+  });
+
+  group('layout', () {
+    test('a shaped widget reports a real height', () async {
+      // pw's TextStyle.lineSpacing is extra leading in points and defaults to
+      // 0, while ShapedTextWidget's is a multiplier. Feeding one into the
+      // other collapsed every compat widget to zero height, so any Column or
+      // Container around one laid out wrongly while still painting its text.
+      final compat = pw.Text(
+        '৳৩৮৩ কোটি',
+        style: const pw.TextStyle(fontSize: 15),
+      );
+      final legacyApi = bp.Text('৳৩৮৩ কোটি', fontSize: 15);
+
+      final pdf = pw.Document();
+      pdf.addPage(
+        pw.Page(
+          build: (context) => pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: <pw.Widget>[compat, legacyApi],
+          ),
+        ),
+      );
+      await pdf.save();
+
+      expect(compat.box!.height, greaterThan(0));
+      // The drop-in must lay out identically to the original API.
+      expect(compat.box!.height, closeTo(legacyApi.box!.height, 0.001));
+      expect(compat.box!.width, closeTo(legacyApi.box!.width, 0.001));
+    });
+
+    test('explicit lineSpacing adds leading, as it does in package:pdf',
+        () async {
+      final tight = pw.Text('বাংলা', style: const pw.TextStyle(fontSize: 12));
+      final loose = pw.Text(
+        'বাংলা',
+        style: const pw.TextStyle(fontSize: 12, lineSpacing: 8),
+      );
+      final pdf = pw.Document();
+      pdf.addPage(
+        pw.Page(
+          build: (context) => pw.Column(children: <pw.Widget>[tight, loose]),
+        ),
+      );
+      await pdf.save();
+      expect(loose.box!.height, closeTo(tight.box!.height + 8, 0.001));
     });
   });
 

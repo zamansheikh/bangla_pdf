@@ -3,6 +3,9 @@
 import 'dart:io';
 
 import 'package:bangla_pdf/bangla_pdf.dart';
+// The dashboard below is written against the drop-in entry point, so this file
+// exercises both APIs the package offers.
+import 'package:bangla_pdf/widgets.dart' as bpw;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -303,11 +306,154 @@ pw.Document report() {
   return pdf;
 }
 
+/// A statement with a chart: Bangla axis labels, a Bangla legend and Bengali
+/// digits throughout. Written with the `package:bangla_pdf/widgets.dart`
+/// drop-in, so every widget below is a `package:pdf` widget by name.
+bpw.Document dashboard() {
+  const months = <String>['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রিল', 'মে', 'জুন'];
+  const sales = <double>[42, 58, 51, 73, 68, 91];
+
+  bpw.Widget metric(String label, String value, String delta) => bpw.Expanded(
+        child: bpw.Container(
+          padding: const bpw.EdgeInsets.all(11),
+          margin: const bpw.EdgeInsets.only(right: 8),
+          decoration: bpw.BoxDecoration(
+            color: _band,
+            borderRadius: bpw.BorderRadius.circular(5),
+          ),
+          child: bpw.Column(
+            crossAxisAlignment: bpw.CrossAxisAlignment.start,
+            children: <bpw.Widget>[
+              bpw.Text(label,
+                  style: const bpw.TextStyle(fontSize: 8, color: _muted)),
+              bpw.SizedBox(height: 3),
+              bpw.Text(value,
+                  style: const bpw.TextStyle(fontSize: 15, color: _ink)),
+              bpw.SizedBox(height: 2),
+              bpw.Text(delta,
+                  style: const bpw.TextStyle(fontSize: 8, color: _brand)),
+            ],
+          ),
+        ),
+      );
+
+  final pdf = bpw.Document();
+  pdf.addPage(
+    bpw.Page(
+      pageFormat: PdfPageFormat(430, 560, marginAll: 26),
+      build: (context) => bpw.Column(
+        crossAxisAlignment: bpw.CrossAxisAlignment.start,
+        children: <bpw.Widget>[
+          bpw.Row(
+            mainAxisAlignment: bpw.MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: bpw.CrossAxisAlignment.start,
+            children: <bpw.Widget>[
+              bpw.Column(
+                crossAxisAlignment: bpw.CrossAxisAlignment.start,
+                children: <bpw.Widget>[
+                  bpw.Text('ষাণ্মাসিক প্রতিবেদন',
+                      style: const bpw.TextStyle(
+                          fontSize: 22, color: _brand, lineSpacing: 1)),
+                  bpw.SizedBox(height: 2),
+                  bpw.Text('জানুয়ারি — জুন ২০২৬',
+                      style: const bpw.TextStyle(fontSize: 10, color: _muted)),
+                ],
+              ),
+              bpw.Container(
+                padding:
+                    const bpw.EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: bpw.BoxDecoration(
+                  color: _brandSoft,
+                  borderRadius: bpw.BorderRadius.circular(4),
+                ),
+                child: bpw.Text('চূড়ান্ত',
+                    style: const bpw.TextStyle(fontSize: 9, color: _brand)),
+              ),
+            ],
+          ),
+          bpw.SizedBox(height: 16),
+          bpw.Row(children: <bpw.Widget>[
+            metric('মোট বিক্রয়', '৳৩৮৩ কোটি', '+২১.৪% বৃদ্ধি'),
+            metric('নতুন গ্রাহক', '১২,৪৭৯', '+৮.১% বৃদ্ধি'),
+            metric('গড় মূল্য', '৳৮,৭৫০', '+৩.২% বৃদ্ধি'),
+          ]),
+          bpw.SizedBox(height: 20),
+          bpw.Text('মাসভিত্তিক বিক্রয়',
+              style: const bpw.TextStyle(fontSize: 12, color: _ink)),
+          bpw.SizedBox(height: 10),
+          bpw.SizedBox(
+            height: 175,
+            child: bpw.Chart(
+              grid: bpw.CartesianGrid(
+                xAxis: bpw.FixedAxis.fromStrings(
+                  months,
+                  textStyle: const bpw.TextStyle(fontSize: 8, color: _muted),
+                  marginStart: 24,
+                  marginEnd: 16,
+                ),
+                yAxis: bpw.FixedAxis<int>(
+                  const <int>[0, 25, 50, 75, 100],
+                  textStyle: const bpw.TextStyle(fontSize: 8, color: _muted),
+                  divisions: true,
+                  divisionsColor: _line,
+                  format: _bengaliNumber,
+                ),
+              ),
+              overlay: bpw.ChartLegend(
+                position: bpw.Alignment.topRight,
+                direction: bpw.Axis.horizontal,
+                textStyle: const bpw.TextStyle(fontSize: 8, color: _muted),
+                decoration: const bpw.BoxDecoration(),
+                padding: bpw.EdgeInsets.zero,
+              ),
+              datasets: <bpw.Dataset>[
+                bpw.BarDataSet(
+                  legend: 'বিক্রয় (কোটি টাকা)',
+                  color: _brand,
+                  width: 20,
+                  data: <bpw.PointChartValue>[
+                    for (var i = 0; i < sales.length; i++)
+                      bpw.PointChartValue(i.toDouble(), sales[i]),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          bpw.SizedBox(height: 18),
+          bpw.Divider(color: _line, thickness: 0.6),
+          bpw.SizedBox(height: 10),
+          bpw.Text(
+            'উপরের চিত্রে দেখা যাচ্ছে, দ্বিতীয় প্রান্তিকে বিক্রয় উল্লেখযোগ্যভাবে '
+            'বৃদ্ধি পেয়েছে। কর্তৃপক্ষ মনে করছে এই ধারা আগামী প্রান্তিকেও '
+            'অব্যাহত থাকবে।',
+            textAlign: bpw.TextAlign.justify,
+            style: const bpw.TextStyle(
+                fontSize: 9.5, color: _muted, lineSpacing: 1.5),
+          ),
+        ],
+      ),
+    ),
+  );
+  return pdf;
+}
+
+/// Formats an axis value with Bengali digits.
+String _bengaliNumber(num value) {
+  const digits = <String>['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+  return value
+      .toInt()
+      .toString()
+      .split('')
+      .map((d) => digits[int.parse(d)])
+      .join();
+}
+
 /// Writes every showcase document into [directory].
 Future<void> buildShowcase(String directory) async {
   BanglaPdf.reset();
   Directory(directory).createSync(recursive: true);
   final documents = <String, pw.Document>{
+    'sample-dashboard': dashboard(),
     'sample-invoice': invoice(),
     'sample-notice': notice(),
     'sample-report': report(),

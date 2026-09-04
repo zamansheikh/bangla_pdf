@@ -1,3 +1,37 @@
+## 1.4.3
+
+### Fixed
+
+- **Compat widgets reported zero height.** `package:pdf`'s
+  `TextStyle.lineSpacing` is extra leading in points and defaults to `0`, while
+  `ShapedTextWidget`'s is a multiplier. The bridge passed one straight into the
+  other, so every shaped line computed a height of zero: text still painted,
+  but any `Column`, `Container` or `Table` around it laid out as if the text
+  were not there, and neighbouring widgets overlapped.
+
+  `ShapedTextWidget` now takes `extraLeading` separately, and the compat layer
+  maps `TextStyle.lineSpacing` onto it — so `lineSpacing: 8` adds 8 points, as
+  it does in `package:pdf`. A compat widget's box now matches the original
+  API's exactly.
+
+  Only `package:bangla_pdf/widgets.dart` (new in 1.4.0) was affected. The
+  original `Text`, `Header`, `Table` and friends were never wired this way.
+
+### Added
+
+- A fourth showcase document — a half-yearly report with metric cards and a bar
+  chart carrying Bangla axis labels and a Bangla legend. It is written against
+  the drop-in entry point, so `tool/dev/make_showcase.dart` now exercises both
+  APIs the package offers.
+- Two layout regression tests pinning the box a shaped widget reports, and the
+  meaning of `lineSpacing`.
+
+### Changed
+
+- README shows the four sample documents two per row.
+- The first pub.dev screenshot is now a full sample document rather than the
+  before/after comparison.
+
 ## 1.4.2
 
 Fixes font selection through the new `widgets.dart` entry point.

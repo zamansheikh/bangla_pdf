@@ -234,7 +234,10 @@ class BanglaAwareText extends pw.StatelessWidget {
       color: resolved.color ?? PdfColors.black,
       textAlign: textAlign ?? pw.TextAlign.start,
       maxLines: maxLines,
-      lineSpacing: resolved.lineSpacing ?? 1.2,
+      // `TextStyle.lineSpacing` is extra leading in points in `package:pdf`,
+      // and pw's own default for it is 0 -- feeding it to the multiplier would
+      // collapse every line to zero height.
+      extraLeading: resolved.lineSpacing ?? 0,
       letterSpacing: resolved.letterSpacing ?? 0,
     );
   }
