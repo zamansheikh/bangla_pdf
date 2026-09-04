@@ -1,3 +1,19 @@
+## 1.1.1
+
+Documentation only. No code changes, so nothing behaves differently.
+
+- Rewrote the README: a rendered before/after generated from the real pipeline,
+  a feature grid, section icons, the sample-page screenshot alongside the widget
+  list, and a `pdftotext` before/after showing that the text in the PDF is now
+  real Bangla rather than Bijoy ANSI.
+- Scoped the `bangla_pdf_fixer` credit to the legacy Bijoy pipeline, which is
+  what actually descends from it.
+- Fixed the screenshot paths: `pubspec.yaml` pointed into a directory excluded
+  from the published archive, so the screenshot reference would have dangled.
+  Both screenshots now ship.
+- The audit and verification write-ups under `docs/` stay in the repository and
+  are not shipped in the package; the README links to them by URL.
+
 ## 1.1.0
 
 Bangla is now shaped with the font's own OpenType tables instead of being

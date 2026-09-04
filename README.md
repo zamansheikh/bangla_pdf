@@ -43,7 +43,7 @@ it just works.
 
 ```yaml
 dependencies:
-  bangla_pdf: ^1.1.0
+  bangla_pdf: ^1.1.1
 ```
 
 ```dart
