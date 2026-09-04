@@ -226,8 +226,10 @@ class BengaliShaper {
     for (final (tag, mask) in _presentationFeatures) {
       _applyFeature(tag, mask, buf);
     }
+    // The common features are not confined to a syllable, unlike the Indic
+    // ones above.
     for (final (tag, mask) in _finalFeatures) {
-      _applyFeature(tag, mask, buf);
+      _applyFeature(tag, mask, buf, perSyllable: false);
     }
 
     for (final g in buf) {
@@ -341,12 +343,17 @@ class BengaliShaper {
   /// Set `BANGLA_PDF_TRACE=1` to dump the buffer after every lookup. Dev only.
   static final bool _trace = Platform.environment['BANGLA_PDF_TRACE'] == '1';
 
-  void _applyFeature(String tag, int mask, List<GlyphInfo> buf) {
+  void _applyFeature(
+    String tag,
+    int mask,
+    List<GlyphInfo> buf, {
+    bool perSyllable = true,
+  }) {
     final lookups = _gsubFeatures[tag];
     if (lookups == null || _gsub == null) return;
     for (final index in lookups) {
       final before = _trace ? buf.map((g) => g.gid).toList() : null;
-      _gsub.applyLookup(buf, index, mask);
+      _gsub.applyLookup(buf, index, mask, perSyllable: perSyllable);
       if (_trace) {
         final after = buf.map((g) => g.gid).toList();
         if ('$before' != '$after') {
@@ -577,6 +584,26 @@ class BengaliShaper {
     }
     for (var k = base + 1; k < end; k++) {
       buf[k].mask |= _F.blwf | _F.abvf | _F.pstf;
+    }
+
+    // 8b. A ZWNJ immediately after a virama blocks the conjunct: the cluster
+    //     must render as base + visible hasanta + base, not as a half form or
+    //     a ligature. Clearing the conjunct-forming bits on the virama and the
+    //     consonant it follows leaves `haln` to draw the explicit hasanta.
+    const blocked = _F.half |
+        _F.blwf |
+        _F.abvf |
+        _F.pstf |
+        _F.pref |
+        _F.cjct |
+        _F.vatu |
+        _F.akhn |
+        _F.rphf;
+    for (var k = start; k < end - 1; k++) {
+      if (cat[k] != IndicCategory.halant) continue;
+      if (cat[k + 1] != IndicCategory.zwnj) continue;
+      buf[k].mask &= ~blocked;
+      if (k > start) buf[k - 1].mask &= ~blocked;
     }
 
     // 9. Record positions and the syllable id so final reordering can still

@@ -75,11 +75,20 @@ Corpus ids that rendered wrongly in 1.0.6 and are correct now:
   detected automatically and keeps the 1.0.x pipeline, so existing custom-font
   code is unaffected.
 
+### Verified
+
+- Shaping is identical to HarfBuzz on all 234 pure-Bangla corpus cases with the
+  bundled Kalpurush and with Noto Serif Bengali; Noto Sans Bengali differs on
+  two, both mark positioning rather than glyph choice.
+- 249 of 251 corpus cases round-trip through `pdftotext` exactly. The two
+  exceptions are one artefact: a lone ZWJ renders as nothing, so the
+  line-by-line comparison shifts.
+
 ### Known limitations
 
-See the README. In short: four corpus cases differ from HarfBuzz by small mark
-offsets, PDFs embed the full font rather than a per-document subset, and PDF
-text extraction (`extract.dart`) is not implemented yet.
+See the README. In short: PDFs embed the full font rather than a per-document
+subset, rendering is not pixel-diffed, copy/paste is verified with poppler
+only, and PDF text extraction (`extract.dart`) is not implemented yet.
 
 ## 1.0.6
 

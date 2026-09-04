@@ -10,8 +10,8 @@ are in §5. Nothing is claimed as passing on the strength of inspection alone.
 | measure | 1.0.6 | 1.1.0 `legacy` | 1.1.0 default (`auto`) |
 |---|---|---|---|
 | corpus cases that **crash** `pdf.save()` | **21 / 253** | **0 / 253** | **0 / 253** |
-| shaping matches HarfBuzz exactly (glyphs + positions) | n/a — not a shaper | n/a | **231 / 234 (98%)** |
-| shaping matches HarfBuzz on the glyph sequence | n/a | n/a | **231 / 234 (98%)** |
+| shaping matches HarfBuzz exactly (glyphs + positions) | n/a — not a shaper | n/a | **234 / 234 (100%)** |
+| shaping matches HarfBuzz on the glyph sequence | n/a | n/a | **234 / 234 (100%)** |
 | text copies back out of the PDF as the original Unicode | **0%** | 0% | **249 / 251 (99%)** |
 | Bengali codepoints present in the PDF | **0** | 0 | all of them |
 | conjuncts that ligate instead of showing a stray hasanta | table-limited | table-limited | every corpus case |
@@ -29,40 +29,56 @@ over the 234 corpus cases that are pure Bangla. Mixed-script cases are excluded
 because HarfBuzz itemises scripts itself and the comparison would not be
 like-for-like.
 
-Font: the bundled `Kalpurush-Subset.ttf` (Noto Sans Bengali scores the same,
-Noto Serif Bengali 91%; see §6).
+Fonts: the bundled `Kalpurush-Subset.ttf`, plus Noto Sans Bengali and Noto
+Serif Bengali as independent checks.
 
-| category | bundled Kalpurush | Noto Sans Bengali |
-|---|---|---|
-| simple consonants and vowels | 45 / 45 | 45 / 45 |
-| vowel signs on ক and ম | 21 / 21 | 21 / 21 |
-| reph | **20 / 20** | **20 / 20** |
-| reph + conjunct + vowel sign | 7 / 8 | **8 / 8** |
-| ya-phala / ra-phala | 18 / 18 | 18 / 18 |
-| 2-consonant conjuncts | **50 / 50** | **50 / 50** |
-| 3-consonant conjuncts | **14 / 14** | 12 / 14 |
-| 4-consonant conjuncts | 2 / 3 | 2 / 3 |
-| hasanta / khanda-ta | 7 / 7 | 7 / 7 |
-| nukta (NFC and NFD) | 10 / 10 | 10 / 10 |
-| NFC vs NFD equivalence | 6 / 6 | 6 / 6 |
-| chandrabindu / anusvara / visarga | **8 / 8** | 7 / 8 |
-| ZWJ / ZWNJ | 5 / 6 | **6 / 6** |
-| digits, punctuation, Assamese | 6 / 6 | 6 / 6 |
-| paragraphs | 4 / 4 | 4 / 4 |
-| edge cases | 8 / 8 | 8 / 8 |
-| **total** | **231 / 234 (98%)** | **230 / 234 (98%)** |
+| category | bundled Kalpurush | Noto Sans | Noto Serif |
+|---|---|---|---|
+| simple consonants and vowels | 45 / 45 | 45 / 45 | 45 / 45 |
+| vowel signs on ক and ম | 21 / 21 | 21 / 21 | 21 / 21 |
+| reph | 20 / 20 | 20 / 20 | 20 / 20 |
+| reph + conjunct + vowel sign | 8 / 8 | 8 / 8 | 8 / 8 |
+| ya-phala / ra-phala | 18 / 18 | 18 / 18 | 18 / 18 |
+| 2-consonant conjuncts | 50 / 50 | 50 / 50 | 50 / 50 |
+| 3-consonant conjuncts | 14 / 14 | 13 / 14 | 14 / 14 |
+| 4-consonant conjuncts | 3 / 3 | 3 / 3 | 3 / 3 |
+| hasanta / khanda-ta | 7 / 7 | 7 / 7 | 7 / 7 |
+| nukta (NFC and NFD) | 10 / 10 | 10 / 10 | 10 / 10 |
+| NFC vs NFD equivalence | 6 / 6 | 6 / 6 | 6 / 6 |
+| chandrabindu / anusvara / visarga | 8 / 8 | 7 / 8 | 8 / 8 |
+| ZWJ / ZWNJ | 6 / 6 | 6 / 6 | 6 / 6 |
+| digits, punctuation, Assamese | 6 / 6 | 6 / 6 | 6 / 6 |
+| paragraphs | 4 / 4 | 4 / 4 | 4 / 4 |
+| edge cases | 8 / 8 | 8 / 8 | 8 / 8 |
+| **total** | **234 / 234 (100%)** | **232 / 234 (99%)** | **234 / 234 (100%)** |
 
-### The remaining differences
+Getting from 98% to 100% took four fixes, each a place where the engine
+diverged from the OpenType Indic model:
 
-With Noto Sans Bengali all four are **positioning**, not glyph selection:
-`conj3-02` ঙ্ক্ষ and `conj4-01` ঙ্ক্ষ্য miss a −35/1000 em `dist` advance on one
-stacked mark, `conj3-03` ন্ধ্র has one mark offset out by 379/1000 em, and one
-`marks` case differs in a mark-to-mark offset. All are a fraction of a
-millimetre at body sizes.
+1. **A ZWNJ after a virama blocks the conjunct.** The half form and the
+   ligature must both be suppressed so `haln` can draw an explicit hasanta.
+   Without this `ক্‌ষ` silently lost its hasanta.
+2. **Ligature input matching is mask-filtered.** A glyph the current feature
+   may not touch ends the match rather than being stepped over, which is what
+   stops `half` from eating the virama of a following ya-phala. Contextual
+   lookups deliberately do *not* filter this way.
+3. **Only the Indic features are confined to one syllable.** `rclt`, `calt`,
+   `clig` and `rlig` must be allowed to match across syllables, or a font's
+   wide-context exception rule never fires and its narrow rule wins wrongly.
+4. **GPOS must not zero an attached mark's advance.** Doing so discarded
+   `dist` adjustments that had already been applied.
 
-With the bundled Kalpurush the three differences are `conj4-00` স্ত্র্য,
-`rephconj-*` (one case) and `zwj-*` (one case). These are listed in the
-README's known-limitations section.
+### The two remaining differences
+
+Both are on **Noto Sans Bengali**, which is not the bundled font, and both are
+mark *positioning* rather than glyph selection:
+
+| case | difference |
+|---|---|
+| `conj3-03` ন্ধ্র | one glyph in a mark-to-mark chain sits 279/1000 em too high |
+| `mark-04` সংস্কৃতি | the ৃ matra is not attached, so it keeps its default position |
+
+The bundled Kalpurush and Noto Serif Bengali match HarfBuzz on every case.
 
 ---
 
@@ -150,8 +166,8 @@ evidence:
 * **No real-world PDF fixtures.** The 10 sample PDFs were never supplied, so
   nothing has been measured against government notices, invoices, newspaper
   pages or scans.
-* **Three fonts tested.** Bundled Kalpurush (231/234, 98%), Noto Sans Bengali
-  (230/234, 98%), Noto Serif Bengali (215/234, 91%). SolaimanLipi is untested.
+* **Three fonts tested.** Bundled Kalpurush (234/234), Noto Serif Bengali
+  (234/234), Noto Sans Bengali (232/234). SolaimanLipi is untested.
 * **No HarfBuzz companion package.** `bangla_pdf_harfbuzz` and
   `BanglaShapingMode.harfbuzz` are not implemented; the mode enum currently
   offers `auto`, `unicode` and `legacy`.

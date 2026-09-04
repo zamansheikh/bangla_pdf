@@ -23,7 +23,7 @@ at all — copy/paste gave you `Avgvi ‡mvbvi evsjv`.
 | `কর্ম` `ধর্ম` `বর্ষ` `পূর্ব` `শর্ত` | **throws `RangeError`, kills `pdf.save()`** | renders correctly |
 | corpus cases that crash | **21 / 253** | **0 / 253** |
 | `ক্ষ্ম` `ঙ্ক্ষ` `ত্ত্ব` `চ্ছ্ব` `ম্ভ্র` `স্ত্র্য` | base + a stray hasanta `্` | ligated |
-| shaping vs HarfBuzz | not a shaper | **230 / 234 exact (98%)** |
+| shaping vs HarfBuzz | not a shaper | **234 / 234 exact (100%)** |
 | copy/paste, search, `pdftotext` | **mojibake (0%)** | **249 / 251 exact (99%)** |
 | Bengali digits `০–৯` | silently became `0–9` | preserved |
 | `৳` | silently became `$` | preserved |
@@ -158,10 +158,10 @@ BulletList(items: ['First Item', 'দ্বিতীয় আইটেম', 'Th
 
 Stated plainly rather than glossed over.
 
-* **Three corpus cases out of 234 differ from HarfBuzz** with the bundled
-  Kalpurush (`conj4-00` স্ত্র্য and one case each in `reph-conjunct` and `zwj`);
-  four differ with Noto Sans Bengali, all of them mark *positioning* rather
-  than glyph choice, by a fraction of a millimetre at body sizes.
+* **The bundled Kalpurush matches HarfBuzz on all 234 pure-Bangla corpus
+  cases**, as does Noto Serif Bengali. Noto Sans Bengali differs on two, both
+  mark *positioning* rather than glyph choice (`conj3-03` ন্ধ্র and `mark-04`
+  সংস্কৃতি), by a fraction of a millimetre at body sizes.
 * **Rendering is not pixel-diffed.** Output was rasterised and compared against
   HarfBuzz reference renders by eye for a sample, not automatically for all 253
   cases.
@@ -175,8 +175,8 @@ Stated plainly rather than glossed over.
 * **PDF text extraction is not implemented.** There is no
   `package:bangla_pdf/extract.dart` yet — no Bijoy→Unicode reverse mapping and
   no scanned-PDF handling.
-* **Three fonts are measured against HarfBuzz**: bundled Kalpurush (98%),
-  Noto Sans Bengali (98%), Noto Serif Bengali (91%). Other Bangla fonts should
+* **Three fonts are measured against HarfBuzz**: bundled Kalpurush (100%),
+  Noto Serif Bengali (100%), Noto Sans Bengali (99%). Other Bangla fonts should
   work but are unmeasured; SolaimanLipi in particular is untested.
 * **No HarfBuzz companion.** Shaping is pure Dart, so it works on every
   platform including web, but `BanglaShapingMode.harfbuzz` does not exist.

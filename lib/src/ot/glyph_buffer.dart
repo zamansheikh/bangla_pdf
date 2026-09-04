@@ -97,10 +97,19 @@ class SkipFilter {
     this.flags, [
     this.markFilteringSet = -1,
     this.syllable = -1,
+    this.mask = 0,
   ]);
 
   final OtFont font;
   final int flags;
+
+  /// Feature mask being applied, or 0 for no mask filtering.
+  ///
+  /// A glyph the current feature is not allowed to touch *ends* the match — it
+  /// is not stepped over. This is what stops `half` from consuming the halant
+  /// of a following ya-phala: that halant carries the `pstf` mask, not `half`,
+  /// so the `half` lookup simply does not match there.
+  final int mask;
 
   /// When non-negative, matching stops at a syllable boundary.
   ///
@@ -142,11 +151,15 @@ class SkipFilter {
     return false;
   }
 
+  /// Whether [g] is a glyph the current feature may match at all.
+  bool _matchable(GlyphInfo g) => mask == 0 || g.mask & mask != 0;
+
   /// Index of the next non-skipped glyph strictly after [from], or `null`.
   int? next(List<GlyphInfo> buf, int from) {
     for (var i = from + 1; i < buf.length; i++) {
       if (syllable >= 0 && buf[i].syllable != syllable) return null;
-      if (!skip(buf[i])) return i;
+      if (skip(buf[i])) continue;
+      return _matchable(buf[i]) ? i : null;
     }
     return null;
   }
@@ -155,7 +168,8 @@ class SkipFilter {
   int? previous(List<GlyphInfo> buf, int from) {
     for (var i = from - 1; i >= 0; i--) {
       if (syllable >= 0 && buf[i].syllable != syllable) return null;
-      if (!skip(buf[i])) return i;
+      if (skip(buf[i])) continue;
+      return _matchable(buf[i]) ? i : null;
     }
     return null;
   }

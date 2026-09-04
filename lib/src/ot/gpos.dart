@@ -278,7 +278,8 @@ class GposEngine {
     mark.yOffset = baseAnchor.$2 - markAnchor.$2;
     mark.attachChain = basePos - pos;
     mark.isAttached = true;
-    mark.xAdvance = 0;
+    // The advance is left alone: a mark's own hmtx advance is normally zero,
+    // and a `dist` lookup may deliberately have given it a non-zero one.
     return 1;
   }
 
@@ -337,7 +338,6 @@ class GposEngine {
     mark.yOffset = ligAnchor.$2 - markAnchor.$2;
     mark.attachChain = basePos - pos;
     mark.isAttached = true;
-    mark.xAdvance = 0;
     return 1;
   }
 

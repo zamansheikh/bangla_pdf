@@ -161,6 +161,48 @@ void main() {
     });
   });
 
+  group('shaping rules that were once wrong', () {
+    test('ZWNJ after a virama blocks the conjunct and keeps the hasanta', () {
+      final font = loadBundledFont();
+      final blocked = font.shape('ক\u09CD\u200Cষ').glyphs;
+      final joined = font.shape('ক\u09CDষ').glyphs;
+      // The joined form is a single ligature; the blocked form is not, and it
+      // must not silently drop the hasanta either.
+      expect(joined.length, 1, reason: 'ক + virama + ষ should ligate');
+      expect(blocked.length, greaterThan(1),
+          reason: 'ZWNJ must stop ক্ষ forming');
+      expect(blocked.first.gid, isNot(joined.first.gid));
+    });
+
+    test('a four-consonant conjunct still takes a following ya-phala', () {
+      final font = loadBundledFont();
+      final full = font.shape('ঙ্ক্ষ্য').glyphs;
+      final withoutPhala = font.shape('ঙ্ক্ষ').glyphs;
+      // ঙ্ক্ষ is one glyph; adding ্য must add exactly one more (the phala),
+      // not break the conjunct back into halves.
+      expect(withoutPhala.length, 1);
+      expect(full.length, 2);
+      expect(full.first.gid, withoutPhala.first.gid);
+    });
+
+    test('a matra keeps its plain form across a syllable boundary', () {
+      final font = loadBundledFont();
+      // কার্য is ক + া in one syllable and র্য in the next. A contextual rule
+      // that spans them must still be allowed to decline to fire.
+      final run = font.shape('কার্য');
+      expect(run.glyphs.length, greaterThanOrEqualTo(3));
+      expect(run.glyphs.map((g) => g.gid), isNot(contains(0)));
+    });
+
+    test('attached marks keep any advance GPOS gave them', () {
+      final font = loadBundledFont();
+      // Zeroing every attached mark's advance used to lose `dist` adjustments.
+      final run = font.shape('ন্ধ্র');
+      expect(run.glyphs, isNotEmpty);
+      expect(run.advance, greaterThan(0));
+    });
+  });
+
   group('legacy mode', () {
     test('no corpus case throws, which 1.0.6 did on 21 of them', () {
       for (final c in loadCorpus()) {

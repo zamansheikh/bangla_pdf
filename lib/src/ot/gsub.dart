@@ -26,28 +26,56 @@ class GsubEngine {
   static const int _maxRecursionDepth = 8;
   int _depth = 0;
 
+  /// Mask of the feature currently being applied. Matching steps over any
+  /// glyph the feature is not allowed to touch.
+  int _mask = 0;
+
+  /// Whether the feature currently being applied is confined to one syllable.
+  ///
+  /// The Indic features are; the common ones (`rclt`, `calt`, `clig`, `rlig`)
+  /// are not, and restricting those breaks fonts that use a wide-context rule
+  /// as an exception to a narrower one.
+  bool _perSyllable = true;
+
   /// Applies lookup [lookupIndex] across [buf], to glyphs matching [mask].
   ///
   /// A [mask] of 0 means "no mask filtering" and is used for nested lookups.
-  void applyLookup(List<GlyphInfo> buf, int lookupIndex, int mask) {
+  void applyLookup(
+    List<GlyphInfo> buf,
+    int lookupIndex,
+    int mask, {
+    bool perSyllable = true,
+  }) {
     final lookup = table.lookupOffset(lookupIndex);
     if (lookup == null) return;
     final type = d.u16(lookup);
     final flags = d.u16(lookup + 2);
 
-    var i = 0;
-    var guard = 0;
-    final maxSteps = buf.length * 64 + 1024;
-    while (i < buf.length) {
-      if (++guard > maxSteps) break;
-      if (mask != 0 && buf[i].mask & mask == 0) {
-        i++;
-        continue;
+    final previousMask = _mask;
+    final previousPerSyllable = _perSyllable;
+    _mask = mask;
+    _perSyllable = perSyllable;
+    try {
+      var i = 0;
+      var guard = 0;
+      final maxSteps = buf.length * 64 + 1024;
+      while (i < buf.length) {
+        if (++guard > maxSteps) break;
+        if (mask != 0 && buf[i].mask & mask == 0) {
+          i++;
+          continue;
+        }
+        final advance = _applyAt(buf, i, lookup, type, flags);
+        i += (advance == null || advance <= 0) ? 1 : advance;
       }
-      final advance = _applyAt(buf, i, lookup, type, flags);
-      i += (advance == null || advance <= 0) ? 1 : advance;
+    } finally {
+      _mask = previousMask;
+      _perSyllable = previousPerSyllable;
     }
   }
+
+  /// Syllable a matcher should be confined to, or -1 for no restriction.
+  int _syllableLimit(GlyphInfo g) => _perSyllable ? g.syllable : -1;
 
   /// Whether lookup [lookupIndex] would apply to the exact glyph sequence
   /// [glyphs], ignoring surrounding context.
@@ -420,8 +448,16 @@ class GsubEngine {
     final index = coverage.indexOf(buf[pos].gid);
     if (index == null || index >= d.u16(sub + 4)) return null;
 
-    final skipper =
-        SkipFilter(font, flags, markFilteringSet, buf[pos].syllable);
+    // Only a direct-input matcher is mask-filtered: HarfBuzz matches the
+    // backtrack, input and lookahead of a contextual lookup with the mask
+    // disabled, so those use a plain skipper.
+    final skipper = SkipFilter(
+      font,
+      flags,
+      markFilteringSet,
+      _syllableLimit(buf[pos]),
+      _mask,
+    );
     final set = sub + d.u16(sub + 6 + 2 * index);
     final ligCount = d.u16(set);
 
@@ -511,7 +547,7 @@ class GsubEngine {
   ) {
     final format = d.u16(sub);
     final skipper =
-        SkipFilter(font, flags, markFilteringSet, buf[pos].syllable);
+        SkipFilter(font, flags, markFilteringSet, _syllableLimit(buf[pos]));
 
     switch (format) {
       case 1:
@@ -612,7 +648,7 @@ class GsubEngine {
   ) {
     final format = d.u16(sub);
     final skipper =
-        SkipFilter(font, flags, markFilteringSet, buf[pos].syllable);
+        SkipFilter(font, flags, markFilteringSet, _syllableLimit(buf[pos]));
 
     switch (format) {
       case 1:
