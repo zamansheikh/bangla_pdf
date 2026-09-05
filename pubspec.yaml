@@ -2,7 +2,7 @@ name: bangla_pdf
 description: >-
   Correct Bangla (Bengali) text in PDFs: real OpenType shaping for conjuncts,
   reph and vowel signs, with text that copies back out as clean Unicode.
-version: 1.6.0
+version: 1.7.0
 homepage: https://github.com/zamansheikh/bangla_pdf
 issue_tracker: https://github.com/zamansheikh/bangla_pdf/issues
 documentation: https://github.com/zamansheikh/bangla_pdf/wiki

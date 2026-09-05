@@ -1,3 +1,46 @@
+## 1.7.0
+
+Documents are now a fraction of their former size: only the glyphs actually
+drawn are embedded.
+
+### Added
+
+- **Font subsetting.** A Bengali font is mostly outlines — `glyf` is 85% of the
+  bundled Kalpurush and 62% of Noto Sans Bengali — and a document draws a few
+  dozen of them. The shaping tables are dead weight in a PDF as well, since
+  shaping has already been applied before anything is written, so `GSUB`,
+  `GPOS` and `GDEF` are dropped along with the screen-hinting tables and the
+  8 KB glyph-name table in `post`.
+
+  | | before | after |
+  |---|---|---|
+  | one line of Bangla | 73 KB | **5 KB** |
+  | a paragraph | 73 KB | **11 KB** |
+  | a paragraph with a fallback font | 222 KB | **17 KB** |
+  | the four sample documents | ~78 KB each | **13–18 KB** |
+
+  This matters most for 1.6.0's fallback chains, where every extra font used to
+  add its full weight.
+
+  Glyph ids are preserved rather than renumbered, so `/CIDToGIDMap`, the `/W`
+  array and `/ToUnicode` are untouched; the cost is four bytes of `loca` per
+  blanked glyph against hundreds saved per dropped outline. Composite glyphs
+  pull in the glyphs they are built from, transitively. Embedded fonts now
+  carry the conventional `ABCDEF+` subset tag.
+
+  A font that cannot be cut safely — PostScript/CFF outlines, a damaged table
+  directory — is embedded whole rather than risked.
+
+### Verification
+
+Rendering was checked, not assumed: the four sample documents rasterise
+**byte-identically** to their pre-subsetting renders at 220 dpi. Extraction
+alone could not have caught a dropped outline, since `/ActualText` carries the
+source text whether or not a glyph was drawn.
+
+Seven new tests, including every corpus case rendered through a subset font,
+and a composite glyph requested alone to prove its components survive.
+
 ## 1.6.0
 
 Characters your Bangla font does not have now render, and the three `Text`

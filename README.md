@@ -68,7 +68,7 @@ drop-in; the other three use the package's own widgets.</sub>
 
 ```yaml
 dependencies:
-  bangla_pdf: ^1.6.0
+  bangla_pdf: ^1.7.0
 ```
 
 Now change one import:
@@ -147,6 +147,9 @@ today.
 Long documents work the way you would expect: inside a `pw.MultiPage`, a Bangla
 paragraph marked `overflow: TextOverflow.span` breaks across pages on a line
 boundary, exactly as a Latin one does.
+
+Documents stay small, too. Only the glyphs you actually draw are embedded, so a
+one-page Bangla notice is around **13 KB** rather than carrying a 307 KB font.
 
 <details>
 <summary>Prefer explicitly Bangla-named widgets? Those still exist.</summary>
@@ -316,7 +319,7 @@ Signature parity is checked too: a script diffs all 14 replacement
 constructors against their `package:pdf` counterparts, and all **156
 parameters** match.
 
-All of it runs on every commit — `flutter test` is 73 tests.
+All of it runs on every commit — `flutter test` is 80 tests.
 
 <details>
 <summary>How the shaping actually works</summary>
@@ -365,8 +368,9 @@ Full write-ups live in the repository: the [verification report][report] and the
 - **Emoji and symbols need a fallback font.** No Bangla typeface contains
   them — not Kalpurush, not Noto Sans Bengali, not SolaimanLipi. Supply one
   (see above) and they render.
-- **The full font is embedded in every PDF** (121 KB) — there is no per-document
-  subsetter yet.
+- **A CFF (`.otf`) font is embedded whole.** Subsetting rebuilds TrueType
+  outlines; a font with PostScript outlines is embedded unchanged rather than
+  risk corrupting it. All five tested Bangla faces are TrueType.
 - **Five fonts are measured.** Others should work but are untested. A font
   relying on GSUB lookup type 8 or GPOS type 3 would not shape; no Bengali font
   tested uses either.

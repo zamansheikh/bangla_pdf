@@ -30,6 +30,7 @@ library;
 import 'dart:typed_data';
 
 import 'package:bangla_pdf/src/ot/ot_font.dart';
+import 'package:bangla_pdf/src/pdf/font_subset.dart';
 import 'package:pdf/pdf.dart' show PdfFont, PdfFontMetrics, PdfName;
 import 'package:pdf/src/pdf/document.dart';
 import 'package:pdf/src/pdf/format/array.dart';
@@ -83,7 +84,29 @@ class ShapedPdfFont extends PdfFont {
   final Map<int, List<int>> _cidsByKey = <int, List<int>>{};
 
   @override
-  String get fontName => otf.postScriptName;
+  String get fontName => _subsetTag == null
+      ? otf.postScriptName
+      : '$_subsetTag+${otf.postScriptName}';
+
+  /// The six-letter tag that marks an embedded subset, per the PDF spec.
+  ///
+  /// Set once the font program is written, and only when it really was cut
+  /// down, so a font embedded whole keeps its plain name. The tag only has to
+  /// distinguish subsets of the same font within one file, so it is derived
+  /// from the glyphs kept.
+  String? _subsetTag;
+
+  static String _tagFor(Iterable<int> gids) {
+    var hash = 0x811C9DC5;
+    for (final gid in gids) {
+      hash = ((hash ^ gid) * 0x01000193) & 0xFFFFFFFF;
+    }
+    final letters = StringBuffer();
+    for (var i = 0; i < 6; i++) {
+      letters.writeCharCode(0x41 + (hash >> (i * 5)) % 26);
+    }
+    return letters.toString();
+  }
 
   @override
   double get ascent => otf.ascender / otf.unitsPerEm;
@@ -280,11 +303,18 @@ class ShapedPdfFont extends PdfFont {
   void prepare() {
     super.prepare();
 
-    _file.buf.putBytes(otf.bytes.buffer.asUint8List(
-      otf.bytes.offsetInBytes,
-      otf.bytes.lengthInBytes,
-    ));
-    _file.params['/Length1'] = PdfNum(otf.bytes.lengthInBytes);
+    // Embed only the glyphs this document draws. A font that cannot be cut
+    // safely -- CFF outlines, a damaged directory -- is embedded whole.
+    final gids = _gidForCid.toSet();
+    final subset = subsetTrueType(otf.bytes, gids);
+    if (subset != null) _subsetTag = _tagFor(gids);
+    final program = subset ??
+        otf.bytes.buffer.asUint8List(
+          otf.bytes.offsetInBytes,
+          otf.bytes.lengthInBytes,
+        );
+    _file.buf.putBytes(program);
+    _file.params['/Length1'] = PdfNum(program.length);
 
     for (var cid = 0; cid < _gidForCid.length; cid++) {
       _widths.params.add(
