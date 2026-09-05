@@ -54,6 +54,21 @@ that are encrypted.
 
 ### Verification
 
+- **The corpus is now compared as pixels, not only as glyph ids.** 238 cases
+  are drawn by this package and by HarfBuzz, rasterised by the same poppler at
+  the same size, cropped to their ink and overlaid: **98.1% mean overlap, 91.4%
+  at worst**. Glyph-level parity cannot see a wrong advance written into the
+  embedded font, or a glyph drawn at the wrong offset; this can.
+
+  Two things had to be right for the comparison to mean anything. The images
+  are nudged a couple of pixels against each other before scoring, because
+  cropping aligns only to whole pixels while glyphs land on sub-pixel
+  boundaries — without it, a half-pixel offset shears away a large share of
+  the overlap on a script made of thin strokes. And `hb-view` is given
+  `--script=Beng`: left to guess, it picks Latin for any string starting with
+  Latin and skips Indic shaping altogether, which made correct output look
+  like a defect in four cases until it was checked.
+
 - Chrome, Brave and Adobe Reader confirmed to copy and paste shaped Bangla
   correctly. Previously only poppler had been checked.
 - Three real PDFs from a Bangladeshi government primary-education site (52
