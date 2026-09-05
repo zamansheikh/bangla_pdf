@@ -332,11 +332,20 @@ recovers **8 of 8** fixture documents exactly, correctly reports both scanned
 ones as having no text layer, and recovers **243 of 251** corpus cases from
 glyph ids alone when a document carries no text mapping.
 
+Three real PDFs from a Bangladeshi government primary-education site (52 pages,
+10.6 MB) have been run through it as well. Every one turned out to be a pure
+scan — no fonts, one image per page — and all 52 pages were correctly reported
+as having no text layer rather than being given invented text, with the OCR
+hook offered every page. Worth knowing if you are aiming at that kind of
+document: for scans, OCR is the only route, and the Bijoy handling above
+applies to a different class of file. Drop your own into
+`test/fixtures/real/` and `flutter test` will check them.
+
 Signature parity is checked too: a script diffs all 14 replacement
 constructors against their `package:pdf` counterparts, and all **156
 parameters** match.
 
-All of it runs on every commit — `flutter test` is 98 tests.
+All of it runs on every commit — `flutter test` is 102 tests (four skip without real documents to check).
 
 <details>
 <summary>How the shaping actually works</summary>
@@ -403,11 +412,16 @@ Full write-ups live in the repository: the [verification report][report] and the
 - **Form fields shape only their appearance.** `pw.TextField` and
   `pw.ChoiceField` draw a shaped value, but once a reader lets someone edit the
   field it re-renders from the form font. No PDF producer controls that.
-- **Rendering is not pixel-diffed**, and copy/paste is verified with poppler
-  only — not Adobe Reader, Preview or Chrome.
-- **Extraction fixtures are generated, not collected** — shaped like real
-  notices, invoices and newspaper pages, but not downloaded from a government
-  website.
+- **Rendering is pixel-diffed only as a regression check.** The four sample
+  documents must rasterise byte-identically between builds, which catches a
+  change that moves glyphs; the corpus itself is compared to HarfBuzz by glyph
+  and position, not by rendering it and diffing images.
+- **Copy/paste is checked automatically with poppler only.** Chrome, Brave and
+  Adobe Reader have been confirmed by hand; Preview and the Android viewers
+  have not.
+- **Most extraction fixtures are generated**, so their expected text is known
+  exactly. Real documents have been tested too (see below), but only a handful,
+  and all of them scans — no real *text-bearing* Bijoy PDF has been measured.
 
 ---
 

@@ -52,6 +52,16 @@ that are encrypted.
 - `/CIDToGIDMap` streams are honoured, so a CID font that remaps its glyphs is
   read correctly rather than by assuming identity.
 
+### Verification
+
+- Chrome, Brave and Adobe Reader confirmed to copy and paste shaped Bangla
+  correctly. Previously only poppler had been checked.
+- Three real PDFs from a Bangladeshi government primary-education site (52
+  pages) were run through extraction. All three are pure scans, and all 52
+  pages were reported as having no text layer rather than given invented text.
+  `test/real_documents_test.dart` runs over anything placed in
+  `test/fixtures/real/`, and skips when it is empty.
+
 ### Notes
 
 - Inverting `GSUB` cannot always tell which side of a consonant its virama
