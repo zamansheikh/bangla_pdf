@@ -17,6 +17,12 @@ Noto Sans Bengali / Noto Serif Bengali (test fixtures only, not bundled)
   Copyright 2025 The Noto Project Authors
   SIL Open Font License, Version 1.1 - full text below.
 
+Noto Sans Coptic (test fixtures only, not bundled)
+  Copyright 2022 The Noto Project Authors
+  SIL Open Font License, Version 1.1 - full text below.
+  Present only because it is the one available font using a GSUB type 8
+  lookup, which no Bengali font does; see test/lookup_coverage_test.dart.
+
 Copyright 2022 The Noto Project Authors (https://github.com/notofonts/bengali)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.

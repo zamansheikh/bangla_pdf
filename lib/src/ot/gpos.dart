@@ -24,6 +24,10 @@ class GposEngine {
 
   /// Feature tags applied for Bengali, in order.
   static const List<String> _features = <String>[
+    // HarfBuzz applies cursive joining before the Indic positioning features,
+    // for every script. No Bengali font carries it, but a font that does joins
+    // its glyphs into a continuous stroke and looks broken without it.
+    'curs',
     'dist',
     'abvm',
     'blwm',
@@ -95,6 +99,7 @@ class GposEngine {
       final r = switch (effectiveType) {
         1 => _single(buf, pos, sub),
         2 => _pair(buf, pos, sub, flags, markFilteringSet),
+        3 => _cursive(buf, pos, sub, flags, markFilteringSet),
         4 => _markToBase(buf, pos, sub),
         5 => _markToLigature(buf, pos, sub),
         6 => _markToMark(buf, pos, sub, flags, markFilteringSet),
@@ -300,6 +305,54 @@ class GposEngine {
     mark.isAttached = true;
     // The advance is left alone: a mark's own hmtx advance is normally zero,
     // and a `dist` lookup may deliberately have given it a non-zero one.
+    return 1;
+  }
+
+  // --- Type 3: cursive attachment -------------------------------------------
+
+  /// Joins this glyph's exit anchor to the next glyph's entry anchor.
+  ///
+  /// How a joining script draws a continuous stroke through a word. No Bengali
+  /// font uses it, but a font that does would otherwise fall apart, and the
+  /// rule is the same for every script.
+  int? _cursive(
+    List<GlyphInfo> buf,
+    int pos,
+    int sub,
+    int flags,
+    int markFilteringSet,
+  ) {
+    if (d.u16(sub) != 1) return null;
+    final coverage = Coverage.parse(d, sub + d.u16(sub + 2));
+    final thisIndex = coverage.indexOf(buf[pos].gid);
+    if (thisIndex == null) return null;
+    final count = d.u16(sub + 4);
+    if (thisIndex >= count) return null;
+
+    final skipper = SkipFilter(font, flags, markFilteringSet);
+    final next = skipper.next(buf, pos);
+    if (next == null) return null;
+    final nextIndex = coverage.indexOf(buf[next].gid);
+    if (nextIndex == null || nextIndex >= count) return null;
+
+    final exitOffset = d.u16(sub + 6 + thisIndex * 4 + 2);
+    final entryOffset = d.u16(sub + 6 + nextIndex * 4);
+    if (exitOffset == 0 || entryOffset == 0) return null;
+
+    final exit = _anchor(sub + exitOffset);
+    final entry = _anchor(sub + entryOffset);
+    if (exit == null || entry == null) return null;
+
+    // The exit point of this glyph and the entry point of the next become one
+    // place, so the stroke runs on unbroken. This shapes left-to-right scripts
+    // only -- Bengali is one -- so the slack comes off this glyph's advance;
+    // a right-to-left script would take it off the next glyph instead.
+    buf[pos].xAdvance = exit.$1 + buf[pos].xOffset;
+
+    // Tying the baselines together is what makes the pair ride at one height.
+    buf[next].yOffset = buf[pos].yOffset - (entry.$2 - exit.$2);
+    buf[next].attachChain = pos - next;
+    buf[next].isAttached = true;
     return 1;
   }
 

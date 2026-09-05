@@ -56,6 +56,18 @@ class GsubEngine {
     _mask = mask;
     _perSyllable = perSyllable;
     try {
+      // Type 8 is defined to run backwards, and must: each substitution is
+      // allowed to depend on glyphs to its right that have not been replaced
+      // yet. Every other type runs left to right.
+      if (type == 8) {
+        for (var i = buf.length - 1; i >= 0; i--) {
+          if (i >= buf.length) continue; // the buffer can shrink under us
+          if (mask != 0 && buf[i].mask & mask == 0) continue;
+          _applyAt(buf, i, lookup, type, flags);
+        }
+        return;
+      }
+
       var i = 0;
       var guard = 0;
       final maxSteps = buf.length * 64 + 1024;
@@ -352,6 +364,8 @@ class GsubEngine {
         return _context(buf, pos, sub, flags, markFilteringSet);
       case 6:
         return _chainContext(buf, pos, sub, flags, markFilteringSet);
+      case 8:
+        return _reverseChain(buf, pos, sub, flags, markFilteringSet);
       default:
         return null;
     }
@@ -501,6 +515,70 @@ class GsubEngine {
       return 1;
     }
     return null;
+  }
+
+  // --- Type 8: reverse chaining single substitution --------------------------
+
+  /// Replaces one glyph, given what surrounds it, working right to left.
+  ///
+  /// Unlike types 5 and 6 this substitutes directly rather than calling nested
+  /// lookups, and it may only ever replace a single glyph. Arabic and Nastaliq
+  /// fonts use it to pick final forms; no Bengali font in the corpus does, but
+  /// a font that used one would otherwise be shaped wrongly with no sign of it.
+  int? _reverseChain(
+    List<GlyphInfo> buf,
+    int pos,
+    int sub,
+    int flags,
+    int markFilteringSet,
+  ) {
+    if (d.u16(sub) != 1) return null;
+    final coverage = Coverage.parse(d, sub + d.u16(sub + 2));
+    final index = coverage.indexOf(buf[pos].gid);
+    if (index == null) return null;
+
+    final skipper = SkipFilter(font, flags, markFilteringSet);
+
+    // Backtrack coverages are listed nearest-first, reading leftwards.
+    var at = sub + 4;
+    final backtrackCount = d.u16(at);
+    final backtrack = <int>[
+      for (var i = 0; i < backtrackCount; i++) d.u16(at + 2 + 2 * i),
+    ];
+    at += 2 + 2 * backtrackCount;
+
+    final lookaheadCount = d.u16(at);
+    final lookahead = <int>[
+      for (var i = 0; i < lookaheadCount; i++) d.u16(at + 2 + 2 * i),
+    ];
+    at += 2 + 2 * lookaheadCount;
+
+    final substituteCount = d.u16(at);
+    if (index >= substituteCount) return null;
+
+    if (backtrack.isNotEmpty) {
+      final positions = skipper.backward(buf, pos, backtrack.length);
+      if (positions == null) return null;
+      for (var i = 0; i < backtrack.length; i++) {
+        if (!Coverage.parse(d, sub + backtrack[i])
+            .covers(buf[positions[i]].gid)) {
+          return null;
+        }
+      }
+    }
+    if (lookahead.isNotEmpty) {
+      final positions = skipper.forward(buf, pos, lookahead.length);
+      if (positions == null) return null;
+      for (var i = 0; i < lookahead.length; i++) {
+        if (!Coverage.parse(d, sub + lookahead[i])
+            .covers(buf[positions[i]].gid)) {
+          return null;
+        }
+      }
+    }
+
+    buf[pos].gid = d.u16(at + 2 + 2 * index);
+    return 1;
   }
 
   // --- Types 5 and 6: contextual substitution -------------------------------

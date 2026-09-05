@@ -9,6 +9,7 @@ library;
 
 import 'dart:typed_data';
 
+import 'package:bangla_pdf/src/extract/decryptor.dart';
 import 'package:bangla_pdf/src/extract/filters.dart';
 import 'package:bangla_pdf/src/extract/pdf_lexer.dart';
 import 'package:bangla_pdf/src/extract/pdf_object.dart';
@@ -18,13 +19,13 @@ class PdfReader {
   PdfReader._(this.bytes);
 
   /// Parses [bytes]. Returns `null` only when the data is not a PDF at all.
-  static PdfReader? open(Uint8List bytes) {
+  static PdfReader? open(Uint8List bytes, {String password = ''}) {
     if (bytes.length < 8) return null;
     final header = String.fromCharCodes(
       bytes.sublist(0, bytes.length < 1024 ? bytes.length : 1024),
     );
     if (!header.contains('%PDF-')) return null;
-    final reader = PdfReader._(bytes).._load();
+    final reader = PdfReader._(bytes).._load(password: password);
     return reader;
   }
 
@@ -42,11 +43,21 @@ class PdfReader {
   /// The trailer dictionary, merged across every cross-reference section.
   PdfDictObj trailer = const PdfDictObj(<String, PdfObj>{});
 
-  /// Whether the document declares encryption, which this reader does not
-  /// decrypt.
+  /// Whether the document declares encryption.
   bool get isEncrypted => trailer.has('Encrypt');
 
-  void _load() {
+  /// Whether the document is encrypted and could *not* be opened.
+  ///
+  /// An encrypted document that opens with an empty user password -- which is
+  /// most of them -- reads as normal and reports `false` here.
+  bool get isLocked => isEncrypted && _decryptor == null;
+
+  PdfDecryptor? _decryptor;
+
+  /// The object holding `/Encrypt`, which is never itself encrypted.
+  int? _encryptObject;
+
+  void _load({String password = ''}) {
     try {
       _readXref();
     } catch (_) {
@@ -56,6 +67,76 @@ class PdfReader {
     // whose xref offsets are stale, which is common after naive editing.
     _scanForObjects();
     if (!trailer.has('Root')) _findRootByScan();
+    _setUpDecryption(password);
+  }
+
+  void _setUpDecryption(String password) {
+    final ref = trailer['Encrypt'];
+    if (ref is PdfNullObj) return;
+    if (ref is PdfRefObj) _encryptObject = ref.number;
+
+    final dict = resolve(ref);
+    if (dict is! PdfDictObj) return;
+
+    // The first element of /ID goes into the key, and is not encrypted.
+    var id = Uint8List(0);
+    final ids = resolve(trailer['ID']);
+    if (ids is PdfArrayObj && ids.length > 0) {
+      final first = resolve(ids[0]);
+      if (first is PdfStringObj) id = first.bytes;
+    }
+
+    try {
+      _decryptor = PdfDecryptor.open(
+        dict,
+        resolve,
+        firstFileId: id,
+        password: password,
+      );
+    } catch (_) {
+      _decryptor = null; // a handler we cannot read is simply not supported
+    }
+
+    // Anything resolved while setting this up was read undecrypted.
+    _cache.clear();
+  }
+
+  /// Decrypts every string and stream inside one object.
+  ///
+  /// Objects inside an object stream are skipped: the container was decrypted
+  /// as a whole, so its contents are already plain.
+  PdfObj _decryptObject(PdfObj o, int number, int generation) {
+    final crypt = _decryptor;
+    if (crypt == null || number == _encryptObject) return o;
+
+    PdfObj walk(PdfObj value) {
+      if (value is PdfStringObj) {
+        return PdfStringObj(
+          crypt.decryptString(value.bytes, number, generation),
+        );
+      }
+      if (value is PdfArrayObj) {
+        return PdfArrayObj(<PdfObj>[for (final v in value.values) walk(v)]);
+      }
+      if (value is PdfDictObj) {
+        return PdfDictObj(<String, PdfObj>{
+          for (final e in value.entries.entries) e.key: walk(e.value),
+        });
+      }
+      if (value is PdfStreamObj) {
+        final type = value.dict['Type'];
+        // Cross-reference streams carry the map to everything else and are
+        // never encrypted; neither is anything with an Identity crypt filter.
+        if (type is PdfNameObj && type.value == 'XRef') return value;
+        return PdfStreamObj(
+          walk(value.dict) as PdfDictObj,
+          crypt.decryptStream(value.raw, number, generation),
+        );
+      }
+      return value;
+    }
+
+    return walk(o);
   }
 
   // --- cross-reference ------------------------------------------------------
@@ -293,10 +374,14 @@ class PdfReader {
     final lexer = PdfLexer(bytes, offset);
     final num = lexer.next();
     if (num is! PdfNumObj || num.asInt != expected) return const PdfNullObj();
-    lexer.next(); // generation
+    final gen = lexer.next();
     final kw = lexer.next();
     if (kw is! PdfOperatorObj || kw.name != 'obj') return const PdfNullObj();
-    return _readObjectBody(lexer);
+    return _decryptObject(
+      _readObjectBody(lexer),
+      expected,
+      gen is PdfNumObj ? gen.asInt : 0,
+    );
   }
 
   /// Reads the value after `obj`, attaching stream bytes when present.

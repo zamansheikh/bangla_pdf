@@ -1,7 +1,31 @@
 ## 1.8.0
 
-Text can now be recovered from PDFs that carry none — the last big gap in
-extraction.
+Reads the documents it previously refused: ones that carry no text, and ones
+that are encrypted.
+
+### Added
+
+- **Encrypted PDFs are decrypted.** Most "protected" documents — the kind a
+  government office publishes — carry an owner password to discourage editing
+  and an empty user password, so they open without one. Every revision in the
+  wild is handled: RC4 40- and 128-bit (revisions 2 and 3), AES-128
+  (revision 4) and AES-256 (revisions 5 and 6). `extract` takes a `password:`
+  for a document that genuinely needs one, and `ExtractionResult.isLocked`
+  distinguishes "could not be opened" from "is encrypted", which are no longer
+  the same thing.
+
+  The ciphers are implemented here rather than pulled in: `package:crypto`
+  (already in the tree, now a direct dependency) has MD5 and SHA-2 but no block
+  ciphers. AES and RC4 are checked against the FIPS-197 and published test
+  vectors, and the handler itself against fixtures encrypted by **qpdf**, so it
+  is tested against another implementation rather than its own assumptions.
+
+- **GSUB type 8 and GPOS type 3.** Reverse chaining substitution and cursive
+  attachment, the two lookup types the engine was missing, plus the `curs`
+  feature in HarfBuzz's order. No Bengali font uses either — asserted by a
+  test, not assumed — so nothing about Bangla changes; a font that does use
+  them is no longer shaped wrongly with no sign of it. GSUB 8 is verified
+  against HarfBuzz using Noto Sans Coptic, which puts one in `ccmp`.
 
 ### Added
 

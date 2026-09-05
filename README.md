@@ -203,6 +203,15 @@ It also rescues **Bijoy** documents — the government and newspaper PDFs where
 copying text gives you `Avgvi ‡mvbvi evsjv` instead of `আমার সোনার বাংলা`. Those
 are detected and converted back for you.
 
+**Protected PDFs open too.** Most "secured" government documents carry an owner
+password and an empty user password, so they are decrypted for you. Pass
+`password:` for one that genuinely needs it; `isLocked` tells you when a
+document could not be opened at all.
+
+```dart
+BanglaPdfExtractor.extract(bytes, password: 'secret');
+```
+
 Scanned pages report `BanglaTextEncoding.none` instead of guessing, and you can
 plug in whichever OCR you already use:
 
@@ -327,7 +336,7 @@ Signature parity is checked too: a script diffs all 14 replacement
 constructors against their `package:pdf` counterparts, and all **156
 parameters** match.
 
-All of it runs on every commit — `flutter test` is 86 tests.
+All of it runs on every commit — `flutter test` is 98 tests.
 
 <details>
 <summary>How the shaping actually works</summary>
@@ -374,17 +383,18 @@ Full write-ups live in the repository: the [verification report][report] and the
   those glyphs. If the producer's subsetter dropped `GSUB` — many do, this one
   included — only characters the `cmap` reaches come back, so conjuncts are
   lost. Nothing invisible can be recovered either: a ZWJ draws no glyph.
-- **Encrypted PDFs are not decrypted.** `ExtractionResult.isEncrypted` says so
-  rather than returning nonsense.
 - **Emoji and symbols need a fallback font.** No Bangla typeface contains
   them — not Kalpurush, not Noto Sans Bengali, not SolaimanLipi. Supply one
   (see above) and they render.
 - **A CFF (`.otf`) font is embedded whole.** Subsetting rebuilds TrueType
   outlines; a font with PostScript outlines is embedded unchanged rather than
   risk corrupting it. All five tested Bangla faces are TrueType.
-- **Five fonts are measured.** Others should work but are untested. A font
-  relying on GSUB lookup type 8 or GPOS type 3 would not shape; no Bengali font
-  tested uses either.
+- **Five fonts are measured.** Others should work but are untested. Every
+  lookup type those fonts use is implemented; GSUB 8 and GPOS 3 are too,
+  although no Bengali font uses either — GSUB 8 is checked against Noto
+  Sans Coptic and matches HarfBuzz, while GPOS 3 is implemented to spec but
+  unexercised, since no available font pairs it with a script this shaper
+  handles.
 - **Right-to-left text is not reordered.** `textDirection` decides which edge
   `TextAlign.start` resolves to, but a right-to-left script mixed into a string
   is drawn in logical order — that needs a bidi pass, which is not implemented.

@@ -40,6 +40,9 @@ dependencies:
   # Stream inflation for package:bangla_pdf/extract.dart. Chosen over
   # dart:io's ZLibCodec so extraction also works on web.
   archive: ^4.0.0
+  # MD5 and SHA-2 for decrypting protected PDFs. Already in the tree via
+  # package:pdf; the ciphers themselves are in lib/src/extract/crypt.dart.
+  crypto: ^3.0.0
   flutter:
     sdk: flutter
   # Pinned to 3.13 because lib/src/pdf/shaped_pdf_font.dart reaches into

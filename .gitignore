@@ -26,3 +26,4 @@ doc/api/
 # ...but the extraction fixtures are test data and must be reproducible from a
 # clean clone. They are excluded from the published archive by .pubignore.
 !test/fixtures/pdfs/*.pdf
+!test/fixtures/encrypted/*.pdf

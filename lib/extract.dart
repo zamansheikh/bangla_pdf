@@ -80,6 +80,7 @@ class ExtractionResult {
     required this.encodingDetected,
     required this.confidence,
     this.isEncrypted = false,
+    this.isLocked = false,
   });
 
   /// Every page's text, joined by a blank line.
@@ -98,8 +99,18 @@ class ExtractionResult {
   /// Bijoy conversion, or a font with no usable mapping.
   final double confidence;
 
-  /// Whether the document is encrypted, which this extractor does not decrypt.
+  /// Whether the document is encrypted.
+  ///
+  /// Encryption on its own is no obstacle: most protected PDFs carry an owner
+  /// password and an empty user password, and are decrypted transparently. See
+  /// [isLocked] for the case that actually blocks reading.
   final bool isEncrypted;
+
+  /// Whether the document is encrypted and could not be opened.
+  ///
+  /// True when a password is genuinely required, or the document uses a
+  /// security handler this does not implement. The text will be empty.
+  final bool isLocked;
 
   /// Whether any Bangla was found.
   bool get hasBangla => RegExp('[ঀ-৿]').hasMatch(text);
@@ -132,11 +143,15 @@ class BanglaPdfExtractor {
   /// Never throws: an unreadable document comes back as an empty result with
   /// [BanglaTextEncoding.none] rather than an exception, because the documents
   /// most worth extracting are also the most likely to be damaged.
+  /// [password] opens a document that needs one. Most protected PDFs do not:
+  /// they carry an owner password and an empty user password, so they are
+  /// decrypted without it.
   static ExtractionResult extract(
     Uint8List bytes, {
     BanglaOcrHook? ocrHook,
+    String password = '',
   }) {
-    final reader = PdfReader.open(bytes);
+    final reader = PdfReader.open(bytes, password: password);
     if (reader == null) {
       return const ExtractionResult(
         text: '',
@@ -247,6 +262,7 @@ class BanglaPdfExtractor {
       encodingDetected: _classify(sawUnicode, sawBijoy, joined),
       confidence: counted == 0 ? 0.0 : (certainty / counted).clamp(0.0, 1.0),
       isEncrypted: reader.isEncrypted,
+      isLocked: reader.isLocked,
     );
   }
 
