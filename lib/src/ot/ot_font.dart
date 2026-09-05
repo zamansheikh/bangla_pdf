@@ -225,6 +225,48 @@ class OtFont {
     );
   }();
 
+  /// Byte offsets into `glyf` for each glyph, from `loca`.
+  ///
+  /// Null when the font has no TrueType outlines — a CFF font, for one — in
+  /// which case per-glyph extents are not available and callers fall back to
+  /// the font-wide ascent and descent.
+  late final List<int>? _loca = () {
+    final loca = _tables['loca'];
+    final head = _tables['head'];
+    final maxp = _tables['maxp'];
+    if (loca == null || head == null || maxp == null) return null;
+    if (_tables['glyf'] == null) return null;
+    final long = d.i16(head + 50) != 0;
+    final count = d.u16(maxp + 4) + 1;
+    final out = List<int>.filled(count, 0);
+    for (var i = 0; i < count; i++) {
+      if (long) {
+        if (!d.has(loca + i * 4, 4)) return null;
+        out[i] = d.u32(loca + i * 4);
+      } else {
+        if (!d.has(loca + i * 2, 2)) return null;
+        out[i] = d.u16(loca + i * 2) * 2;
+      }
+    }
+    return out;
+  }();
+
+  /// Vertical ink extents of [gid] in font units, as `(yMin, yMax)`.
+  ///
+  /// Returns `null` for an empty glyph such as a space, or when the font has
+  /// no `glyf` outlines to measure.
+  (int, int)? glyphExtents(int gid) {
+    final loca = _loca;
+    final glyf = _tables['glyf'];
+    if (loca == null || glyf == null) return null;
+    if (gid < 0 || gid + 1 >= loca.length) return null;
+    final start = loca[gid];
+    if (loca[gid + 1] <= start) return null; // no outline
+    final at = glyf + start;
+    if (!d.has(at, 10)) return null;
+    return (d.i16(at + 4), d.i16(at + 8));
+  }
+
   /// PostScript name from the `name` table, sanitised for use in a PDF.
   late final String postScriptName = () {
     final name = _tables['name'];

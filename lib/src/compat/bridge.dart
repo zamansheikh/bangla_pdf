@@ -242,6 +242,10 @@ class BanglaAwareText extends pw.StatelessWidget {
       // pw.RichText spans pages only when its overflow is `span`; matching
       // that keeps MultiPage behaving identically for Bangla and Latin.
       canSpanPages: overflow == pw.TextOverflow.span,
+      fallbackFonts: bp.BanglaPdf.resolveFallbacks(resolved),
+      softWrap: softWrap ?? true,
+      tightBounds: tightBounds,
+      textDirection: textDirection ?? pw.Directionality.of(context),
     );
   }
 }

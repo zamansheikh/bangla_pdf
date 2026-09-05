@@ -68,7 +68,7 @@ drop-in; the other three use the package's own widgets.</sub>
 
 ```yaml
 dependencies:
-  bangla_pdf: ^1.5.0
+  bangla_pdf: ^1.6.0
 ```
 
 Now change one import:
@@ -231,6 +231,27 @@ BanglaPdf.configure(defaultFont: solaiman);
 SolaimanLipi, Siyam Rupali, Noto Sans Bengali and Noto Serif Bengali are all
 tested and match HarfBuzz exactly.
 
+### Characters your Bangla font doesn't have
+
+No Bangla typeface covers accented Latin, arrows, symbols or emoji — the
+bundled Kalpurush has 206 glyphs, and even Noto Sans Bengali has 444. Anything
+outside that simply doesn't draw.
+
+Give it somewhere to fall back to, exactly as you would in `package:pdf`:
+
+```dart
+// once, for the whole document
+BanglaPdf.configure(fallbackFonts: [notoSans, notoEmoji]);
+
+// or for one run
+pw.Text('বাংলা café ± 50°C', style: pw.TextStyle(fontFallback: [notoSans]));
+```
+
+Each character is drawn by the first font in the chain that has it, so
+`বাংলা café ± 50°C` comes out whole. Bengali is never affected — it is always
+drawn by your Bangla font, and a fallback boundary never falls inside a
+conjunct.
+
 **Already using a Bijoy (8-bit) font?** Keep passing it. It is recognised by
 what it actually contains — Bangla glyphs reached through Latin-1 byte values,
 with no Bengali in its `cmap` — and your text is transcoded and drawn with
@@ -295,7 +316,7 @@ Signature parity is checked too: a script diffs all 14 replacement
 constructors against their `package:pdf` counterparts, and all **156
 parameters** match.
 
-All of it runs on every commit — `flutter test` is 68 tests.
+All of it runs on every commit — `flutter test` is 73 tests.
 
 <details>
 <summary>How the shaping actually works</summary>
@@ -341,17 +362,19 @@ Full write-ups live in the repository: the [verification report][report] and the
   the shaping from glyph ids back to characters, which is not implemented.
 - **Encrypted PDFs are not decrypted.** `ExtractionResult.isEncrypted` says so
   rather than returning nonsense.
-- **Emoji need a fallback font.** The bundled font covers ASCII, Bengali and
-  common punctuation; emoji render as a placeholder box.
+- **Emoji and symbols need a fallback font.** No Bangla typeface contains
+  them — not Kalpurush, not Noto Sans Bengali, not SolaimanLipi. Supply one
+  (see above) and they render.
 - **The full font is embedded in every PDF** (121 KB) — there is no per-document
   subsetter yet.
 - **Five fonts are measured.** Others should work but are untested. A font
   relying on GSUB lookup type 8 or GPOS type 3 would not shape; no Bengali font
   tested uses either.
-- **A few `TextStyle` and `Text` options are ignored on Bangla.**
-  `textDirection`, `softWrap` and `tightBounds` are honoured on the
-  `package:pdf` path but dropped once a string is shaped. Alignment,
-  `maxLines`, `lineSpacing`, `letterSpacing` and page spanning all work.
+- **Right-to-left text is not reordered.** `textDirection` decides which edge
+  `TextAlign.start` resolves to, but a right-to-left script mixed into a string
+  is drawn in logical order — that needs a bidi pass, which is not implemented.
+  Bengali itself is left-to-right, so this only matters for mixed Arabic or
+  Hebrew.
 - **Form fields shape only their appearance.** `pw.TextField` and
   `pw.ChoiceField` draw a shaped value, but once a reader lets someone edit the
   field it re-renders from the form font. No PDF producer controls that.

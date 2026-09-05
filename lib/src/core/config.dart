@@ -21,12 +21,18 @@ enum BanglaShapingMode {
 /// Package-wide configuration.
 ///
 /// Everything here is optional: with no configuration at all, [Text] and the
-/// other widgets shape Bangla correctly using the bundled Noto Sans Bengali.
+/// other widgets shape Bangla correctly using the bundled Kalpurush.
 class BanglaPdf {
   BanglaPdf._();
 
   static BanglaShapingMode _shapingMode = BanglaShapingMode.auto;
   static pw.Font? _defaultFont;
+  static List<pw.Font> _fallbackFonts = const <pw.Font>[];
+
+  /// Fonts consulted, in order, for characters the active font cannot draw.
+  ///
+  /// Empty by default. See [configure].
+  static List<pw.Font> get fallbackFonts => _fallbackFonts;
 
   /// The active shaping mode. Defaults to [BanglaShapingMode.auto].
   static BanglaShapingMode get shapingMode => _shapingMode;
@@ -38,12 +44,21 @@ class BanglaPdf {
   /// `pw.Font.ttf` works: a `pw.Font.ttf` that covers Bengali is upgraded to a
   /// shaping font here, so callers do not have to know which to use. A legacy
   /// Bijoy face is kept as it is and drives the 1.0.x transcoding path.
+  /// [fallbackFonts] are consulted, in order, for any character the active
+  /// font has no glyph for — accented Latin, currency signs, arrows, emoji.
+  /// It is the package-wide equivalent of `TextStyle.fontFallback`, which is
+  /// also honoured and takes precedence.
+  ///
+  /// No Bangla font covers emoji or symbols, so supplying a fallback is the
+  /// only way to render them. Pass an empty list to clear.
   static void configure({
     BanglaShapingMode? shapingMode,
     pw.Font? defaultFont,
+    List<pw.Font>? fallbackFonts,
   }) {
     if (shapingMode != null) _shapingMode = shapingMode;
     if (defaultFont != null) _defaultFont = _promoteToShaping(defaultFont);
+    if (fallbackFonts != null) _fallbackFonts = List<pw.Font>.of(fallbackFonts);
   }
 
   /// Re-reads a plain `pw.Font.ttf` as a shaping font when it can draw Bangla
@@ -59,6 +74,7 @@ class BanglaPdf {
   static void reset() {
     _shapingMode = BanglaShapingMode.auto;
     _defaultFont = null;
+    _fallbackFonts = const <pw.Font>[];
   }
 
   /// Loads a Unicode Bangla font for the shaping pipeline.
@@ -88,6 +104,45 @@ class BanglaPdf {
     // auto: only take the Unicode path if this font really covers Bangla.
     return font.canShapeBangla ? font : null;
   }
+
+  /// Fonts to consult, in order, for characters [style]'s font cannot draw.
+  ///
+  /// The style's own `fontFallback` comes first, then anything given to
+  /// [configure]. Each is re-read as a shaping font so its glyph ids and
+  /// advances are reachable; one that cannot be parsed is skipped rather than
+  /// failing the layout. A fallback is exempt from the Bangla-coverage test
+  /// that [resolveShapingFont] applies -- an emoji or Latin face covers no
+  /// Bangla by definition, which is the whole point of it.
+  static List<BanglaUnicodeFont> resolveFallbacks(pw.TextStyle? style) {
+    final requested = <pw.Font>[
+      ...?style?.fontFallback,
+      ..._fallbackFonts,
+    ];
+    if (requested.isEmpty) return const <BanglaUnicodeFont>[];
+
+    final out = <BanglaUnicodeFont>[];
+    for (final font in requested) {
+      if (font is BanglaUnicodeFont) {
+        out.add(font);
+        continue;
+      }
+      if (font is! pw.TtfFont) continue;
+      final cached = _fallbackCache[font];
+      if (cached is BanglaUnicodeFont) {
+        out.add(cached);
+        continue;
+      }
+      final parsed = BanglaUnicodeFont.tryParse(font.data);
+      if (parsed == null) continue;
+      _fallbackCache[font] = parsed;
+      out.add(parsed);
+    }
+    return out;
+  }
+
+  /// Parsing a TTF is not free and `build` runs per layout pass.
+  static final Expando<Object> _fallbackCache =
+      Expando<Object>('banglaPdfFallback');
 
   /// Whether [font] can draw every rune of [text].
   ///

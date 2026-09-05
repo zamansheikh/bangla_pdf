@@ -1,3 +1,48 @@
+## 1.6.0
+
+Characters your Bangla font does not have now render, and the three `Text`
+options that were being ignored are honoured.
+
+### Added
+
+- **Font fallback.** `TextStyle.fontFallback` is honoured, and
+  `BanglaPdf.configure(fallbackFonts: [...])` sets a chain for the whole
+  document. Each character is drawn by the first font in the chain that has a
+  glyph for it.
+
+  This is the fix for missing characters generally. Measured across the five
+  tested faces, no Bangla typeface contains arrows, symbols or emoji, and most
+  barely cover Latin-1 — the bundled Kalpurush has 206 glyphs in total, of
+  which 8 of 96 Latin-1 and 0 of 128 Latin Extended-A. So `café`, `±`, `°`,
+  `€` and emoji were all silently dropped. Swapping the default typeface could
+  not have fixed this; only a fallback chain can.
+
+  Bengali is never affected: it is always drawn by the Bangla font, and a
+  fallback boundary can never fall inside a cluster, because combining marks
+  stay with the base they follow.
+
+- **`tightBounds`** measures real ink now. `OtFont` gained per-glyph extents
+  read from `glyf`/`loca`, so the box hugs the glyphs actually drawn instead of
+  the font's ascent and descent. A font without TrueType outlines falls back to
+  the font metrics.
+
+- **`softWrap: false`** lays the text out on a single line.
+
+- **`textDirection`** resolves `TextAlign.start` and `end` to the correct edge.
+  It does not reorder right-to-left text; that needs a bidi pass and is now
+  stated as a limitation rather than left to be discovered.
+
+### Fixed
+
+- `BanglaPdf`'s class documentation claimed the bundled font was Noto Sans
+  Bengali. It is Kalpurush, as it has been since 1.0.
+
+### Notes
+
+- The bundled typeface is unchanged. Kalpurush stays the default so existing
+  documents keep their appearance; a fallback chain is the supported way to
+  widen coverage.
+
 ## 1.5.0
 
 Long Bangla documents and justified Bangla text both work now. These were the

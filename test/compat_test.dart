@@ -451,6 +451,140 @@ void main() {
     });
   });
 
+  group('missing characters', () {
+    // Kalpurush has almost no Latin-1 and no Latin Extended-A, so these are
+    // the characters a Bangla document actually loses. SolaimanLipi has them.
+    const mixed = 'বাংলা café — naïve ± 50°C';
+
+    pw.Font fallbackFont() => pw.Font.ttf(
+          File('test/fixtures/fonts/SolaimanLipi.ttf')
+              .readAsBytesSync()
+              .buffer
+              .asByteData(),
+        );
+
+    /// PostScript names of the fonts embedded in [bytes].
+    Set<String> embeddedFonts(Uint8List bytes) =>
+        RegExp(r'/BaseFont\s*/([A-Za-z0-9+\-]+)')
+            .allMatches(latin1.decode(bytes, allowInvalid: true))
+            .map((m) => m.group(1)!)
+            .toSet();
+
+    test('a fallback font supplies what the primary lacks', () async {
+      // Extraction cannot answer this: /ActualText carries the source text
+      // whether or not a glyph was drawn. What the file embeds, and how wide
+      // the line comes out, is the evidence that the characters were rendered.
+      final plain = pw.Text(mixed);
+      final withFallback = pw.Text(
+        mixed,
+        style: pw.TextStyle(fontFallback: <pw.Font>[fallbackFont()]),
+      );
+
+      final pdf = pw.Document(compress: false);
+      pdf.addPage(
+        pw.Page(
+          build: (context) => pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: <pw.Widget>[plain, withFallback],
+          ),
+        ),
+      );
+      final bytes = await pdf.save();
+
+      final fonts = embeddedFonts(bytes);
+      expect(fonts.length, 2, reason: 'expected the fallback to be embedded');
+      expect(fonts.any((f) => f.contains('SolaimanLipi')), isTrue);
+
+      // The line measures differently, because the real glyphs replace the
+      // primary font's .notdef -- which is itself a box with an advance, so
+      // the fallback can come out either wider or narrower. That it changed
+      // at all is what shows the fallback was used.
+      expect(
+        (withFallback.box!.width - plain.box!.width).abs(),
+        greaterThan(0.5),
+      );
+
+      // And the Bangla is untouched either way.
+      expect(
+        flatten(BanglaPdfExtractor.extract(bytes).text),
+        contains('বাংলা'),
+      );
+    });
+
+    test('configure(fallbackFonts:) applies without touching each style',
+        () async {
+      final plain = await page(pw.Text(mixed));
+      BanglaPdf.configure(fallbackFonts: <pw.Font>[fallbackFont()]);
+      final configured = await page(pw.Text(mixed));
+
+      expect(embeddedFonts(plain).length, 1);
+      expect(embeddedFonts(configured).length, 2);
+      expect(
+        embeddedFonts(configured).any((f) => f.contains('SolaimanLipi')),
+        isTrue,
+      );
+    });
+  });
+
+  group('layout options', () {
+    Future<void> layOut(List<pw.Widget> children) async {
+      final pdf = pw.Document();
+      pdf.addPage(
+        pw.Page(
+          pageFormat: const PdfPageFormat(140, 400, marginAll: 10),
+          build: (context) => pw.Column(children: children),
+        ),
+      );
+      await pdf.save();
+    }
+
+    test('tightBounds hugs the glyphs instead of the font metrics', () async {
+      final loose = pw.Text('বাংলা', style: const pw.TextStyle(fontSize: 20));
+      final tight = pw.Text(
+        'বাংলা',
+        style: const pw.TextStyle(fontSize: 20),
+        tightBounds: true,
+      );
+      await layOut(<pw.Widget>[loose, tight]);
+      expect(tight.box!.height, lessThan(loose.box!.height));
+      expect(tight.box!.height, greaterThan(0));
+    });
+
+    test('softWrap: false keeps the text on one line', () async {
+      const line = 'বাংলাদেশ সরকার অফিস আদেশ জারি';
+      final wrapped = pw.Text(line, style: const pw.TextStyle(fontSize: 12));
+      final single = pw.Text(
+        line,
+        style: const pw.TextStyle(fontSize: 12),
+        softWrap: false,
+      );
+      await layOut(<pw.Widget>[wrapped, single]);
+      expect(single.box!.height, lessThan(wrapped.box!.height));
+      expect(single.box!.width, greaterThan(wrapped.box!.width));
+    });
+
+    test('textDirection.rtl flips which edge start aligns to', () async {
+      Future<double> widthUnder(pw.TextDirection direction) async {
+        final widget = pw.Text(
+          'বাংলা',
+          textAlign: pw.TextAlign.start,
+          textDirection: direction,
+        );
+        final pdf = pw.Document();
+        pdf.addPage(pw.Page(build: (context) => widget));
+        await pdf.save();
+        return widget.box!.width;
+      }
+
+      // `start` means left under ltr, so the box hugs the text; under rtl it
+      // means right, so the box takes the full width to align against it.
+      expect(
+        await widthUnder(pw.TextDirection.rtl),
+        greaterThan(await widthUnder(pw.TextDirection.ltr)),
+      );
+    });
+  });
+
   group('choosing a font', () {
     pw.Font fixture(String name) => pw.Font.ttf(
           File('test/fixtures/fonts/$name')

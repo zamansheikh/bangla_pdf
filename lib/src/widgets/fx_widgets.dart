@@ -105,6 +105,10 @@ class Text extends pw.StatelessWidget {
         // Opt-in, as in package:pdf: only `span` lets a MultiPage break the
         // text across pages, so existing callers see no change.
         canSpanPages: overflow == pw.TextOverflow.span,
+        fallbackFonts: BanglaPdf.resolveFallbacks(effective),
+        softWrap: softWrap ?? true,
+        tightBounds: tightBounds,
+        textDirection: textDirection ?? pw.TextDirection.ltr,
       );
     }
 
