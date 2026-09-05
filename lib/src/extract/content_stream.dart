@@ -136,6 +136,15 @@ PageContent walkContentStream(Uint8List content, Map<String, FontInfo> fonts) {
   String decode(PdfStringObj s) {
     final font = currentFont;
     if (font == null) return s.asLatin1;
+
+    // Nothing in the document says what these codes mean, so read the glyphs
+    // back through the embedded font. Last resort, and only for a font that
+    // offers no mapping at all.
+    if (font.hasNoTextMapping) {
+      final unshaped = font.unshape(font.codes(s.bytes));
+      if (unshaped != null) return unshaped;
+    }
+
     final buffer = StringBuffer();
     for (final code in font.codes(s.bytes)) {
       final mapped = font.unicodeFor(code);

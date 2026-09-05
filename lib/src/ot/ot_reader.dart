@@ -85,6 +85,30 @@ class Coverage {
   }
 
   bool covers(int glyph) => indexOf(glyph) != null;
+
+  /// Covered glyph ids in coverage-index order.
+  ///
+  /// Needed to walk a subtable's parallel arrays, where entry *i* belongs to
+  /// the glyph whose coverage index is *i*.
+  List<int> get glyphs {
+    final out = <int>[];
+    for (final entry in _single.entries) {
+      while (out.length <= entry.value) {
+        out.add(0);
+      }
+      out[entry.value] = entry.key;
+    }
+    for (final range in _ranges) {
+      for (var g = range.start; g <= range.end; g++) {
+        final index = range.value + (g - range.start);
+        while (out.length <= index) {
+          out.add(0);
+        }
+        out[index] = g;
+      }
+    }
+    return out;
+  }
 }
 
 /// A `[start, end] -> value` range, shared by Coverage and ClassDef format 2.

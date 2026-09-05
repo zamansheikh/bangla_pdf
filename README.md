@@ -68,7 +68,7 @@ drop-in; the other three use the package's own widgets.</sub>
 
 ```yaml
 dependencies:
-  bangla_pdf: ^1.7.0
+  bangla_pdf: ^1.8.0
 ```
 
 Now change one import:
@@ -192,6 +192,13 @@ print(result.text);
 print(result.encodingDetected);   // unicode | bijoy | mixed | none
 ```
 
+It also reads documents that carry **no text at all**. If a PDF has no
+`/ToUnicode` and no `/ActualText` — the case where every other extractor gives
+up — the embedded font is read backwards to work out which characters produced
+the glyphs on the page. Conjuncts come back whole, and reph and pre-base vowel
+signs are put back into typing order. Measured on the 253-case corpus, **243 of
+251 (97%)** come back exactly.
+
 It also rescues **Bijoy** documents — the government and newspaper PDFs where
 copying text gives you `Avgvi ‡mvbvi evsjv` instead of `আমার সোনার বাংলা`. Those
 are detected and converted back for you.
@@ -312,14 +319,15 @@ Chrome, Android and LibreOffice — over a 253-case corpus:
 
 The text survives the round trip too: **249 of 251** cases come back out of a
 generated PDF identical to what went in, checked with `pdftotext`. Extraction
-recovers **8 of 8** fixture documents exactly and correctly reports both scanned
-ones as having no text layer.
+recovers **8 of 8** fixture documents exactly, correctly reports both scanned
+ones as having no text layer, and recovers **243 of 251** corpus cases from
+glyph ids alone when a document carries no text mapping.
 
 Signature parity is checked too: a script diffs all 14 replacement
 constructors against their `package:pdf` counterparts, and all **156
 parameters** match.
 
-All of it runs on every commit — `flutter test` is 80 tests.
+All of it runs on every commit — `flutter test` is 86 tests.
 
 <details>
 <summary>How the shaping actually works</summary>
@@ -360,9 +368,12 @@ Full write-ups live in the repository: the [verification report][report] and the
 
 ## ⚠️ Known limitations
 
-- **Extraction cannot rescue every third-party PDF.** A document with no
-  `/ToUnicode` and no `/ActualText` cannot be recovered — that needs reversing
-  the shaping from glyph ids back to characters, which is not implemented.
+- **Un-shaping is inference, and needs the font's `GSUB`.** A document with no
+  `/ToUnicode` and no `/ActualText` is recovered by reading the embedded font
+  backwards (see above), which reconstructs the text most likely to have drawn
+  those glyphs. If the producer's subsetter dropped `GSUB` — many do, this one
+  included — only characters the `cmap` reaches come back, so conjuncts are
+  lost. Nothing invisible can be recovered either: a ZWJ draws no glyph.
 - **Encrypted PDFs are not decrypted.** `ExtractionResult.isEncrypted` says so
   rather than returning nonsense.
 - **Emoji and symbols need a fallback font.** No Bangla typeface contains

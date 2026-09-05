@@ -1,3 +1,46 @@
+## 1.8.0
+
+Text can now be recovered from PDFs that carry none — the last big gap in
+extraction.
+
+### Added
+
+- **Un-shaping.** A document with no `/ToUnicode` CMap and no `/ActualText` has
+  thrown its text away; all that survives is which glyph was drawn. Such a
+  document is now read by taking the embedded font apart backwards: every
+  `GSUB` substitution it declares — single, multiple, alternate and ligature,
+  including through extension lookups — is inverted into "this glyph came from
+  those", then resolved until each glyph is expressed as codepoints the `cmap`
+  knows.
+
+  Decoding alone is not enough, because Bengali draws a cluster out of order,
+  so reph and pre-base vowel signs are moved back into typing order and the
+  pairs Unicode writes as one character are recomposed.
+
+  **243 of 251 corpus cases (97%)** come back exactly. The shortfall is text
+  that is not in the glyphs at all: an emoji the font cannot draw, a ZWJ (which
+  is invisible), and the dotted circles the shaper inserts for a vowel sign
+  typed with no consonant.
+
+  It is used only as a last resort. A document that carries a real `/ToUnicode`
+  is unaffected — that is authoritative, where this is inference.
+
+- `/CIDToGIDMap` streams are honoured, so a CID font that remaps its glyphs is
+  read correctly rather than by assuming identity.
+
+### Notes
+
+- Inverting `GSUB` cannot always tell which side of a consonant its virama
+  belongs on: a reph is typed `র` then virama and a ya-phala the other way
+  round, yet a font lists both the same way. Rather than guess, a decode is
+  confirmed by shaping it again and keeping it only if the same glyphs come
+  back; where they do not, virama positions are flipped until they do. That
+  search is bounded, so a long ambiguous run keeps its unverified reading
+  rather than costing exponential time.
+- If a producer's subsetter dropped `GSUB`, only what the `cmap` reaches can be
+  recovered. This package's own subsetter drops it too, which is harmless
+  because its documents always carry `/ActualText`.
+
 ## 1.7.0
 
 Documents are now a fraction of their former size: only the glyphs actually

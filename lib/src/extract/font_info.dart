@@ -9,6 +9,7 @@ library;
 import 'dart:typed_data';
 
 import 'package:bangla_pdf/src/extract/bijoy.dart';
+import 'package:bangla_pdf/src/extract/glyph_reverse.dart';
 import 'package:bangla_pdf/src/extract/pdf_lexer.dart';
 import 'package:bangla_pdf/src/extract/pdf_object.dart';
 import 'package:bangla_pdf/src/extract/pdf_reader.dart';
@@ -23,10 +24,13 @@ class FontInfo {
     required this.toUnicode,
     required this.differences,
     required this.embedded,
+    required this.cidToGid,
   });
 
   /// Reads the font dictionary [dict].
   factory FontInfo.parse(PdfReader reader, PdfDictObj dict) {
+    // ignore: prefer_final_locals
+    var cidToGid = <int, int>{};
     final subtypeObj = reader.resolve(dict['Subtype']);
     final subtype = subtypeObj is PdfNameObj ? subtypeObj.value : '';
     final baseObj = reader.resolve(dict['BaseFont']);
@@ -96,6 +100,19 @@ class FontInfo {
       }
     }
 
+    // A CID font may remap CIDs onto glyph ids with a stream; Identity means
+    // the CID is the glyph id, which is by far the common case.
+    final mapObj = reader.resolve(descendant['CIDToGIDMap']);
+    if (mapObj is PdfStreamObj) {
+      final data = reader.decoded(mapObj);
+      if (data != null) {
+        for (var cid = 0; cid * 2 + 1 < data.length; cid++) {
+          final gid = (data[cid * 2] << 8) | data[cid * 2 + 1];
+          if (gid != 0) cidToGid[cid] = gid;
+        }
+      }
+    }
+
     return FontInfo._(
       baseFont: baseFont,
       subtype: subtype,
@@ -103,6 +120,7 @@ class FontInfo {
       toUnicode: toUnicode,
       differences: differences,
       embedded: embedded,
+      cidToGid: cidToGid,
     );
   }
 
@@ -123,6 +141,41 @@ class FontInfo {
 
   /// The embedded font program, when one could be parsed.
   final OtFont? embedded;
+
+  /// CID -> glyph id, from a `/CIDToGIDMap` stream. Empty means identity.
+  final Map<int, int> cidToGid;
+
+  /// Whether this font says nothing about what its codes mean.
+  ///
+  /// Such a font is the case un-shaping exists for: all that survives is which
+  /// glyph was drawn.
+  bool get hasNoTextMapping => toUnicode.isEmpty && differences.isEmpty;
+
+  /// The font's glyphs read backwards, built on first use.
+  ///
+  /// Only ever consulted when the document offers nothing better, because a
+  /// reverse map is inference: it reconstructs the text most likely to have
+  /// produced a glyph, which is not always the text that did.
+  late final GlyphReverseMap? reverseMap = () {
+    final font = embedded;
+    if (font == null || !hasNoTextMapping) return null;
+    final map = GlyphReverseMap.build(font);
+    return map.isEmpty ? null : map;
+  }();
+
+  /// The glyph id [code] draws.
+  int glyphFor(int code) => cidToGid[code] ?? code;
+
+  /// Recovers the text of a whole run of codes by reading the glyphs back.
+  ///
+  /// Done per run rather than per code because Bengali draws a cluster out of
+  /// order — the reordering can only be undone with the run in hand.
+  String? unshape(List<int> codes) {
+    final map = reverseMap;
+    if (map == null) return null;
+    final text = map.decodeRun(codes.map(glyphFor));
+    return text.isEmpty ? null : text;
+  }
 
   /// Whether this font renders Bangla from Bijoy/ANSI byte values.
   ///
