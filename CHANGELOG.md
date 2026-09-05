@@ -1,3 +1,42 @@
+## 1.5.0
+
+Long Bangla documents and justified Bangla text both work now. These were the
+two largest gaps between shaped text and what `package:pdf` does with Latin.
+
+### Added
+
+- **Bangla text spans pages.** `ShapedTextWidget` implements
+  `SpanningWidget`, so inside a `pw.MultiPage` a paragraph marked
+  `overflow: TextOverflow.span` continues onto the next page, breaking on a
+  line boundary. Previously it threw:
+
+  ```
+  PdfException: Widget won't fit into the page as its height (665.28)
+  exceed a page height (220.0). You probably need a SpanningWidget
+  ```
+
+  which made multi-page reports and notices — the package's main use case —
+  impossible with a paragraph longer than one page. Spanning is opt-in through
+  `overflow: TextOverflow.span`, exactly as it is for `pw.RichText`, so no
+  existing document changes.
+
+- **`TextAlign.justify` justifies.** It previously fell through to left
+  alignment, silently: `pw.Paragraph` *defaults* to justify, so most callers
+  were getting ragged text without being told. Slack is shared between word
+  gaps and the last line of each paragraph is left ragged, as in any
+  typesetting system. Extraction is unaffected — a justified line and a ragged
+  one produce identical text.
+
+### Changed
+
+- The showcase notice and report now show genuinely justified body text.
+
+### Notes
+
+- `textDirection`, `softWrap` and `tightBounds` are still ignored once a string
+  is shaped; they are honoured on the `package:pdf` path. This is now stated in
+  the README rather than left to be discovered.
+
 ## 1.4.3
 
 ### Fixed

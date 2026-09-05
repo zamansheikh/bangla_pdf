@@ -102,6 +102,9 @@ class Text extends pw.StatelessWidget {
         textAlign: textAlign ?? pw.TextAlign.start,
         maxLines: maxLines,
         lineSpacing: effective?.lineSpacing ?? 1.2,
+        // Opt-in, as in package:pdf: only `span` lets a MultiPage break the
+        // text across pages, so existing callers see no change.
+        canSpanPages: overflow == pw.TextOverflow.span,
       );
     }
 

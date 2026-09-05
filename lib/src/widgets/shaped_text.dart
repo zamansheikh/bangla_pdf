@@ -38,7 +38,13 @@ class _PlacedGlyph {
 }
 
 class _Line {
-  _Line(this.glyphs, this.width, this.visualWidth, this.text);
+  _Line(
+    this.glyphs,
+    this.width,
+    this.visualWidth,
+    this.text, {
+    this.endsParagraph = false,
+  });
 
   final List<_PlacedGlyph> glyphs;
 
@@ -52,10 +58,42 @@ class _Line {
 
   /// The source text of this line, in logical order, for `/ActualText`.
   final String text;
+
+  /// Whether this is the last line of its paragraph. Such a line is left
+  /// ragged under [pw.TextAlign.justify], as it is everywhere else.
+  final bool endsParagraph;
+
+  /// A copy of this line marked as ending its paragraph.
+  _Line lastOfParagraph() =>
+      _Line(glyphs, width, visualWidth, text, endsParagraph: true);
 }
 
 /// A paragraph of Bangla text rendered through the shaping pipeline.
-class ShapedTextWidget extends pw.Widget {
+/// Which lines of a [ShapedTextWidget] belong on the page being laid out.
+///
+/// `package:pdf` hands one of these back to the widget for each new page, the
+/// same way [pw.RichText] tracks the spans it has already drawn.
+class ShapedTextContext extends pw.WidgetContext {
+  /// Index of the first line to draw on this page.
+  int lineStart = 0;
+
+  /// Index just past the last line drawn on this page.
+  int lineEnd = 0;
+
+  @override
+  void apply(ShapedTextContext other) {
+    lineStart = other.lineStart;
+    lineEnd = other.lineEnd;
+  }
+
+  @override
+  pw.WidgetContext clone() => ShapedTextContext()..apply(this);
+
+  @override
+  String toString() => 'ShapedTextContext lines $lineStart -> $lineEnd';
+}
+
+class ShapedTextWidget extends pw.Widget with pw.SpanningWidget {
   ShapedTextWidget({
     required this.text,
     required this.font,
@@ -66,6 +104,7 @@ class ShapedTextWidget extends pw.Widget {
     this.extraLeading = 0,
     this.maxLines,
     this.letterSpacing = 0,
+    this.canSpanPages = false,
   });
 
   /// The source text, in logical order.
@@ -98,9 +137,17 @@ class ShapedTextWidget extends pw.Widget {
   /// Extra space inserted after each cluster, in points.
   final double letterSpacing;
 
+  /// Whether the text may be split across pages in a [pw.MultiPage].
+  ///
+  /// Mirrors `package:pdf`, where a [pw.RichText] spans only when its overflow
+  /// is [pw.TextOverflow.span]. Lines are never broken in half; a page ends on
+  /// a line boundary.
+  final bool canSpanPages;
+
   List<_Line> _lines = const <_Line>[];
   double _lineHeight = 0;
   double _ascent = 0;
+  final ShapedTextContext _context = ShapedTextContext();
 
   double get _scale => fontSize / font.otf.unitsPerEm;
 
@@ -120,7 +167,7 @@ class ShapedTextWidget extends pw.Widget {
     final lines = <_Line>[];
     for (final paragraph in text.split('\n')) {
       if (paragraph.isEmpty) {
-        lines.add(_Line(const <_PlacedGlyph>[], 0, 0, ''));
+        lines.add(_Line(const <_PlacedGlyph>[], 0, 0, '', endsParagraph: true));
         continue;
       }
       lines.addAll(_layoutParagraph(paragraph, limit));
@@ -128,7 +175,22 @@ class ShapedTextWidget extends pw.Widget {
     }
     _lines = maxLines == null ? lines : lines.take(maxLines!).toList();
 
-    final natural = _lines.fold<double>(0, (w, l) => math.max(w, l.width));
+    // How many of the remaining lines fit in the space this page has left.
+    // Without spanning the widget claims all of them, exactly as before.
+    final start = canSpanPages ? _context.lineStart.clamp(0, _lines.length) : 0;
+    var end = _lines.length;
+    if (canSpanPages && constraints.hasBoundedHeight && _lineHeight > 0) {
+      final fits = (constraints.maxHeight / _lineHeight).floor();
+      // At least one line, or a page with too little room would never advance
+      // and MultiPage would loop forever.
+      end = math.min(_lines.length, start + math.max(1, fits));
+    }
+    _context
+      ..lineStart = start
+      ..lineEnd = end;
+
+    final visible = _lines.sublist(start, end);
+    final natural = visible.fold<double>(0, (w, l) => math.max(w, l.width));
     box = PdfRect(
       0,
       0,
@@ -137,15 +199,31 @@ class ShapedTextWidget extends pw.Widget {
             ? constraints.maxWidth
             : natural,
       ),
-      constraints.constrainHeight(_lineHeight * _lines.length),
+      constraints.constrainHeight(_lineHeight * visible.length),
     );
+  }
+
+  @override
+  bool get canSpan => canSpanPages;
+
+  @override
+  bool get hasMoreWidgets => canSpanPages && _context.lineEnd < _lines.length;
+
+  @override
+  pw.WidgetContext saveContext() => _context;
+
+  @override
+  void restoreContext(ShapedTextContext context) {
+    _context.lineStart = context.lineEnd;
   }
 
   /// Shapes the paragraph once, then wraps it on cluster boundaries.
   List<_Line> _layoutParagraph(String paragraph, double limit) {
     final run = font.shape(paragraph);
     if (run.glyphs.isEmpty) {
-      return <_Line>[_Line(const <_PlacedGlyph>[], 0, 0, paragraph)];
+      return <_Line>[
+        _Line(const <_PlacedGlyph>[], 0, 0, paragraph, endsParagraph: true),
+      ];
     }
 
     // Measure every cluster so wrapping never splits one.
@@ -179,6 +257,9 @@ class ShapedTextWidget extends pw.Widget {
       lines.add(_placeLine(run, clusters, widths, start, end));
       start = end;
       if (maxLines != null && lines.length >= maxLines!) break;
+    }
+    if (lines.isNotEmpty) {
+      lines[lines.length - 1] = lines.last.lastOfParagraph();
     }
     return lines;
   }
@@ -251,18 +332,65 @@ class ShapedTextWidget extends pw.Widget {
       ..setFillColor(color);
 
     try {
-      for (var i = 0; i < _lines.length; i++) {
+      for (var i = _context.lineStart; i < _context.lineEnd; i++) {
         final line = _lines[i];
         if (line.glyphs.isEmpty) continue;
-        final baseline =
-            bounds.bottom + bounds.height - _ascent - i * _lineHeight;
+        final baseline = bounds.bottom +
+            bounds.height -
+            _ascent -
+            (i - _context.lineStart) * _lineHeight;
         final originX =
             bounds.left + _alignOffset(bounds.width, line.visualWidth);
-        _paintLine(canvas, pdfFont, line, originX, baseline);
+        _paintLine(
+          canvas,
+          pdfFont,
+          line,
+          originX,
+          baseline,
+          _justifyShifts(line, bounds.width),
+        );
       }
     } finally {
       canvas.restoreContext();
     }
+  }
+
+  /// Extra x for each glyph so the line fills [available], for
+  /// [pw.TextAlign.justify]. Returns `null` when the line is left as it is.
+  ///
+  /// The slack is shared equally between word gaps, and every glyph after a
+  /// gap moves by the running total. Marks carry absolute positions, so they
+  /// shift with the glyph they sit over.
+  List<double>? _justifyShifts(_Line line, double available) {
+    if (textAlign != pw.TextAlign.justify || line.endsParagraph) return null;
+    final slack = available - line.visualWidth;
+    if (slack <= 0 || line.glyphs.isEmpty) return null;
+
+    var lastVisible = -1;
+    for (var i = line.glyphs.length - 1; i >= 0; i--) {
+      if (line.glyphs[i].text != ' ') {
+        lastVisible = i;
+        break;
+      }
+    }
+    final gaps = <int>[
+      for (var i = 0; i < lastVisible; i++)
+        if (line.glyphs[i].text == ' ') i,
+    ];
+    if (gaps.isEmpty) return null;
+
+    final per = slack / gaps.length;
+    final shifts = List<double>.filled(line.glyphs.length, 0);
+    var running = 0.0;
+    var next = 0;
+    for (var i = 0; i < line.glyphs.length; i++) {
+      shifts[i] = running;
+      if (next < gaps.length && i == gaps[next]) {
+        running += per;
+        next++;
+      }
+    }
+    return shifts;
   }
 
   double _alignOffset(double available, double lineWidth) =>
@@ -285,14 +413,21 @@ class ShapedTextWidget extends pw.Widget {
     _Line line,
     double originX,
     double baseline,
+    List<double>? shifts,
   ) {
     final flow = <_PlacedGlyph>[];
+    final flowShift = <double>[];
     final marks = <_PlacedGlyph>[];
-    for (final glyph in line.glyphs) {
+    final markShift = <double>[];
+    for (var i = 0; i < line.glyphs.length; i++) {
+      final glyph = line.glyphs[i];
+      final shift = shifts == null ? 0.0 : shifts[i];
       if (glyph.advance == 0 && (glyph.x != 0 || glyph.yOffset != 0)) {
         marks.add(glyph);
+        markShift.add(shift);
       } else {
         flow.add(glyph);
+        flowShift.add(shift);
       }
     }
 
@@ -311,10 +446,11 @@ class ShapedTextWidget extends pw.Widget {
     if (flow.isNotEmpty) {
       final cids = <int>[];
       final adjustments = <int>[];
-      final startX = originX + flow.first.x;
+      final startX = originX + flow.first.x + flowShift.first;
       var pen = startX;
-      for (final glyph in flow) {
-        final want = originX + glyph.x;
+      for (var i = 0; i < flow.length; i++) {
+        final glyph = flow[i];
+        final want = originX + glyph.x + flowShift[i];
         // TJ numbers move the pen left, in thousandths of the font size.
         final adjust = ((pen - want) * 1000 / fontSize).round();
         cids.add(pdfFont.cidFor(glyph.gid, glyph.text, glyph.advance));
@@ -330,7 +466,8 @@ class ShapedTextWidget extends pw.Widget {
       );
     }
 
-    for (final mark in marks) {
+    for (var i = 0; i < marks.length; i++) {
+      final mark = marks[i];
       canvas.drawString(
         pdfFont,
         fontSize,
@@ -338,7 +475,7 @@ class ShapedTextWidget extends pw.Widget {
           <int>[pdfFont.cidFor(mark.gid, mark.text, mark.advance)],
           <int>[0],
         ),
-        originX + mark.x,
+        originX + mark.x + markShift[i],
         baseline + mark.yOffset,
       );
     }

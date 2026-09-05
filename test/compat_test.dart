@@ -335,6 +335,122 @@ void main() {
     });
   });
 
+  group('spanning pages', () {
+    const paragraph =
+        'গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের স্থানীয় সরকার বিভাগ কর্তৃক জারিকৃত '
+        'এই পরিপত্রে বলা হয়েছে যে, নির্ধারিত ফরম পূরণ করে সংশ্লিষ্ট কার্যালয়ে '
+        'জমা দিতে হবে এবং কর্তৃপক্ষের নির্দেশক্রমে বিষয়টি নিষ্পত্তি করা হবে। ';
+
+    Future<Uint8List> multiPage(String text, pw.TextOverflow overflow) {
+      final pdf = pw.Document();
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: const PdfPageFormat(400, 260, marginAll: 20),
+          build: (context) => <pw.Widget>[pw.Text(text, overflow: overflow)],
+        ),
+      );
+      return pdf.save();
+    }
+
+    test('a long Bangla paragraph breaks across pages', () async {
+      final source = paragraph * 12;
+      final result = BanglaPdfExtractor.extract(
+        await multiPage(source, pw.TextOverflow.span),
+      );
+
+      // Several pages, and every word survives in order exactly once: no line
+      // dropped at a page break and none repeated.
+      expect(result.pages.length, greaterThan(2));
+      expect(flatten(result.text), flatten(source));
+    });
+
+    test('without overflow: span it behaves as package:pdf does', () async {
+      // pw.RichText spans only when its overflow is `span`; anything taller
+      // than the page otherwise fails, for Bangla and Latin alike. The point
+      // is that both scripts behave the same way, not that either succeeds.
+      Future<Object?> failure(Future<void> Function() body) async {
+        try {
+          await body();
+          return null;
+        } catch (error) {
+          return error;
+        }
+      }
+
+      final bangla = await failure(
+        () => multiPage(paragraph * 12, pw.TextOverflow.visible),
+      );
+      final latin = await failure(() async {
+        final pdf = pw.Document();
+        pdf.addPage(
+          pw.MultiPage(
+            pageFormat: const PdfPageFormat(400, 260, marginAll: 20),
+            build: (context) => <pw.Widget>[
+              pw.Text('The quick brown fox jumps over it. ' * 60),
+            ],
+          ),
+        );
+        await pdf.save();
+      });
+
+      expect(bangla, isNotNull, reason: 'Bangla should overflow like Latin');
+      expect(latin, isNotNull, reason: 'package:pdf itself refuses this');
+    });
+
+    test('a short paragraph is unaffected by being spannable', () async {
+      final result = BanglaPdfExtractor.extract(
+        await multiPage(paragraph, pw.TextOverflow.span),
+      );
+      expect(result.pages.length, 1);
+      expect(flatten(result.text), flatten(paragraph));
+    });
+  });
+
+  group('alignment', () {
+    const sentence =
+        'গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের স্থানীয় সরকার বিভাগ কর্তৃক জারিকৃত এই '
+        'পরিপত্রে বলা হয়েছে যে, নির্ধারিত ফরম পূরণ করে সংশ্লিষ্ট কার্যালয়ে জমা '
+        'দিতে হবে এবং কর্তৃপক্ষের নির্দেশক্রমে বিষয়টি নিষ্পত্তি করা হবে।';
+
+    Future<Uint8List> aligned(pw.TextAlign align) {
+      final pdf = pw.Document(compress: false);
+      pdf.addPage(
+        pw.Page(
+          pageFormat: const PdfPageFormat(360, 300, marginAll: 24),
+          build: (context) => pw.Text(
+            sentence,
+            textAlign: align,
+            style: const pw.TextStyle(fontSize: 10),
+          ),
+        ),
+      );
+      return pdf.save();
+    }
+
+    test('justify spreads the slack instead of falling back to left', () async {
+      // Justification is applied by shifting glyphs, so the give-away is that
+      // the content stream differs from the ragged one.
+      final justified = await aligned(pw.TextAlign.justify);
+      final ragged = await aligned(pw.TextAlign.start);
+      expect(
+        latin1.decode(justified, allowInvalid: true),
+        isNot(latin1.decode(ragged, allowInvalid: true)),
+        reason: 'justify produced the same output as start',
+      );
+    });
+
+    test('justifying does not disturb the text that comes back out', () async {
+      final justified = BanglaPdfExtractor.extract(
+        await aligned(pw.TextAlign.justify),
+      );
+      final ragged = BanglaPdfExtractor.extract(
+        await aligned(pw.TextAlign.start),
+      );
+      expect(flatten(justified.text), flatten(sentence));
+      expect(flatten(justified.text), flatten(ragged.text));
+    });
+  });
+
   group('choosing a font', () {
     pw.Font fixture(String name) => pw.Font.ttf(
           File('test/fixtures/fonts/$name')

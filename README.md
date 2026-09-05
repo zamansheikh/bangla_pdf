@@ -68,7 +68,7 @@ drop-in; the other three use the package's own widgets.</sub>
 
 ```yaml
 dependencies:
-  bangla_pdf: ^1.4.3
+  bangla_pdf: ^1.5.0
 ```
 
 Now change one import:
@@ -143,6 +143,10 @@ pw.Text('Invoice #1042 — মোট ৳১২,৫০০.০০ — তারি
 And a string with **no Bangla in it never touches this package** — it goes
 straight to `package:pdf`, so your English pages render exactly as they do
 today.
+
+Long documents work the way you would expect: inside a `pw.MultiPage`, a Bangla
+paragraph marked `overflow: TextOverflow.span` breaks across pages on a line
+boundary, exactly as a Latin one does.
 
 <details>
 <summary>Prefer explicitly Bangla-named widgets? Those still exist.</summary>
@@ -291,7 +295,7 @@ Signature parity is checked too: a script diffs all 14 replacement
 constructors against their `package:pdf` counterparts, and all **156
 parameters** match.
 
-All of it runs on every commit — `flutter test` is 63 tests.
+All of it runs on every commit — `flutter test` is 68 tests.
 
 <details>
 <summary>How the shaping actually works</summary>
@@ -344,6 +348,10 @@ Full write-ups live in the repository: the [verification report][report] and the
 - **Five fonts are measured.** Others should work but are untested. A font
   relying on GSUB lookup type 8 or GPOS type 3 would not shape; no Bengali font
   tested uses either.
+- **A few `TextStyle` and `Text` options are ignored on Bangla.**
+  `textDirection`, `softWrap` and `tightBounds` are honoured on the
+  `package:pdf` path but dropped once a string is shaped. Alignment,
+  `maxLines`, `lineSpacing`, `letterSpacing` and page spanning all work.
 - **Form fields shape only their appearance.** `pw.TextField` and
   `pw.ChoiceField` draw a shaped value, but once a reader lets someone edit the
   field it re-renders from the form font. No PDF producer controls that.

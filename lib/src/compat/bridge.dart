@@ -239,6 +239,9 @@ class BanglaAwareText extends pw.StatelessWidget {
       // collapse every line to zero height.
       extraLeading: resolved.lineSpacing ?? 0,
       letterSpacing: resolved.letterSpacing ?? 0,
+      // pw.RichText spans pages only when its overflow is `span`; matching
+      // that keeps MultiPage behaving identically for Bangla and Latin.
+      canSpanPages: overflow == pw.TextOverflow.span,
     );
   }
 }
