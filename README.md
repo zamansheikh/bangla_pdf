@@ -338,14 +338,14 @@ scan — no fonts, one image per page — and all 52 pages were correctly report
 as having no text layer rather than being given invented text, with the OCR
 hook offered every page. Worth knowing if you are aiming at that kind of
 document: for scans, OCR is the only route, and the Bijoy handling above
-applies to a different class of file. Drop your own into
-`test/fixtures/real/` and `flutter test` will check them.
+applies to a different class of file. They live in `test/fixtures/real/`;
+drop your own alongside them and `flutter test` picks them up.
 
 Signature parity is checked too: a script diffs all 14 replacement
 constructors against their `package:pdf` counterparts, and all **156
 parameters** match.
 
-All of it runs on every commit — `flutter test` is 102 tests (four skip without real documents to check).
+All of it runs on every commit — `flutter test` is 102 tests.
 
 <details>
 <summary>How the shaping actually works</summary>

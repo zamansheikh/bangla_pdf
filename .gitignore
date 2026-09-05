@@ -27,3 +27,4 @@ doc/api/
 # clean clone. They are excluded from the published archive by .pubignore.
 !test/fixtures/pdfs/*.pdf
 !test/fixtures/encrypted/*.pdf
+!test/fixtures/real/*.pdf
