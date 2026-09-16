@@ -351,13 +351,17 @@ spelling rules out:
 |---|---|
 | poppler (`pdftotext`) | 24.8% |
 | this package, 1.8.0 | 23.4% |
-| this package, 1.9.0 | **1 of 14,448** |
+| this package, 1.9.0 | 1 of 14,448 |
+| this package, unreleased | **1 of 13,993** |
 
 The swaps depend on each document's words, so no fixed correction table can
 undo them; the extractor notices a CMap that contradicts its own font and reads
 the glyphs back through the font instead. The document's SutonnyMJ runs are
 genuine Bijoy and convert cleanly, and its four scanned pages are offered to
-the OCR hook. The npm port produces byte-identical text from it.
+the OCR hook. Since 1.9.0, vowel signs Word's subset pruned from the font
+(`তৃতীয়` had come back `র্ততীয়`, all 37 times) are recovered, and words in
+table cells are no longer split (`ব ণ্ট ন`); the word count falls because about
+450 such splits are gone. The npm port produces byte-identical text from it.
 
 All four live in `test/fixtures/real/`; drop your own alongside them and
 `flutter test` picks them up.
@@ -373,7 +377,7 @@ Signature parity is checked too: a script diffs all 14 replacement
 constructors against their `package:pdf` counterparts, and all **156
 parameters** match.
 
-All of it runs on every commit — `flutter test` is 111 tests.
+All of it runs on every commit — `flutter test` is 113 tests.
 
 <details>
 <summary>How the shaping actually works</summary>
@@ -450,8 +454,9 @@ Full write-ups live in the repository: the [verification report][report] and the
 - **Repairing a Word export is inference.** When a `/ToUnicode` contradicts its
   font, the text is reconstructed from the glyphs and checked by re-shaping it,
   and `confidence` counts such text at 0.75 rather than 1. It needs the embedded
-  font to keep its `cmap` and `GSUB`, which Word's subsets do. In the measured
-  document one table header still comes back split, `শ্রে ণি`.
+  font to keep its `cmap` and `GSUB`, which Word's subsets do. A vowel sign the
+  subset pruned from the font's `cmap` is named only when the document's other
+  ligatures agree on it.
 
 ---
 

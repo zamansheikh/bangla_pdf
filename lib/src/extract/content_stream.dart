@@ -28,9 +28,11 @@ const int kWordGap = -1;
 /// text object in a structure tag (`/P <</MCID 13>> BDC … EMC`). Only a span
 /// that carries `/ActualText` changes what its glyphs mean, and that is handled
 /// where the span opens and closes.
-const Set<String> _runBreakingOperators = <String>{
-  "'", '"', 'q', 'Q', 'cm', 'Do', 'BI', //
-};
+///
+/// So is the graphics state. Word clips each glyph of a table cell to the cell
+/// with `q … re W* n … Q`, mid-word, and a transformation is taken into account
+/// by comparing positions in device space.
+const Set<String> _runBreakingOperators = <String>{"'", '"', 'Do', 'BI'};
 
 /// One run of text drawn with a single font.
 class TextRun {
@@ -196,7 +198,15 @@ PageContent walkContentStream(Uint8List content, Map<String, FontInfo> fonts) {
   /// [width] is how far the show moves the pen, in units of the font size, as
   /// drawn — glyph advances less any `TJ` adjustments.
   void collect(FontInfo font, List<int> codes, double width) {
-    if (!codes.any((code) => code >= 0)) return; // nothing drawn
+    if (!codes.any((code) => code >= 0)) {
+      // Nothing drawn, but perhaps a space meant: see [shownCodes].
+      if (codes.contains(kWordGap) &&
+          glyphRunAt != null &&
+          (glyphRun.isEmpty || glyphRun.last != kWordGap)) {
+        glyphRun.add(kWordGap);
+      }
+      return;
+    }
     final (x, y) = devicePosition();
     final scale = ctm[0].abs() == 0 ? 1.0 : ctm[0].abs();
     final em = fontSize * scale;
@@ -226,6 +236,20 @@ PageContent walkContentStream(Uint8List content, Map<String, FontInfo> fonts) {
     glyphRun.addAll(codes);
     glyphRunPenX = start + width * em;
     lastShowAt = (x, y);
+  }
+
+  /// The glyph codes one string shows, for reading glyphs back.
+  ///
+  /// Word writes the spaces of Bangla text as `( ) TJ` — a single space byte
+  /// with the two-byte font still selected. That byte names no glyph and moves
+  /// no pen in [FontInfo.glyphCodes], but it is where the author typed a space,
+  /// and the next word is often placed less than a quarter em further on.
+  List<int> shownCodes(FontInfo font, Uint8List bytes) {
+    final codes = font.glyphCodes(bytes);
+    if (font.twoByte && bytes.length.isOdd && bytes.last == 0x20) {
+      codes.add(kWordGap);
+    }
+    return codes;
   }
 
   /// How far [codes] move the pen, in units of the font size.
@@ -355,7 +379,7 @@ PageContent walkContentStream(Uint8List content, Map<String, FontInfo> fonts) {
         final font = currentFont;
         if (s is PdfStringObj) {
           if (font != null && readsGlyphsBack(font)) {
-            final codes = font.glyphCodes(s.bytes);
+            final codes = shownCodes(font, s.bytes);
             collect(font, codes, widthOf(font, codes));
           } else {
             flushGlyphRun();
@@ -370,7 +394,7 @@ PageContent walkContentStream(Uint8List content, Map<String, FontInfo> fonts) {
           var width = 0.0;
           for (final item in array.values) {
             if (item is PdfStringObj) {
-              final shown = font.glyphCodes(item.bytes);
+              final shown = shownCodes(font, item.bytes);
               codes.addAll(shown);
               width += widthOf(font, shown);
             } else if (item is PdfNumObj) {

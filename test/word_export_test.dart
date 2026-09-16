@@ -122,6 +122,44 @@ void main() {
       }
     });
 
+    test('names vowel signs the font subset pruned from its cmap', () {
+      // `তৃ` is one glyph, and ৃ is not in the subset's cmap. Word's CMap calls
+      // the glyph `র্ত`, having first met it in কর্তৃপক্ষ, where the reph
+      // follows it.
+      final text = _norm(result.text);
+      int count(String word) => _norm(word).allMatches(text).length;
+      expect(count('র্ততীয়'), 0);
+      expect(count('তৃতীয়'), greaterThanOrEqualTo(37));
+      expect(text, contains(_norm('কর্তৃপক্ষ')));
+      expect(text, contains(_norm('নেতৃত্বে')));
+      // Drawn with the vowel sign before the ya-phala.
+      expect(text, contains(_norm('ন্যূনতম')));
+      expect(text, isNot(matches(RegExp(r'[\u09BE-\u09CC]\u09CD'))));
+    });
+
+    test('does not split words inside table cells', () {
+      // Word clips each glyph of a cell with `q … re W* n … Q`, which says
+      // nothing about words; its spaces there are one-byte `( )` shows.
+      final text = _norm(result.text);
+      for (final split in const <String>[
+        'ব ণ্ট ন',
+        'খ্রী ষ্ট',
+        'ঘ ণ্টা',
+        'উ ত্তর'
+      ]) {
+        expect(text, isNot(contains(_norm(split))), reason: split);
+      }
+      for (final passage in const <String>[
+        'বণ্টন',
+        'খ্রীষ্ট',
+        '১:০০ ঘণ্টা',
+        'একাধিক অংশ থাকবে না',
+        'জ্ঞান- ৩টি, দক্ষতা- ৩টি',
+      ]) {
+        expect(text, contains(_norm(passage)), reason: passage);
+      }
+    });
+
     test('does not invent symbols from bytes that are not glyphs', () {
       // A space shown as one byte with a two-byte font was read as glyph 32,
       // `=`, thousands of times. What is left are the formulas' own equals.

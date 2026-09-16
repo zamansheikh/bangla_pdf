@@ -41,7 +41,12 @@ class GlyphReverseMap {
   GlyphReverseMap._(this._textForGid, this.confidence, this._shaper);
 
   /// Builds the map for [font]. Cheap enough to do once per font.
-  factory GlyphReverseMap.build(OtFont font) {
+  ///
+  /// [documentText] is what the document itself claims each glyph id stands
+  /// for, when it says anything. It is never taken at its word — see
+  /// [_learnPrunedSigns] for the one narrow use made of it.
+  factory GlyphReverseMap.build(OtFont font,
+      {Map<int, List<String>>? documentText}) {
     // Seed with what the cmap says outright. Lower codepoints win when several
     // map to one glyph, which keeps the base character rather than a variant.
     final direct = <int, int>{};
@@ -69,6 +74,10 @@ class GlyphReverseMap {
           viramaFirst: viramaFirst.contains(i),
         );
       }
+    }
+
+    if (documentText != null) {
+      _learnPrunedSigns(direct, sources, documentText);
     }
 
     // Resolve each glyph to codepoints, expanding substitutions until only
@@ -126,7 +135,8 @@ class GlyphReverseMap {
       final text = _textForGid[list[i]] ?? fallback?.call(i);
       if (text != null && text.isNotEmpty) pieces.add(text);
     }
-    return _verify(_recompose(_toLogicalOrder(pieces)), list);
+    return _verify(
+        _recompose(_signsAfterConjuncts(_toLogicalOrder(pieces))), list);
   }
 
   /// Confirms a decode by shaping it again, and repairs it when it fails.
@@ -527,6 +537,108 @@ String _recompose(String text) {
 ///
 /// [seen] breaks the cycles a font can declare — a ligature whose component
 /// substitutes back to itself — and [depth] bounds pathological nesting.
+/// Recovers the characters of vowel signs a subsetter pruned from the `cmap`,
+/// using the document's own text — but only where the font vouches for it.
+///
+/// Word's subsets drop `ৃ`, `ূ` and friends from the `cmap` while keeping their
+/// glyphs and every ligature built from them. Such a glyph cannot be read back,
+/// and neither can `তৃ`, one glyph built from ত and it. The document's
+/// `/ToUnicode` does name them, but that is exactly the mapping that could not
+/// be trusted in the first place: for `তৃ` Word wrote `র্ত`, having first met
+/// the glyph in `কর্তৃপক্ষ`, where the reph is drawn after it.
+///
+/// So a claim counts only when it fits the ligature's structure. `তৃ` is built
+/// from `[ত, ?]`; a claim for it must be ত followed by one dependent sign, and
+/// `র্ত` is not. Claims that do fit — `পৃ`, `কৃ`, `গৃ` from the same document —
+/// vote on what `?` is, and a sign is adopted only when the votes clearly
+/// agree. A glyph shown on its own may vote too, if the document names it as a
+/// single sign. Nothing else about the document's mapping is used.
+void _learnPrunedSigns(
+  Map<int, int> direct,
+  Map<int, _Source> sources,
+  Map<int, List<String>> documentText,
+) {
+  final votes = <int, Map<int, int>>{};
+  void vote(int gid, int codepoint) {
+    final tally = votes.putIfAbsent(gid, () => <int, int>{});
+    tally[codepoint] = (tally[codepoint] ?? 0) + 1;
+  }
+
+  int? singleSign(String claim) {
+    final runes = decomposeBengali(claim).runes.toList();
+    if (runes.length != 1) return null;
+    return isDependentSign(runes.single) ? runes.single : null;
+  }
+
+  // Ligatures with exactly one component the font cannot name.
+  for (final MapEntry(key: gid, value: source) in sources.entries) {
+    if (source.components.length < 2) continue;
+    final claims = documentText[gid];
+    if (claims == null) continue;
+    final parts = [
+      for (final c in source.components)
+        _resolve(c, direct, sources, <int>{}, 0),
+    ];
+    final unknown = [
+      for (var i = 0; i < parts.length; i++)
+        if (parts[i] == null) i,
+    ];
+    if (unknown.length != 1) continue;
+    final at = unknown.single;
+    final missing = source.components[at];
+    if (direct.containsKey(missing)) continue;
+    final before = decomposeBengali(String.fromCharCodes(
+        [for (final part in parts.sublist(0, at)) ...part!]));
+    final after = decomposeBengali(String.fromCharCodes(
+        [for (final part in parts.sublist(at + 1)) ...part!]));
+    for (final claim in claims) {
+      final whole = decomposeBengali(claim);
+      if (whole.length <= before.length + after.length) continue;
+      if (!whole.startsWith(before) || !whole.endsWith(after)) continue;
+      final sign = singleSign(
+          whole.substring(before.length, whole.length - after.length));
+      if (sign != null) vote(missing, sign);
+    }
+  }
+
+  // A glyph the font knows nothing about, named by the document as one sign.
+  for (final MapEntry(key: gid, value: claims) in documentText.entries) {
+    if (direct.containsKey(gid) || sources.containsKey(gid)) continue;
+    for (final claim in claims) {
+      final sign = singleSign(claim);
+      if (sign != null) vote(gid, sign);
+    }
+  }
+
+  for (final MapEntry(key: gid, value: tally) in votes.entries) {
+    final ranked = tally.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final best = ranked.first;
+    final others = ranked.skip(1).fold(0, (sum, e) => sum + e.value);
+    // Clear agreement only: a swapped claim can slip through the structure
+    // test when a sign is exchanged with a sign, and must not decide it.
+    if (best.value >= 2 * others && best.value > others) {
+      direct[gid] = best.key;
+    }
+  }
+}
+
+/// Moves a vowel sign that precedes a virama to after the consonant it joins.
+///
+/// A vowel sign follows the whole cluster in Unicode, so a sign directly
+/// before a virama is never a spelling. Fonts draw one anyway: `ন্যূ` is shown
+/// as `নূ` with the ya-phala after it, and read back in drawing order that is
+/// `নূ্য`.
+String _signsAfterConjuncts(String text) => text.replaceAllMapped(
+      _signBeforeConjunct,
+      (m) => '${m[2]}${m[1]}',
+    );
+
+final RegExp _signBeforeConjunct = RegExp(
+  r'([\u09BE-\u09CC\u09D7]+)((?:\u09CD[\u0995-\u09B9\u09DC-\u09DF]\u09BC?)+)',
+  unicode: true,
+);
+
 List<int>? _resolve(
   int gid,
   Map<int, int> direct,

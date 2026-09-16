@@ -14,6 +14,7 @@ import 'package:bangla_pdf/src/extract/pdf_lexer.dart';
 import 'package:bangla_pdf/src/extract/pdf_object.dart';
 import 'package:bangla_pdf/src/extract/pdf_reader.dart';
 import 'package:bangla_pdf/src/ot/ot_font.dart';
+import 'package:bangla_pdf/src/shaping/bengali_categories.dart';
 
 /// A font as seen from the text-extraction side.
 class FontInfo {
@@ -188,9 +189,9 @@ class FontInfo {
       if (entry.value.isEmpty) continue;
       final own = bengaliOfGlyph[glyphFor(entry.key)];
       if (own == null) continue;
-      final claimed = _decomposeBengali(entry.value);
+      final claimed = decomposeBengali(entry.value);
       final matches = own.any(
-        (codepoint) => _decomposeBengali(String.fromCharCode(codepoint))
+        (codepoint) => decomposeBengali(String.fromCharCode(codepoint))
             .runes
             .every((c) => claimed.runes.contains(c)),
       );
@@ -223,7 +224,14 @@ class FontInfo {
   late final GlyphReverseMap? reverseMap = () {
     final font = embedded;
     if (font == null || !textMappingUntrusted) return null;
-    final map = GlyphReverseMap.build(font);
+    // What the document claims each glyph is, for the one use the map makes
+    // of it: naming vowel signs a subsetter pruned from the font's cmap.
+    final documentText = <int, List<String>>{};
+    for (final MapEntry(key: code, value: text) in toUnicode.entries) {
+      if (text.isEmpty) continue;
+      documentText.putIfAbsent(glyphFor(code), () => <String>[]).add(text);
+    }
+    final map = GlyphReverseMap.build(font, documentText: documentText);
     return map.isEmpty ? null : map;
   }();
 
@@ -467,13 +475,3 @@ class FontInfo {
     return twoByte;
   }
 }
-
-/// Splits the Bengali characters Unicode writes two ways into their parts, so
-/// a CMap entry and a font's `cmap` can be compared however either spells them:
-/// `ো` as `ে` + `া`, `ৌ` as `ে` + `ৗ`, and the nukta letters as base + nukta.
-String _decomposeBengali(String text) => text
-    .replaceAll('\u09CB', '\u09C7\u09BE')
-    .replaceAll('\u09CC', '\u09C7\u09D7')
-    .replaceAll('\u09DC', '\u09A1\u09BC')
-    .replaceAll('\u09DD', '\u09A2\u09BC')
-    .replaceAll('\u09DF', '\u09AF\u09BC');

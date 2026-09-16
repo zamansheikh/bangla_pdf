@@ -220,3 +220,21 @@ bool isConsonantCategory(IndicCategory c) =>
     c == IndicCategory.consonant ||
     c == IndicCategory.ra ||
     c == IndicCategory.placeholder;
+
+/// Splits the Bengali characters Unicode writes two ways into their parts, so
+/// texts can be compared however either spells them: `ো` as `ে` + `া`, `ৌ` as
+/// `ে` + `ৗ`, and the nukta letters as base + nukta.
+String decomposeBengali(String text) => text
+    .replaceAll('\u09CB', '\u09C7\u09BE')
+    .replaceAll('\u09CC', '\u09C7\u09D7')
+    .replaceAll('\u09DC', '\u09A1\u09BC')
+    .replaceAll('\u09DD', '\u09A2\u09BC')
+    .replaceAll('\u09DF', '\u09AF\u09BC');
+
+/// Whether [cp] is a dependent sign that attaches to a consonant.
+bool isDependentSign(int cp) {
+  final category = categoryOf(cp);
+  return category == IndicCategory.matra ||
+      category == IndicCategory.syllableModifier ||
+      category == IndicCategory.nukta;
+}

@@ -1,3 +1,20 @@
+## Unreleased
+
+### Fixed
+
+- **Vowel signs a subset pruned from the font's `cmap` are recovered.** Word's
+  NikoshBAN subsets keep the glyphs of `ৃ` and `ূ`, and ligatures such as `তৃ`,
+  but drop the signs from the `cmap`, so they could not be read back through the
+  font; `তৃতীয়` came back as `র্ততীয়` every time. The document's own claims are
+  now used for such a sign, but only where they fit the ligature's structure —
+  `পৃ`, `কৃ` voting for ৃ — and only when they agree.
+- **Words in table cells are no longer split.** Word clips each glyph of a cell
+  with `q … Q`, and writes the cell's spaces as one-byte `( )` shows; the first
+  ended a run mid-word (`ব ণ্ট ন`, `খ্রী ষ্ট`) and the second lost the space. Runs
+  now span the graphics state, and such a byte counts as a word gap.
+- **A vowel sign drawn before a ya-phala is put after it**: `নূ্যনতম` reads
+  `ন্যূনতম`.
+
 ## 1.9.0
 
 Reads Word-exported Bangla PDFs correctly. Found through a real document — the
