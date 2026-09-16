@@ -123,6 +123,10 @@ class ExtractionResult {
 
 /// Called for a page with no text layer, to supply text from elsewhere.
 ///
+/// "No text layer" includes a page that draws an image and carries no words —
+/// only a page number or stray punctuation, which is how Word stamps an
+/// inserted scan. Whatever the hook returns replaces that text.
+///
 /// The extractor does not bundle OCR. Wire in whatever engine you already
 /// have — Tesseract with the `ben` language data is the usual choice:
 ///
@@ -133,6 +137,12 @@ class ExtractionResult {
 /// );
 /// ```
 typedef BanglaOcrHook = String? Function(ExtractedPage page);
+
+/// How much a run recovered by reading glyphs back through the font counts
+/// towards confidence, against 1 for a run the document mapped itself. It is
+/// checked by re-shaping, so it is well above a guess; but it is inference,
+/// and a caller deciding whether to trust a page should be able to tell.
+const double _inferredWeight = 0.75;
 
 /// Reads Bangla text out of a PDF.
 class BanglaPdfExtractor {
@@ -177,6 +187,7 @@ class BanglaPdfExtractor {
       var pageUnicode = false;
       var pageBijoy = false;
       var mapped = 0;
+      var inferred = 0;
       var unmapped = 0;
 
       double? lastY;
@@ -208,7 +219,21 @@ class BanglaPdfExtractor {
         } else {
           buffer.write(run.text);
           if (RegExp('[ঀ-৿]').hasMatch(run.text)) pageUnicode = true;
-          if (font == null || font.toUnicode.isEmpty) {
+          // Whitespace says nothing about how well a document was read. Word
+          // draws thousands of lone spaces in a mapping-free WinAnsi font;
+          // counted, they would bury a perfectly read page.
+          if (run.text.trim().isEmpty) continue;
+          // Text read back through the font is inference, whether the document
+          // gave no mapping or one that had to be ignored: better than
+          // nothing, not as good as being told. A simple font's codes are
+          // defined by its encoding even without a CMap; only a CID font can
+          // say nothing at all.
+          if (font != null &&
+              font.textMappingUntrusted &&
+              font.reverseMap != null) {
+            inferred++;
+          } else if (font == null ||
+              (font.toUnicode.isEmpty && font.codesAreGlyphIds)) {
             unmapped++;
           } else {
             mapped++;
@@ -226,7 +251,12 @@ class BanglaPdfExtractor {
         hasImages: content.imageCount > 0,
       );
 
-      if (text.isEmpty && ocrHook != null) {
+      // A page with an image and no words is a scan even if something is
+      // written on it: Word stamps a page number on an inserted scan, and that
+      // alone must not keep the page from OCR.
+      final wordless = !RegExp(r'\p{L}', unicode: true).hasMatch(text);
+      if (ocrHook != null &&
+          (text.isEmpty || (pageResult.hasImages && wordless))) {
         final recovered = ocrHook(pageResult);
         if (recovered != null && recovered.isNotEmpty) {
           text = recovered;
@@ -247,9 +277,11 @@ class BanglaPdfExtractor {
         counted++;
         certainty += content.actualTextUsed
             ? 1.0
-            : (mapped + unmapped == 0
+            : (mapped + inferred + unmapped == 0
                 ? 0.0
-                : mapped / (mapped + unmapped) * (pageBijoy ? 0.85 : 1.0));
+                : (mapped + inferred * _inferredWeight) /
+                    (mapped + inferred + unmapped) *
+                    (pageBijoy ? 0.85 : 1.0));
       }
     }
 

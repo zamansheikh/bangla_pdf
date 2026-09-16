@@ -15,3 +15,8 @@ docs/
 
 # Stray PDFs from a manual test run must never reach the archive.
 *.pdf
+
+# Font files dropped at the root for local inspection are not part of the
+# package; the bundled fonts are embedded as Dart source under lib/.
+/*.ttf
+/*.otf

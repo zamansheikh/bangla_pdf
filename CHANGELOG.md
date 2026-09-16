@@ -1,3 +1,56 @@
+## Unreleased
+
+Reads Word-exported Bangla PDFs correctly. Found through a real document — the
+NCTB primary assessment guideline, reported as extracting badly through the npm
+port — which exposed defects shared by both packages.
+
+### Fixed
+
+- **A `/ToUnicode` that contradicts its own font is no longer believed.**
+  Microsoft Word pairs glyphs with characters by position, so every pair Bengali
+  reorders comes out exchanged: `শি` is drawn `[ি, শ]`, and the CMap records
+  `ি→শ` and `শ→ি`. Which pairs depends on each document's words, so no fixed
+  correction table can undo it. The extractor now compares the CMap with the
+  embedded font's own `cmap`, and when they disagree reads the glyphs back
+  through the font. On the reported 56-page document the share of malformed
+  Bangla words goes from 23.4% to 1 in 14,448; poppler reads 24.8%.
+- **Glyphs are read back as runs, not one operator at a time.** Word shows one
+  glyph per `Tj`, positions each with its own `Tm`, and on justified lines gives
+  each its own text object and structure tag. Run boundaries now come from
+  geometry — same baseline, pen continuity — so a vowel sign is reordered with
+  the consonant it belongs to.
+- **Un-shaping no longer reads a simple font's bytes as glyph ids.** Only a CID
+  font's codes name glyphs; a WinAnsi space read as glyph 32 of NikoshBAN
+  produced `=` 10,668 times in one document.
+- **A lone byte shown with a two-byte CID font is ignored**, as poppler does,
+  rather than taken as a glyph.
+- **A Unicode font that carries a Bengali `GSUB` is never taken for Bijoy**, even
+  when a subsetter has pruned every Bengali entry from its `cmap`. Word's WinAnsi
+  copy of NikoshBAN was being converted as Bijoy, and pages whose only text was
+  a page number were labelled `bijoy`.
+- **SutonnyMJ's alternate e-kar (`†`) and ra-phala (`Ö`)** are converted. The
+  Bijoy table is generated from the forward mapping, which only writes the
+  canonical codes, so these are handled as aliases.
+- Reordering read-back text: a pre-base vowel sign fused into a ligature (`টি`
+  as one glyph), a reph fused with its vowel sign (`র্ী`), a phala drawn after
+  the base, and a zero-width joiner drawn with the space glyph all now come back
+  in typing order.
+
+### Changed
+
+- **`ocrHook` is also offered a page that draws an image and has no words** —
+  only a page number, as Word stamps on an inserted scan. It previously saw only
+  pages with no text at all, so those scans were never offered to OCR.
+- **`confidence` counts text recovered by reading glyphs back at 0.75**, whether
+  the document had no mapping or one that had to be ignored, and no longer
+  counts whitespace-only runs or a simple font's encoded text as unmapped.
+
+### Verification
+
+- `test/word_export_test.dart`, 8 tests over the real document, 7 of which fail
+  against 1.8.0. The npm port carries the same fixture and checks, and the two
+  implementations produce byte-identical text from it.
+
 ## 1.8.0
 
 Reads the documents it previously refused: ones that carry no text, and ones

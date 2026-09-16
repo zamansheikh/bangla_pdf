@@ -79,7 +79,7 @@ class GlyphReverseMap {
     for (final gid in total) {
       final runes = _resolve(gid, direct, sources, <int>{}, 0);
       if (runes == null) continue;
-      text[gid] = String.fromCharCodes(runes);
+      text[gid] = String.fromCharCodes(_preBaseMatraLast(runes));
       resolved++;
     }
 
@@ -113,13 +113,20 @@ class GlyphReverseMap {
   /// its consonant and a reph after the base it belongs to, so the glyphs
   /// arrive in an order no reader would type. This undoes both, which is the
   /// inverse of what the shaper did on the way in.
-  String decodeRun(Iterable<int> gids) {
+  ///
+  /// [fallback] supplies text for a glyph the font itself cannot name — one a
+  /// subsetter left in the font but pruned from its `cmap`, as Word does with
+  /// `ূ`. It is asked only for those, so a document's mapping never overrides
+  /// what the font says about a glyph it does know.
+  String decodeRun(Iterable<int> gids,
+      {String? Function(int index)? fallback}) {
+    final list = gids.toList();
     final pieces = <String>[];
-    for (final gid in gids) {
-      final text = _textForGid[gid];
+    for (var i = 0; i < list.length; i++) {
+      final text = _textForGid[list[i]] ?? fallback?.call(i);
       if (text != null && text.isNotEmpty) pieces.add(text);
     }
-    return _verify(_recompose(_toLogicalOrder(pieces)), gids.toList());
+    return _verify(_recompose(_toLogicalOrder(pieces)), list);
   }
 
   /// Confirms a decode by shaping it again, and repairs it when it fails.
@@ -171,7 +178,14 @@ class GlyphReverseMap {
 }
 
 /// Reorders decoded pieces from visual to logical order.
-String _toLogicalOrder(List<String> pieces) {
+String _toLogicalOrder(List<String> drawn) {
+  final split = _splitFusedReph(drawn);
+  final pieces = <String>[
+    for (var i = 0; i < split.length; i++)
+      if (!(split[i].trim().isEmpty &&
+          _startsWithDependent(i + 1 < split.length ? split[i + 1] : null)))
+        split[i],
+  ];
   final out = <String>[];
   var i = 0;
   while (i < pieces.length) {
@@ -186,11 +200,20 @@ String _toLogicalOrder(List<String> pieces) {
         j++;
       }
       if (j < pieces.length && _isBaseLike(pieces[j])) {
-        out.add(pieces[j]);
+        // The sign follows the whole consonant cluster, not just its first
+        // glyph: a phala or nukta drawn after the base belongs before it, or
+        // লক্ষ্যে comes back as লক্ষে্য.
+        var end = j + 1;
+        while (end < pieces.length && _extendsCluster(pieces[end])) {
+          end++;
+        }
+        for (var k = j; k < end; k++) {
+          out.add(pieces[k]);
+        }
         for (var k = i; k < j; k++) {
           out.add(pieces[k]);
         }
-        i = j + 1;
+        i = end;
         continue;
       }
     }
@@ -211,6 +234,82 @@ String _toLogicalOrder(List<String> pieces) {
     i++;
   }
   return out.join();
+}
+
+/// Puts a pre-base vowel sign that leads a ligature's components after them.
+///
+/// Many fonts fuse a pre-base vowel sign with its consonant into one glyph —
+/// `টি` is a single glyph in NikoshBAN — and they build it after reordering, so
+/// its components are listed in drawing order, `ি` first. Read back as they
+/// stand they give `িট`, which nobody types. A single glyph covers one cluster,
+/// so the sign belongs at the end of it.
+List<int> _preBaseMatraLast(List<int> runes) {
+  if (runes.length < 2) return runes;
+  final first = runes.first;
+  if (categoryOf(first) != IndicCategory.matra ||
+      defaultPositionOf(first) != IndicPosition.preMatra) {
+    return runes;
+  }
+  return <int>[...runes.skip(1), first];
+}
+
+/// Separates a reph a font has fused with the mark after it.
+///
+/// Fonts commonly draw `র্` and a following vowel sign as one glyph — `র্ী` in
+/// শিক্ষার্থী — so the piece is not a bare reph and would stay where it was
+/// drawn. Split off, the reph moves to the front of its cluster and the sign
+/// stays behind the base.
+List<String> _splitFusedReph(List<String> pieces) {
+  final out = <String>[];
+  for (final piece in pieces) {
+    final runes = piece.runes.toList();
+    if (runes.length > 2 &&
+        runes[0] == 0x09B0 &&
+        runes[1] == kVirama &&
+        runes.skip(2).every(_isMark)) {
+      out
+        ..add(String.fromCharCodes(<int>[0x09B0, kVirama]))
+        ..add(String.fromCharCodes(runes.skip(2)));
+    } else {
+      out.add(piece);
+    }
+  }
+  return out;
+}
+
+/// Whether [rune] is a dependent sign rather than a letter of its own.
+bool _isMark(int rune) {
+  final category = categoryOf(rune);
+  return category == IndicCategory.matra ||
+      category == IndicCategory.syllableModifier ||
+      category == IndicCategory.nukta;
+}
+
+/// Whether [piece], drawn after a base consonant, is still part of its
+/// cluster ahead of any vowel sign: a phala or other virama-led form, or a
+/// nukta.
+bool _extendsCluster(String piece) {
+  if (piece.isEmpty) return false;
+  final first = piece.runes.first;
+  return first == kVirama || categoryOf(first) == IndicCategory.nukta;
+}
+
+/// Whether [piece] begins with something that cannot begin a word — a virama
+/// or a dependent sign.
+///
+/// A blank piece in front of one is not a word break. Fonts often give the
+/// zero-width joiner the same glyph as a space, so `ল‍্যা`, typed with a joiner,
+/// is drawn as ল, space glyph, ্যা; read back literally it becomes `ল ্যা`.
+bool _startsWithDependent(String? piece) {
+  if (piece == null || piece.isEmpty) return false;
+  final first = piece.runes.first;
+  // A pre-base vowel sign is the exception: it is drawn before its consonant,
+  // so in drawing order it does begin a word — the space before থেকে is real.
+  if (categoryOf(first) == IndicCategory.matra &&
+      defaultPositionOf(first) == IndicPosition.preMatra) {
+    return false;
+  }
+  return first == kVirama || _isMark(first);
 }
 
 bool _isPreBaseMatra(String piece) {

@@ -376,6 +376,12 @@ class OtFont {
   /// Glyph id for [rune], or `null` when the font has no glyph for it.
   int? glyphForRune(int rune) => cmap[rune];
 
+  /// Whether GSUB or GPOS has a Bengali script record (`bng2` or `beng`).
+  late final bool declaresBengaliScript = <LayoutTable?>[gsub, gpos].any(
+    (table) =>
+        table != null && (table.hasScript('bng2') || table.hasScript('beng')),
+  );
+
   /// Whether the font covers the Bengali block beyond a token codepoint or two.
   ///
   /// Used to decide whether a user-supplied font is a real Unicode Bangla font

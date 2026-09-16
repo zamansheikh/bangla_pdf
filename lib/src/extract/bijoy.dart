@@ -108,7 +108,7 @@ const Map<String, String> _nuktaComposition = <String, String>{
 /// Converts one Bijoy/ANSI run to Unicode Bangla.
 String bijoyToUnicode(String ansi) {
   if (ansi.isEmpty) return ansi;
-  var text = _restoreLogicalOrder(_substitute(ansi));
+  var text = _restoreLogicalOrder(_substitute(_canonicalBijoy(ansi)));
   for (final entry in _nuktaComposition.entries) {
     text = text.replaceAll(entry.key, entry.value);
   }
@@ -239,4 +239,25 @@ List<String> _moveRephs(List<String> units) {
     out.insertAll(at, <String>['র', _virama]);
   }
   return out;
+}
+
+/// Alternate glyph codes some Bijoy fonts use, and the canonical code each one
+/// stands for.
+///
+/// The conversion table is generated from the forward Unicode-to-Bijoy mapping,
+/// which only ever writes the canonical code, so these can never appear in it.
+/// SutonnyMJ has a second e-kar and a second ra-phala, fitted to consonants the
+/// first ones clash with; a Word document using it writes প্রথম শ্রেণি as
+/// `cÖ_g †kÖwY` rather than `cª_g ‡kªwY`.
+const Map<String, String> _bijoyAliases = <String, String>{
+  '\u2020': '\u2021', // † -> ‡, e-kar
+  '\u00D6': '\u00AA', // Ö -> ª, ra-phala
+};
+
+String _canonicalBijoy(String ansi) {
+  var text = ansi;
+  for (final entry in _bijoyAliases.entries) {
+    text = text.replaceAll(entry.key, entry.value);
+  }
+  return text;
 }

@@ -14,8 +14,9 @@ empty, and that nothing throws.
 
 ## What is here
 
-Three PDFs from a Bangladeshi government primary-education site, kept under
-their original bytes and renamed only so the filenames are ASCII:
+Four real government PDFs, kept under their original bytes and renamed only so
+the filenames are ASCII. The first three come from a Bangladeshi
+government primary-education site:
 
 | file | original title | pages |
 |---|---|---|
@@ -32,9 +33,24 @@ class of file than one might assume is typical of government output.
 All 52 pages are reported as `BanglaTextEncoding.none` with confidence 0 and
 `hasImages` true, and the OCR hook is offered every page.
 
-Still missing: a real *text-bearing* Bijoy document, the kind where copying
-gives `Avgvi ‡mvbvi evsjv`. The Bijoy path is measured only against generated
-fixtures.
+The fourth is text-bearing:
+
+| file | original title | pages |
+|---|---|---|
+| `nctb-assessment-guideline-2026.pdf` | প্রাথমিক স্তরের মূল্যায়ন নির্দেশিকা, ২০২৬ (NCTB) | 56 |
+
+Exported from Word 2013 with NikoshBAN, SutonnyMJ and Vrinda, it is the reason
+`test/word_export_test.dart` exists. Word's `/ToUnicode` maps for it exchange
+every pair of glyphs Bengali reorders; it draws one glyph per `Tj`, and one text
+object per glyph on justified lines; its WinAnsi NikoshBAN subset has no Bengali
+cmap entries left; and its SutonnyMJ runs use alternate Bijoy codes. poppler
+reads a quarter of its words as malformed; this package reads one in fourteen
+thousand. Pages 12–15 are scans stamped with a page number, and are offered to
+the OCR hook.
+
+Still missing: a document written *entirely* in Bijoy, the kind where copying
+gives `Avgvi ‡mvbvi evsjv` throughout. This one's Bijoy runs are real, but they
+are a minority of its text.
 
 ## Adding your own
 

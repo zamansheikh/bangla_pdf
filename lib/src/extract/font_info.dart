@@ -151,14 +151,78 @@ class FontInfo {
   /// glyph was drawn.
   bool get hasNoTextMapping => toUnicode.isEmpty && differences.isEmpty;
 
+  /// Whether a code in a string is a CID, and so identifies a glyph.
+  bool get codesAreGlyphIds => subtype == 'Type0';
+
+  /// Whether the `/ToUnicode` CMap disagrees with the embedded font's own
+  /// `cmap` about Bengali glyphs, badly enough that it cannot be trusted.
+  ///
+  /// Microsoft Word writes such CMaps. It pairs glyphs with characters by
+  /// position, which breaks as soon as a cluster is drawn out of typing order:
+  /// `শি` is drawn `[ি, শ]` but typed `[শ, ি]`, so the CMap records ি→শ and
+  /// শ→ি. Every reordered pair gets exchanged — ে with দ, র with ে, ৈ with ব —
+  /// and which pairs depends on which words the document happens to contain,
+  /// so no fixed correction table can undo it. The glyphs themselves are fine,
+  /// and so is the font; reading them back through the font is what recovers
+  /// the text.
+  ///
+  /// A glyph the font's `cmap` reaches directly is compared against what the
+  /// CMap claims for it. An entry that includes the glyph's own character
+  /// agrees — a cluster's first glyph legitimately carries the whole cluster's
+  /// text — and an empty entry says nothing either way.
+  late final bool toUnicodeContradictsFont = () {
+    final font = embedded;
+    if (font == null || toUnicode.isEmpty || isBijoy) return false;
+    if (!codesAreGlyphIds) return false;
+
+    final bengaliOfGlyph = <int, List<int>>{};
+    for (final entry in font.cmap.entries) {
+      if (entry.key < 0x0980 || entry.key > 0x09FF) continue;
+      (bengaliOfGlyph[entry.value] ??= <int>[]).add(entry.key);
+    }
+    if (bengaliOfGlyph.isEmpty) return false;
+
+    var agree = 0;
+    var disagree = 0;
+    for (final entry in toUnicode.entries) {
+      if (entry.value.isEmpty) continue;
+      final own = bengaliOfGlyph[glyphFor(entry.key)];
+      if (own == null) continue;
+      final claimed = _decomposeBengali(entry.value);
+      final matches = own.any(
+        (codepoint) => _decomposeBengali(String.fromCharCode(codepoint))
+            .runes
+            .every((c) => claimed.runes.contains(c)),
+      );
+      if (matches) {
+        agree++;
+      } else {
+        disagree++;
+      }
+    }
+    // One stray entry is a font with two codepoints on one glyph, or a
+    // writer's rounding; a pattern of them is a CMap that was built wrong.
+    return disagree >= 3 && disagree * 10 >= agree + disagree;
+  }();
+
+  /// Whether the document's own statement of what the codes mean should be
+  /// ignored in favour of reading the glyphs back: there is none, or it
+  /// contradicts the font it describes.
+  ///
+  /// Only a CID font's codes name glyphs. A simple font's code is a byte in an
+  /// encoding — WinAnsi, a symbol encoding, a Bijoy table — and reading it as a
+  /// glyph id turns a space into whatever glyph 32 happens to be.
+  bool get textMappingUntrusted =>
+      codesAreGlyphIds && (hasNoTextMapping || toUnicodeContradictsFont);
+
   /// The font's glyphs read backwards, built on first use.
   ///
-  /// Only ever consulted when the document offers nothing better, because a
-  /// reverse map is inference: it reconstructs the text most likely to have
+  /// Only ever consulted when the document offers nothing trustworthy, because
+  /// a reverse map is inference: it reconstructs the text most likely to have
   /// produced a glyph, which is not always the text that did.
   late final GlyphReverseMap? reverseMap = () {
     final font = embedded;
-    if (font == null || !hasNoTextMapping) return null;
+    if (font == null || !textMappingUntrusted) return null;
     final map = GlyphReverseMap.build(font);
     return map.isEmpty ? null : map;
   }();
@@ -169,12 +233,58 @@ class FontInfo {
   /// Recovers the text of a whole run of codes by reading the glyphs back.
   ///
   /// Done per run rather than per code because Bengali draws a cluster out of
-  /// order — the reordering can only be undone with the run in hand.
+  /// order — the reordering can only be undone with the run in hand. A glyph
+  /// the font cannot name — one a subsetter left in the font but pruned from
+  /// its `cmap`, as Word does with `ূ` — falls back to the document's mapping
+  /// for that glyph alone.
   String? unshape(List<int> codes) {
     final map = reverseMap;
     if (map == null) return null;
-    final text = map.decodeRun(codes.map(glyphFor));
+    final text = map.decodeRun(
+      codes.map(glyphFor),
+      fallback: (i) => toUnicode[codes[i]],
+    );
     return text.isEmpty ? null : text;
+  }
+
+  /// Recovers the text of a collected run, which may span several show
+  /// operators and contain word gaps.
+  ///
+  /// A negative code marks a gap written as a `TJ` adjustment rather than as a
+  /// space glyph; the run is read back one word at a time between them. When
+  /// the font cannot be read back at all, the document's own mapping is used,
+  /// which is no worse than not collecting the run.
+  String unshapeRun(List<int> codes) {
+    final out = StringBuffer();
+    var gap = false;
+    var word = <int>[];
+    void finish() {
+      if (word.isEmpty) return;
+      final text = unshape(word) ?? word.map((c) => unicodeFor(c) ?? '').join();
+      final so = out.toString();
+      // A gap beside a drawn space is the same space, widened by justification.
+      if (gap &&
+          so.isNotEmpty &&
+          !so.endsWith(' ') &&
+          !so.endsWith('\n') &&
+          !text.startsWith(' ')) {
+        out.write(' ');
+      }
+      out.write(text);
+      gap = false;
+      word = <int>[];
+    }
+
+    for (final code in codes) {
+      if (code < 0) {
+        finish();
+        gap = true;
+      } else {
+        word.add(code);
+      }
+    }
+    finish();
+    return out.toString();
   }
 
   /// Whether this font renders Bangla from Bijoy/ANSI byte values.
@@ -187,6 +297,13 @@ class FontInfo {
   late final bool isBijoy = () {
     final font = embedded;
     if (font != null && font.hasBengaliCoverage) return false;
+    // A face carrying Bengali shaping rules is a Unicode font, whatever its
+    // cmap says. Word subsets a font once per encoding: the WinAnsi copy of
+    // NikoshBAN it uses for digits and punctuation keeps GSUB (script `beng`)
+    // but none of the Bengali cmap entries, and the name check below would
+    // then call it Bijoy and turn its ASCII into noise. A Bijoy face is
+    // addressed by Latin byte values and has no use for a Bengali script table.
+    if (font != null && font.declaresBengaliScript) return false;
     if (looksLikeBijoyFontName(baseFont)) return true;
     if (font == null) return false;
     if (font.cmap.isEmpty) return false;
@@ -223,6 +340,18 @@ class FontInfo {
       out.add((bytes[i] << 8) | bytes[i + 1]);
     }
     if (bytes.length.isOdd) out.add(bytes.last);
+    return out;
+  }
+
+  /// The glyph ids [bytes] draw, for reading glyphs back.
+  ///
+  /// Unlike [codes], an incomplete trailing byte is dropped rather than kept:
+  /// it is not a CID, so it names no glyph. Word emits exactly that — `( ) TJ`,
+  /// one byte, with a two-byte CID font selected — and taking the byte as glyph
+  /// 32 draws whatever glyph 32 is. In NikoshBAN that is `=`.
+  List<int> glyphCodes(Uint8List bytes) {
+    final out = codes(bytes);
+    if (twoByte && bytes.length.isOdd && out.isNotEmpty) out.removeLast();
     return out;
   }
 
@@ -338,3 +467,13 @@ class FontInfo {
     return twoByte;
   }
 }
+
+/// Splits the Bengali characters Unicode writes two ways into their parts, so
+/// a CMap entry and a font's `cmap` can be compared however either spells them:
+/// `ো` as `ে` + `া`, `ৌ` as `ে` + `ৗ`, and the nukta letters as base + nukta.
+String _decomposeBengali(String text) => text
+    .replaceAll('\u09CB', '\u09C7\u09BE')
+    .replaceAll('\u09CC', '\u09C7\u09D7')
+    .replaceAll('\u09DC', '\u09A1\u09BC')
+    .replaceAll('\u09DD', '\u09A2\u09BC')
+    .replaceAll('\u09DF', '\u09AF\u09BC');

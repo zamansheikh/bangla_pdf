@@ -338,8 +338,29 @@ scan — no fonts, one image per page — and all 52 pages were correctly report
 as having no text layer rather than being given invented text, with the OCR
 hook offered every page. Worth knowing if you are aiming at that kind of
 document: for scans, OCR is the only route, and the Bijoy handling above
-applies to a different class of file. They live in `test/fixtures/real/`;
-drop your own alongside them and `flutter test` picks them up.
+applies to a different class of file.
+
+A fourth real document is text-bearing, and far harder: the NCTB primary
+assessment guideline (56 pages, exported from Word 2013 with NikoshBAN and
+SutonnyMJ). Word scrambles its text layer — its `/ToUnicode` maps pair glyphs
+with characters by position, so every pair Bengali reorders comes out
+exchanged, `ি` with `শ`, `ে` with `দ`. Measured by the share of words Unicode
+spelling rules out:
+
+| reader | malformed Bangla words |
+|---|---|
+| poppler (`pdftotext`) | 24.8% |
+| this package, 1.8.0 | 23.4% |
+| this package, now | **1 of 14,448** |
+
+The swaps depend on each document's words, so no fixed correction table can
+undo them; the extractor notices a CMap that contradicts its own font and reads
+the glyphs back through the font instead. The document's SutonnyMJ runs are
+genuine Bijoy and convert cleanly, and its four scanned pages are offered to
+the OCR hook. The npm port produces byte-identical text from it.
+
+All four live in `test/fixtures/real/`; drop your own alongside them and
+`flutter test` picks them up.
 
 The pixels are compared too, not just the numbers. 238 corpus cases are drawn
 by this package and by HarfBuzz, rendered by the same rasteriser at the same
@@ -352,7 +373,7 @@ Signature parity is checked too: a script diffs all 14 replacement
 constructors against their `package:pdf` counterparts, and all **156
 parameters** match.
 
-All of it runs on every commit — `flutter test` is 103 tests.
+All of it runs on every commit — `flutter test` is 111 tests.
 
 <details>
 <summary>How the shaping actually works</summary>
@@ -423,8 +444,14 @@ Full write-ups live in the repository: the [verification report][report] and the
   Adobe Reader have been confirmed by hand; Preview and the Android viewers
   have not.
 - **Most extraction fixtures are generated**, so their expected text is known
-  exactly. Real documents have been tested too (see below), but only a handful,
-  and all of them scans — no real *text-bearing* Bijoy PDF has been measured.
+  exactly. Four real documents have been tested too (see above): three scans
+  and one Word export whose Bijoy runs are real SutonnyMJ text. A document
+  written *entirely* in Bijoy has not been measured.
+- **Repairing a Word export is inference.** When a `/ToUnicode` contradicts its
+  font, the text is reconstructed from the glyphs and checked by re-shaping it,
+  and `confidence` counts such text at 0.75 rather than 1. It needs the embedded
+  font to keep its `cmap` and `GSUB`, which Word's subsets do. In the measured
+  document one table header still comes back split, `শ্রে ণি`.
 
 ---
 
