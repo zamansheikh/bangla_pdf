@@ -68,7 +68,7 @@ drop-in; the other three use the package's own widgets.</sub>
 
 ```yaml
 dependencies:
-  bangla_pdf: ^1.8.0
+  bangla_pdf: ^1.9.0
 ```
 
 Now change one import:
@@ -351,7 +351,7 @@ spelling rules out:
 |---|---|
 | poppler (`pdftotext`) | 24.8% |
 | this package, 1.8.0 | 23.4% |
-| this package, now | **1 of 14,448** |
+| this package, 1.9.0 | **1 of 14,448** |
 
 The swaps depend on each document's words, so no fixed correction table can
 undo them; the extractor notices a CMap that contradicts its own font and reads

@@ -1,4 +1,4 @@
-## Unreleased
+## 1.9.0
 
 Reads Word-exported Bangla PDFs correctly. Found through a real document — the
 NCTB primary assessment guideline, reported as extracting badly through the npm
