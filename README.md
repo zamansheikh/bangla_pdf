@@ -352,7 +352,8 @@ spelling rules out:
 | poppler (`pdftotext`) | 24.8% |
 | this package, 1.8.0 | 23.4% |
 | this package, 1.9.0 | 1 of 14,448 |
-| this package, 1.9.1 | **1 of 13,993** |
+| this package, 1.9.1 | 1 of 13,993 |
+| this package, unreleased | **none of 13,992** |
 
 The swaps depend on each document's words, so no fixed correction table can
 undo them; the extractor notices a CMap that contradicts its own font and reads

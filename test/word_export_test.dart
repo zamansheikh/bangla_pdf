@@ -94,7 +94,7 @@ void main() {
       final words = RegExp('[ঀ-৿]+').allMatches(result.text).length;
       final bad = _malformedWords(result.text);
       expect(words, greaterThan(10000));
-      // One word at the time of writing, out of over fourteen thousand.
+      // None at the time of writing, out of nearly fourteen thousand.
       expect(
         bad.length / words,
         lessThan(0.002),
@@ -135,6 +135,15 @@ void main() {
       // Drawn with the vowel sign before the ya-phala.
       expect(text, contains(_norm('ন্যূনতম')));
       expect(text, isNot(matches(RegExp(r'[\u09BE-\u09CC]\u09CD'))));
+    });
+
+    test('drops the dotted circle Word draws where a word crosses spans', () {
+      // Page 46 draws মূল and ্যায়নের as separate spans; Word's shaper puts ◌
+      // in front of the virama that starts the second.
+      final page = _norm(result.pages[45].text);
+      expect(page, contains(_norm('প্রান্তিক মূল্যায়নের পূর্বে')));
+      expect(result.text, isNot(contains('\u25CC')));
+      expect(_malformedWords(result.text), isEmpty);
     });
 
     test('does not split words inside table cells', () {

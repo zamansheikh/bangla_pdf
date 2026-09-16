@@ -136,7 +136,9 @@ class GlyphReverseMap {
       if (text != null && text.isNotEmpty) pieces.add(text);
     }
     return _verify(
-        _recompose(_signsAfterConjuncts(_toLogicalOrder(pieces))), list);
+        _recompose(_signsAfterConjuncts(
+            _toLogicalOrder(_withoutInsertedDottedCircles(pieces)))),
+        list);
   }
 
   /// Confirms a decode by shaping it again, and repairs it when it fails.
@@ -288,6 +290,31 @@ List<String> _splitFusedReph(List<String> pieces) {
 }
 
 /// Whether [rune] is a dependent sign rather than a letter of its own.
+/// Drops the dotted circles a shaper inserted inside a word.
+///
+/// A shaper draws `◌` before a sign that has no consonant to attach to. Word
+/// shapes each formatting span on its own, so a word split across two spans —
+/// `মূল` then `্যায়নের` — is drawn with a dotted circle where they meet, and
+/// its CMap names that glyph `্`: nobody typed it. A circle an author did type,
+/// to show a sign by itself (`◌া`), does not follow a Bangla letter, and stays.
+List<String> _withoutInsertedDottedCircles(List<String> pieces) => [
+      for (var i = 0; i < pieces.length; i++)
+        if (!_isInsertedDottedCircle(pieces, i)) pieces[i],
+    ];
+
+bool _isInsertedDottedCircle(List<String> pieces, int i) {
+  if (pieces[i] != _dottedCircle || i == 0 || i + 1 >= pieces.length) {
+    return false;
+  }
+  final last = pieces[i - 1].runes.last;
+  final first = pieces[i + 1].runes.first;
+  return last >= 0x0980 &&
+      last <= 0x09FF &&
+      (first == kVirama || _isMark(first));
+}
+
+const String _dottedCircle = '\u25CC';
+
 bool _isMark(int rune) {
   final category = categoryOf(rune);
   return category == IndicCategory.matra ||

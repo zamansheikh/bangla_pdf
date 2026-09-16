@@ -1,3 +1,14 @@
+## Unreleased
+
+### Fixed
+
+- **A dotted circle Word's shaper inserted inside a word is dropped.** Word
+  shapes each formatting span separately, so a word split across two spans
+  (`মূল` + `্যায়নের`) is drawn with `◌` before the virama that starts the
+  second, and came back as `মূল◌্যায়নের`. A dotted circle directly after a
+  Bangla letter and before a sign or virama is now left out; one an author
+  typed to show a sign on its own (`◌া`) is kept.
+
 ## 1.9.1
 
 ### Fixed
